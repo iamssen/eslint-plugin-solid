@@ -2,7 +2,7 @@ import { test, expect, expectTypeOf } from "vitest";
 
 import recommendedConfig from "eslint-plugin-solid/configs/recommended";
 import typescriptConfig from "eslint-plugin-solid/configs/typescript";
-import plugin from "eslint-plugin-solid";
+import * as plugin from "eslint-plugin-solid";
 import type * as standalone from "eslint-solid-standalone";
 
 test("flat config has meta", () => {

@@ -7,6 +7,9 @@ import tseslint from "typescript-eslint";
 // @ts-expect-error no types here
 import * as babelEslintParser from "@babel/eslint-parser";
 import { describe } from "vitest";
+import { createRequire } from "node:module";
+
+const requireModule = createRequire(import.meta.url);
 
 // add `[tsOnly]: true` into a test case to enforce it only runs with a TS parser
 export const tsOnly = Symbol("ts only");
@@ -37,7 +40,7 @@ const tsTester = new RuleTester({
 });
 
 const tsV8Tester = new RuleTester_v8({
-  parser: require.resolve("@typescript-eslint/parser"),
+  parser: requireModule.resolve("@typescript-eslint/parser"),
   parserOptions: {
     ecmaFeatures: {
       jsx: true,
@@ -61,7 +64,7 @@ const babelTester = new RuleTester({
 });
 
 const babelV8Tester = new RuleTester_v8({
-  parser: require.resolve("@babel/eslint-parser"),
+  parser: requireModule.resolve("@babel/eslint-parser"),
   parserOptions: {
     sourceType: "module",
     requireConfigFile: false,

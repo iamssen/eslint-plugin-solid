@@ -9,8 +9,11 @@ import type {
   JSONSchema4ArraySchema,
   JSONSchema4TypeName,
 } from "@typescript-eslint/utils/json-schema";
+import { fileURLToPath } from "node:url";
 
 const { rules, configs } = plugin;
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const ruleTableRows = (Object.keys(rules) as Array<keyof typeof rules & string>)
   .sort()

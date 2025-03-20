@@ -6,31 +6,35 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { TSESLint } from "@typescript-eslint/utils";
 
-import componentsReturnOnce from "./rules/components-return-once";
-import eventHandlers from "./rules/event-handlers";
-import imports from "./rules/imports";
-import jsxNoDuplicateProps from "./rules/jsx-no-duplicate-props";
-import jsxNoScriptUrl from "./rules/jsx-no-script-url";
-import jsxNoUndef from "./rules/jsx-no-undef";
-import jsxUsesVars from "./rules/jsx-uses-vars";
-import noDestructure from "./rules/no-destructure";
-import noInnerHTML from "./rules/no-innerhtml";
-import noProxyApis from "./rules/no-proxy-apis";
-import noReactDeps from "./rules/no-react-deps";
-import noReactSpecificProps from "./rules/no-react-specific-props";
-import noUnknownNamespaces from "./rules/no-unknown-namespaces";
-import preferClasslist from "./rules/prefer-classlist";
-import preferFor from "./rules/prefer-for";
-import preferShow from "./rules/prefer-show";
-import reactivity from "./rules/reactivity";
-import selfClosingComp from "./rules/self-closing-comp";
-import styleProp from "./rules/style-prop";
-import noArrayHandlers from "./rules/no-array-handlers";
+import componentsReturnOnce from "./rules/components-return-once.js";
+import eventHandlers from "./rules/event-handlers.js";
+import imports from "./rules/imports.js";
+import jsxNoDuplicateProps from "./rules/jsx-no-duplicate-props.js";
+import jsxNoScriptUrl from "./rules/jsx-no-script-url.js";
+import jsxNoUndef from "./rules/jsx-no-undef.js";
+import jsxUsesVars from "./rules/jsx-uses-vars.js";
+import noDestructure from "./rules/no-destructure.js";
+import noInnerHTML from "./rules/no-innerhtml.js";
+import noProxyApis from "./rules/no-proxy-apis.js";
+import noReactDeps from "./rules/no-react-deps.js";
+import noReactSpecificProps from "./rules/no-react-specific-props.js";
+import noUnknownNamespaces from "./rules/no-unknown-namespaces.js";
+import preferClasslist from "./rules/prefer-classlist.js";
+import preferFor from "./rules/prefer-for.js";
+import preferShow from "./rules/prefer-show.js";
+import reactivity from "./rules/reactivity.js";
+import selfClosingComp from "./rules/self-closing-comp.js";
+import styleProp from "./rules/style-prop.js";
+import noArrayHandlers from "./rules/no-array-handlers.js";
 // import validateJsxNesting from "./rules/validate-jsx-nesting";
 
-// Use require() so that `package.json` doesn't get copied to `dist`
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const { name, version } = require("../package.json");
+import { createRequire } from "node:module";
+
+const requireModule = createRequire(import.meta.url);
+
+const packageJson = requireModule("../package.json");
+
+const { name, version } = packageJson;
 const meta = { name, version };
 
 const allRules = {

@@ -6,37 +6,32 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { TSESLint } from "@typescript-eslint/utils";
 
-import { plugin } from "./plugin";
-import recommendedConfig from "./configs/recommended";
-import typescriptConfig from "./configs/typescript";
+import { plugin } from "./plugin.js";
+import recommendedConfig from "./configs/recommended.js";
+import typescriptConfig from "./configs/typescript.js";
 
-const pluginLegacy = {
-  rules: plugin.rules,
-  configs: {
-    recommended: {
-      plugins: ["solid"],
-      env: {
-        browser: true,
-        es6: true,
-      },
-      parserOptions: recommendedConfig.languageOptions.parserOptions,
-      rules: recommendedConfig.rules,
+export const rules = plugin.rules;
+export const configs = {
+  recommended: {
+    plugins: ["solid"],
+    env: {
+      browser: true,
+      es6: true,
     },
-    typescript: {
-      plugins: ["solid"],
-      env: {
-        browser: true,
-        es6: true,
-      },
-      parserOptions: {
-        sourceType: "module",
-      },
-      rules: typescriptConfig.rules,
-    },
-    "flat/recommended": recommendedConfig,
-    "flat/typescript": typescriptConfig,
+    parserOptions: recommendedConfig.languageOptions.parserOptions,
+    rules: recommendedConfig.rules,
   },
+  typescript: {
+    plugins: ["solid"],
+    env: {
+      browser: true,
+      es6: true,
+    },
+    parserOptions: {
+      sourceType: "module",
+    },
+    rules: typescriptConfig.rules,
+  },
+  "flat/recommended": recommendedConfig,
+  "flat/typescript": typescriptConfig,
 };
-
-// Must be `export = ` for eslint to load everything
-export = pluginLegacy;
