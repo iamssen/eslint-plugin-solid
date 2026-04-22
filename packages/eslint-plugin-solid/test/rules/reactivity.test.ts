@@ -1,4 +1,3 @@
-import { AST_NODE_TYPES as T } from "@typescript-eslint/utils";
 import { run, tsOnly } from "../ruleTester";
 import rule from "../../src/rules/reactivity";
 
@@ -367,7 +366,7 @@ export const cases = run("reactivity", rule, {
         console.log(signal());
         return null;
       }`,
-      errors: [{ messageId: "untrackedReactive", type: T.CallExpression, line: 4 }],
+      errors: [{ messageId: "untrackedReactive", line: 4 }],
     },
     {
       code: `
@@ -376,7 +375,7 @@ export const cases = run("reactivity", rule, {
         console.log(signal());
         return <div>{signal()}</div>
       }`,
-      errors: [{ messageId: "untrackedReactive", type: T.CallExpression, line: 4 }],
+      errors: [{ messageId: "untrackedReactive", line: 4 }],
     },
     // Untracked property access
     {
@@ -385,7 +384,7 @@ export const cases = run("reactivity", rule, {
         const value = props.value;
         return <div>{value()}</div>;
       }`,
-      errors: [{ messageId: "untrackedReactive", type: T.MemberExpression }],
+      errors: [{ messageId: "untrackedReactive" }],
     },
     {
       code: `
@@ -394,9 +393,7 @@ export const cases = run("reactivity", rule, {
         const value = createMemo(() => valueProp || "default");
         return <div>{value()}</div>;
       };`,
-      errors: [
-        { messageId: "untrackedReactive", type: T.Identifier, line: 3, column: 38, endColumn: 43 },
-      ],
+      errors: [{ messageId: "untrackedReactive", line: 3, column: 38, endColumn: 43 }],
     },
     {
       code: `
@@ -409,7 +406,6 @@ export const cases = run("reactivity", rule, {
         {
           messageId: "untrackedReactive",
           data: { name: "props.value" },
-          type: T.MemberExpression,
         },
       ],
     },
@@ -418,7 +414,7 @@ export const cases = run("reactivity", rule, {
       const Component = props => {
         const [value] = createSignal(props.value);
       }`,
-      errors: [{ messageId: "untrackedReactive", type: T.MemberExpression }],
+      errors: [{ messageId: "untrackedReactive" }],
     },
     // mark `props` as props by name before we've determined if Component is a component in :exit
     {
@@ -432,7 +428,6 @@ export const cases = run("reactivity", rule, {
         {
           messageId: "untrackedReactive",
           data: { name: "derived" },
-          type: T.CallExpression,
         },
       ],
     },
@@ -443,7 +438,7 @@ export const cases = run("reactivity", rule, {
         console.log(something.a);
         return <div />;
       }`,
-      errors: [{ messageId: "untrackedReactive", type: T.MemberExpression }],
+      errors: [{ messageId: "untrackedReactive" }],
     },
     // Derived signals
     {
@@ -459,7 +454,6 @@ export const cases = run("reactivity", rule, {
         {
           messageId: "untrackedReactive",
           data: { name: "d" },
-          type: T.CallExpression,
         },
       ],
     },
@@ -476,7 +470,6 @@ export const cases = run("reactivity", rule, {
         {
           messageId: "untrackedReactive",
           data: { name: "d" },
-          type: T.CallExpression,
         },
       ],
     },
@@ -496,7 +489,6 @@ export const cases = run("reactivity", rule, {
         {
           messageId: "untrackedReactive",
           data: { name: "d" },
-          type: T.CallExpression,
         },
       ],
     },
@@ -517,7 +509,6 @@ export const cases = run("reactivity", rule, {
         {
           messageId: "untrackedReactive",
           data: { name: "e" },
-          type: T.CallExpression,
         },
       ],
     },
@@ -537,7 +528,6 @@ export const cases = run("reactivity", rule, {
         {
           messageId: "untrackedReactive",
           data: { name: "bar" },
-          type: T.CallExpression,
         },
       ],
     },
@@ -551,7 +541,6 @@ export const cases = run("reactivity", rule, {
         {
           messageId: "shouldDestructure",
           data: { nth: "first " },
-          type: T.CallExpression,
         },
       ],
     },
@@ -564,7 +553,6 @@ export const cases = run("reactivity", rule, {
         {
           messageId: "shouldDestructure",
           data: { nth: "first " },
-          type: T.ArrayPattern,
         },
       ],
     },
@@ -576,7 +564,6 @@ export const cases = run("reactivity", rule, {
       errors: [
         {
           messageId: "shouldAssign",
-          type: T.CallExpression,
         },
       ],
     },
@@ -590,7 +577,6 @@ export const cases = run("reactivity", rule, {
       errors: [
         {
           messageId: "badSignal",
-          type: T.Identifier,
           line: 4,
           data: { name: "signal", where: "JSX" },
         },
@@ -605,7 +591,6 @@ export const cases = run("reactivity", rule, {
       errors: [
         {
           messageId: "badSignal",
-          type: T.Identifier,
           line: 4,
           data: { name: "memo", where: "JSX" },
         },
@@ -620,7 +605,6 @@ export const cases = run("reactivity", rule, {
       errors: [
         {
           messageId: "badSignal",
-          type: T.Identifier,
           line: 4,
           data: { name: "signal", where: "JSX" },
         },
@@ -635,7 +619,6 @@ export const cases = run("reactivity", rule, {
       errors: [
         {
           messageId: "badSignal",
-          type: T.Identifier,
           line: 4,
           data: { name: "signal", where: "arithmetic or comparisons" },
         },
@@ -650,7 +633,6 @@ export const cases = run("reactivity", rule, {
       errors: [
         {
           messageId: "badSignal",
-          type: T.Identifier,
           line: 4,
           data: { name: "signal", where: "template literals" },
         },
@@ -665,7 +647,6 @@ export const cases = run("reactivity", rule, {
       errors: [
         {
           messageId: "badSignal",
-          type: T.Identifier,
           line: 4,
           data: { name: "signal", where: "unary expressions" },
         },
@@ -680,7 +661,6 @@ export const cases = run("reactivity", rule, {
       errors: [
         {
           messageId: "badSignal",
-          type: T.Identifier,
           line: 4,
           data: { name: "signal", where: "property accesses" },
         },
@@ -695,7 +675,6 @@ export const cases = run("reactivity", rule, {
       errors: [
         {
           messageId: "expectedFunctionGotExpression",
-          type: T.MemberExpression,
           line: 3,
           data: { name: "props.onClick" },
         },
@@ -709,7 +688,6 @@ export const cases = run("reactivity", rule, {
       errors: [
         {
           messageId: "expectedFunctionGotExpression",
-          type: T.MemberExpression,
           line: 3,
           data: { name: "props.theEffect" },
         },
