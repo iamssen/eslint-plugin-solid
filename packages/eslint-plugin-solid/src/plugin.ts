@@ -61,4 +61,8 @@ const allRules = {
   // "validate-jsx-nesting": validateJsxNesting
 };
 
-export const plugin = { meta, rules: allRules };
+export const plugin = {
+  meta,
+  rules: allRules,
+  configs: undefined as Record<string, unknown> | undefined,
+};
