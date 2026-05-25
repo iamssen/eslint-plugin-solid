@@ -13,14 +13,14 @@
       "env": ["PARSER"]
     },
     "//#turbo:docs": {
-      "dependsOn": ["eslint-plugin-solid#turbo:docs"]
+      "dependsOn": ["@iamssen/eslint-plugin-solid#turbo:docs"]
     },
     "//#turbo:lint": {
       "dependsOn": ["//#transit"]
     },
     "//#turbo:tsc": {
       "dependsOn": [
-        "eslint-plugin-solid#turbo:build",
+        "@iamssen/eslint-plugin-solid#turbo:build",
         "eslint-solid-standalone#turbo:build",
         "//#transit"
       ]
