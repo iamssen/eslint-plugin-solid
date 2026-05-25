@@ -35,7 +35,7 @@ export default tseslint.config(
     },
   },
   {
-    files: ["packages/eslint-plugin-solid/src/rules/*.ts"],
+    files: ["src/rules/*.ts"],
     languageOptions: {
       globals: globals.node,
     },

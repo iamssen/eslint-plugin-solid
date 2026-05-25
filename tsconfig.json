@@ -1,6 +1,7 @@
 {
   "extends": "./node_modules/@tsconfig/node20/tsconfig.json",
   "compilerOptions": {
+    "ignoreDeprecations": "6.0",
     "module": "node16",
     "moduleResolution": "node16",
     "forceConsistentCasingInFileNames": true,
@@ -10,6 +11,6 @@
     "resolveJsonModule": true,
     "allowImportingTsExtensions": true
   },
-  "include": ["packages/eslint-plugin-solid", "packages/eslint-solid-standalone", "test", "scripts"],
+  "include": ["src", "test", "scripts"],
   "exclude": ["**/dist", "**/dist.*"]
 }

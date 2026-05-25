@@ -1,14 +1,13 @@
 import { test, expect, expectTypeOf } from "vitest";
 
-import recommendedConfig from "eslint-plugin-solid/configs/recommended";
-import typescriptConfig from "eslint-plugin-solid/configs/typescript";
-import * as plugin from "eslint-plugin-solid";
-import type * as standalone from "eslint-solid-standalone";
+import recommendedConfig from "@iamssen/eslint-plugin-solid/configs/recommended";
+import typescriptConfig from "@iamssen/eslint-plugin-solid/configs/typescript";
+import * as plugin from "@iamssen/eslint-plugin-solid";
 
 test("flat config has meta", () => {
-  expect(recommendedConfig.plugins.solid.meta.name).toBe("eslint-plugin-solid");
+  expect(recommendedConfig.plugins.solid.meta.name).toBe("@iamssen/eslint-plugin-solid");
   expect(recommendedConfig.plugins.solid.meta.version).toEqual(expect.any(String));
-  expect(typescriptConfig.plugins.solid.meta.name).toBe("eslint-plugin-solid");
+  expect(typescriptConfig.plugins.solid.meta.name).toBe("@iamssen/eslint-plugin-solid");
   expect(typescriptConfig.plugins.solid.meta.version).toEqual(expect.any(String));
 });
 
@@ -29,7 +28,3 @@ test("plugin exposes sane export types", () => {
   expectTypeOf<typeof plugin.configs>().toBeObject();
 });
 
-test("standalone exposes sane export types", () => {
-  expectTypeOf<typeof standalone.verifyAndFix>().toBeFunction();
-  expectTypeOf<typeof standalone.pluginVersion>().toBeString();
-});

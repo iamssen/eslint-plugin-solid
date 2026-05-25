@@ -1,56 +1,87 @@
 {
-  "name": "eslint-plugin-solid-monorepo",
-  "private": true,
-  "license": "MIT",
+  "name": "@iamssen/eslint-plugin-solid",
+  "version": "0.14.5",
+  "description": "Solid-specific linting rules for ESLint.",
   "type": "module",
-  "workspaces": [
-    "packages/*"
+  "keywords": [
+    "eslint",
+    "eslintplugin",
+    "solid",
+    "solidjs",
+    "reactivity"
+  ],
+  "repository": "https://github.com/solidjs-community/eslint-plugin-solid",
+  "license": "MIT",
+  "author": "Josh Wilson <joshwilsonvu@gmail.com>",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./configs/recommended": {
+      "types": "./dist/configs/recommended.d.ts",
+      "default": "./dist/configs/recommended.js"
+    },
+    "./configs/typescript": {
+      "types": "./dist/configs/typescript.d.ts",
+      "default": "./dist/configs/typescript.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "src",
+    "dist",
+    "README.md"
   ],
   "scripts": {
-    "build": "turbo run turbo:build",
-    "ci": "PARSER=all turbo run turbo:build turbo:test turbo:docs turbo:lint turbo:tsc",
-    "docs": "turbo run turbo:docs",
-    "lint": "turbo run turbo:lint",
-    "prepare": "husky install",
-    "test": "turbo run turbo:test",
-    "tsc": "turbo run turbo:tsc",
-    "turbo:docs": "cp packages/eslint-plugin-solid/README.md README.md",
-    "turbo:lint": "eslint --max-warnings=0",
-    "turbo:tsc": "tsc",
-    "version": "node scripts/version.js"
+    "build": "tsup",
+    "test": "vitest --run",
+    "test:all": "PARSER=all vitest --run",
+    "test:babel": "PARSER=babel vitest --run",
+    "test:ts": "PARSER=ts vitest --run",
+    "test:watch": "vitest",
+    "docs": "PARSER=none tsx scripts/docs.ts"
   },
-  "lint-staged": {
-    "*.{js,jsx,ts,tsx}": [
-      "pnpm lint -- --no-warn-ignored --fix",
-      "prettier --write"
-    ]
-  },
-  "prettier": {
-    "plugins": [
-      "prettier-plugin-packagejson"
-    ],
-    "printWidth": 100
+  "dependencies": {
+    "@typescript-eslint/utils": "^7.13.1 || ^8.0.0",
+    "estraverse": "^5.3.0",
+    "is-html": "^2.0.0",
+    "kebab-case": "^1.0.2",
+    "known-css-properties": "^0.30.0",
+    "style-to-object": "^1.0.6"
   },
   "devDependencies": {
-    "@tsconfig/node20": "^20.1.4",
-    "@types/node": "^20",
-    "@types/prettier": "^2.7.3",
+    "@babel/core": "^7.24.4",
+    "@babel/eslint-parser": "^7.24.7",
+    "@iamssen/eslint-plugin-solid": "file:.",
+    "@microsoft/api-extractor": "^7.47.6",
+    "@tsconfig/node20": "^20.1.9",
+    "@types/babel__core": "~7.20.5",
+    "@types/eslint": "^8.56.10",
+    "@types/eslint-v8": "npm:@types/eslint@8",
+    "@types/eslint__js": "^8.42.3",
+    "@types/estraverse": "^5.1.7",
+    "@types/is-html": "^2.0.2",
+    "@types/markdown-magic": "~1.0.4",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
     "eslint": "^9.5.0",
-    "eslint-plugin-eslint-plugin": "^6.1.0",
-    "globals": "^15.6.0",
-    "husky": "^8.0.3",
-    "lint-staged": "^13.3.0",
+    "eslint-plugin-solid": "file:.",
+    "eslint-v8": "npm:eslint@8",
+    "markdown-magic": "^3.3.0",
     "prettier": "^2.8.8",
-    "prettier-plugin-packagejson": "^2.5.1",
-    "semver": "^7.6.0",
-    "turbo": "^2.0.14",
-    "typescript": "^5.5.4",
-    "typescript-eslint": "^8.1.0"
+    "tsup": "^8.2.4",
+    "tsx": "^4.17.0",
+    "typescript-eslint": "^8.59.4",
+    "vitest": "^1.5.2"
   },
-  "packageManager": "pnpm@9.7.1",
-  "pnpm": {
-    "patchedDependencies": {
-      "eslint@8.57.0": "patches/eslint@8.57.0.patch"
-    }
+  "peerDependencies": {
+    "eslint": "^8.0.0 || ^9.0.0",
+    "typescript": ">=4.8.4"
+  },
+  "engines": {
+    "node": "^20.19.0 || ^22.13.0 || >=24"
   }
 }

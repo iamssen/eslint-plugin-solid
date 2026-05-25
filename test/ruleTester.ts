@@ -1,8 +1,5 @@
 import { RuleTester } from "eslint";
-import { RuleTester as RuleTester_v6 } from "eslint-v6";
-import { RuleTester as RuleTester_v7 } from "eslint-v7";
 import { RuleTester as RuleTester_v8 } from "eslint-v8";
-import { RuleTester as RuleTester_v10 } from "eslint-v10";
 import type { TSESLint } from "@typescript-eslint/utils";
 import tseslint from "typescript-eslint";
 // @ts-expect-error no types here
@@ -77,44 +74,12 @@ const babelV8Tester = new RuleTester_v8({
   },
 });
 
-const v6Tester = new RuleTester_v6({
-  parserOptions: {
-    ecmaVersion: 2018,
-    sourceType: "module",
-    ecmaFeatures: {
-      jsx: true,
-    },
-  },
-});
-
-const v7Tester = new RuleTester_v7({
-  parserOptions: {
-    ecmaVersion: 2018,
-    sourceType: "module",
-    ecmaFeatures: {
-      jsx: true,
-    },
-  },
-});
-
 const v8Tester = new RuleTester_v8({
   parserOptions: {
     ecmaVersion: 2018,
     sourceType: "module",
     ecmaFeatures: {
       jsx: true,
-    },
-  },
-});
-
-const v10Tester = new RuleTester_v10({
-  languageOptions: {
-    ecmaVersion: 2018,
-    sourceType: "module",
-    parserOptions: {
-      ecmaFeatures: {
-        jsx: true,
-      },
     },
   },
 });
@@ -150,20 +115,11 @@ export const run = (
   if (all || parser === "babel_v8") {
     describe("@babel/eslint-parser v8", () => babelV8Tester.run(name, rule as any, tests as any));
   }
-  if (all || parser === "v6") {
-    describe("eslint v6", () => v6Tester.run(name, rule as any, jsTests as any));
-  }
-  if (all || parser === "v7") {
-    describe("eslint v7", () => v7Tester.run(name, rule as any, jsTests as any));
-  }
   if (all || parser === "v8") {
     describe("eslint v8", () => v8Tester.run(name, rule as any, jsTests));
   }
   if (all || parser === "v9") {
     describe("eslint v9", () => v9Tester.run(name, rule as any, jsTests));
-  }
-  if (all || parser === "v10") {
-    describe("eslint v10", () => v10Tester.run(name, rule as any, jsTests));
   }
 
   return tests;
