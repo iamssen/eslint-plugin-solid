@@ -19,8 +19,8 @@ import {
   getFunctionName,
   isJSXElementOrFragment,
   trace,
-} from "../utils";
-import { findVariable, CompatContext, getSourceCode } from "../compat";
+} from "../utils.js";
+import { findVariable, CompatContext, getSourceCode } from "../compat.js";
 
 const { getFunctionHeadLocation } = ASTUtils;
 const createRule = ESLintUtils.RuleCreator.withoutDocs;

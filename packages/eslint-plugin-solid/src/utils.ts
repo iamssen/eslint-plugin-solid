@@ -1,5 +1,5 @@
 import { TSESTree as T, TSESLint } from "@typescript-eslint/utils";
-import { CompatContext, findVariable } from "./compat";
+import { CompatContext, findVariable } from "./compat.js";
 
 const domElementRegex = /^[a-z]/;
 export const isDOMElementName = (name: string): boolean => domElementRegex.test(name);
