@@ -1,4 +1,4 @@
-# Contributing to `eslint-plugin-solid`
+# Contributing to `@iamssen/eslint-plugin-solid`
 
 Thanks for your interest in improving this project! We welcome questions, bug reports, and feature
 requests. Please file an issue before submitting a PR, and fill out applicable details in the chosen
@@ -44,5 +44,5 @@ received approval to add a rule named `solid/some-name` in an issue:
 ## Publishing
 
 Publishing is currently done manually by @joshwilsonvu. When publishing a new version of
-`eslint-plugin-solid`, we also publish a corresponding version of `eslint-plugin-standalone`, which
+`@iamssen/eslint-plugin-solid`, we also publish a corresponding version of `eslint-plugin-standalone`, which
 is a package primarily intended to support linting on https://playground.solidjs.com.

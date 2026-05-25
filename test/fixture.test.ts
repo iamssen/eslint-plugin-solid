@@ -16,6 +16,9 @@ const checkResult = (result: LegacyESLint.LintResult | FlatESLint.LintResult) =>
     expect(result.warningCount).toBe(0);
     expect(result.usedDeprecatedRules).toEqual([]);
   } else {
+    if (result.messages.length === 0) {
+      console.log('NO MESSAGES FOR INVALID FILE:', result.filePath, result.messages);
+    }
     expect(result.messages).not.toEqual([]);
     expect(result.warningCount + result.errorCount).toBeGreaterThan(0);
     expect(result.usedDeprecatedRules).toEqual([]);
@@ -27,9 +30,14 @@ const checkResult = (result: LegacyESLint.LintResult | FlatESLint.LintResult) =>
   }
 };
 
+import * as plugin from "../dist/index.js";
+
 test.concurrent("fixture (legacy)", async () => {
   const eslint = new LegacyESLint({
     cwd,
+    plugins: {
+      "solid": plugin as any
+    },
     baseConfig: {
       root: true,
       parser: "@typescript-eslint/parser",

@@ -186,7 +186,7 @@ const buildTilde = async () => {
   const { version } = (await import("../package.json")).default;
   return [
     "```diff",
-    `- "eslint-plugin-solid": "^${version}"\n+ "eslint-plugin-solid": "~${version}"`,
+    `- "@iamssen/eslint-plugin-solid": "^${version}"\n+ "@iamssen/eslint-plugin-solid": "~${version}"`,
     "```",
   ].join("\n");
 };

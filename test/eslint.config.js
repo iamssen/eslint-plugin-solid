@@ -2,7 +2,7 @@
 
 import tseslint from "typescript-eslint";
 import globals from "globals";
-import recommendedConfig from "@iamssen/eslint-plugin-solid/configs/recommended";
+import recommendedConfig from "../dist/configs/recommended.js";
 
 export default tseslint.config({
   files: ["{valid,invalid}/**/*.{js,jsx,ts,tsx}"],
