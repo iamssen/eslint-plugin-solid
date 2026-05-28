@@ -4,7 +4,7 @@
 
 # Solid ESLint Plugin
 
-[![npm version](https://img.shields.io/npm/v/@iamssen/eslint-plugin-solid?style=for-the-badge)](https://npmjs.com/package/@iamssen/eslint-plugin-solid)
+[![npm version](https://img.shields.io/npm/v/eslint-plugin-solid?style=for-the-badge)](https://npmjs.com/package/eslint-plugin-solid)
 [![GitHub package version](https://img.shields.io/github/package-json/v/solidjs-community/eslint-plugin-solid/main?filename=packages%2Feslint-plugin-solid%2Fpackage.json&style=for-the-badge)](https://github.com/solidjs-community/eslint-plugin-solid)
 ![ESLint peer dependency](https://img.shields.io/badge/eslint-6.x--9.x-blue?style=for-the-badge)
 [![CI](https://github.com/solidjs-community/eslint-plugin-solid/actions/workflows/ci.yml/badge.svg?style=for-the-badge)](https://github.com/solidjs-community/eslint-plugin-solid/actions/workflows/ci.yml)
@@ -30,13 +30,13 @@ today.
 
 ## Installation
 
-Install `eslint` and `@iamssen/eslint-plugin-solid` locally.
+Install `eslint` and `eslint-plugin-solid` locally.
 
 ```sh
-npm install --save-dev eslint @iamssen/eslint-plugin-solid
+npm install --save-dev eslint eslint-plugin-solid
 # or
-pnpm add --save-dev eslint @iamssen/eslint-plugin-solid
-yarn add --dev eslint @iamssen/eslint-plugin-solid
+pnpm add --save-dev eslint eslint-plugin-solid
+yarn add --dev eslint eslint-plugin-solid
 
 # optional, to create an ESLint config file
 npx eslint --init
@@ -122,7 +122,7 @@ and/or `.eslintignore`.
 
 ```js
 import js from "@eslint/js";
-import solid from "@iamssen/eslint-plugin-solid/configs/recommended";
+import solid from "eslint-plugin-solid/configs/recommended";
 
 export default [
   js.configs.recommended, // replaces eslint:recommended
@@ -134,7 +134,7 @@ For TypeScript:
 
 ```js
 import js from "@eslint/js";
-import solid from "@iamssen/eslint-plugin-solid/configs/typescript";
+import solid from "eslint-plugin-solid/configs/typescript";
 import * as tsParser from "@typescript-eslint/parser";
 
 export default [
@@ -160,7 +160,7 @@ as well as at least ES2015.
 Note for the ESLint VSCode Extension: Enable the "Use Flat Config" setting for your workspace to
 enable Flat Config support.
 
-Flat configs are also available as `plugin.configs['flat/recommended']` and `plugin.configs['flat/typescript']`, after using `import plugin from '@iamssen/eslint-plugin-solid'`.
+Flat configs are also available as `plugin.configs['flat/recommended']` and `plugin.configs['flat/typescript']`, after using `import plugin from 'eslint-plugin-solid'`.
 
 ## Rules
 
@@ -220,7 +220,7 @@ If you want to pin a minor version, use a tilde in your `package.json`.
 
 <!-- doc-gen TILDE -->
 ```diff
-- "@iamssen/eslint-plugin-solid": "^0.14.5"
-+ "@iamssen/eslint-plugin-solid": "~0.14.5"
+- "eslint-plugin-solid": "^0.14.5"
++ "eslint-plugin-solid": "~0.14.5"
 ```
 <!-- end-doc-gen -->

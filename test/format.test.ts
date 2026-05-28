@@ -5,9 +5,9 @@ import typescriptConfig from "../src/configs/typescript";
 import * as plugin from "../src/index";
 
 test("flat config has meta", () => {
-  expect(recommendedConfig.plugins.solid.meta.name).toBe("@iamssen/eslint-plugin-solid");
+  expect(recommendedConfig.plugins.solid.meta.name).toBe("eslint-plugin-solid");
   expect(recommendedConfig.plugins.solid.meta.version).toEqual(expect.any(String));
-  expect(typescriptConfig.plugins.solid.meta.name).toBe("@iamssen/eslint-plugin-solid");
+  expect(typescriptConfig.plugins.solid.meta.name).toBe("eslint-plugin-solid");
   expect(typescriptConfig.plugins.solid.meta.version).toEqual(expect.any(String));
 });
 

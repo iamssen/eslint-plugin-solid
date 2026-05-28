@@ -1,15 +1,15 @@
 import path from "path";
 // @ts-expect-error no types for v3
-import { markdownMagic } from "markdown-magic";
-import prettier from "prettier";
 import type { TSESLint } from "@typescript-eslint/utils";
-import * as plugin from "../src/index.ts";
 import type {
   JSONSchema4,
   JSONSchema4ArraySchema,
   JSONSchema4TypeName,
 } from "@typescript-eslint/utils/json-schema";
+import { markdownMagic } from "markdown-magic";
 import { fileURLToPath } from "node:url";
+import prettier from "prettier";
+import * as plugin from "../src/index.ts";
 
 const { rules, configs } = plugin;
 
@@ -186,7 +186,7 @@ const buildTilde = async () => {
   const { version } = (await import("../package.json")).default;
   return [
     "```diff",
-    `- "@iamssen/eslint-plugin-solid": "^${version}"\n+ "@iamssen/eslint-plugin-solid": "~${version}"`,
+    `- "eslint-plugin-solid": "^${version}"\n+ "eslint-plugin-solid": "~${version}"`,
     "```",
   ].join("\n");
 };

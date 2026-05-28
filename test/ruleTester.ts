@@ -1,11 +1,12 @@
-import { RuleTester } from "eslint";
-import { RuleTester as RuleTester_v8 } from "eslint-v8";
 import type { TSESLint } from "@typescript-eslint/utils";
+import { RuleTester } from "eslint";
+import { RuleTester as RuleTester_v10 } from "eslint-v10";
+import { RuleTester as RuleTester_v8 } from "eslint-v8";
 import tseslint from "typescript-eslint";
 // @ts-expect-error no types here
 import * as babelEslintParser from "@babel/eslint-parser";
-import { describe } from "vitest";
 import { createRequire } from "node:module";
+import { describe } from "vitest";
 
 const requireModule = createRequire(import.meta.url);
 
@@ -84,6 +85,18 @@ const v8Tester = new RuleTester_v8({
   },
 });
 
+const v10Tester = new RuleTester_v10({
+  languageOptions: {
+    ecmaVersion: 2018,
+    sourceType: "module",
+    parserOptions: {
+      ecmaFeatures: {
+        jsx: true,
+      },
+    },
+  },
+});
+
 interface Tests {
   valid?: Array<(TSESLint.ValidTestCase<unknown[]> & { [tsOnly]?: boolean }) | string>;
   invalid?: Array<TSESLint.InvalidTestCase<string, unknown[]> & { [tsOnly]?: boolean }>;
@@ -120,6 +133,9 @@ export const run = (
   }
   if (all || parser === "v9") {
     describe("eslint v9", () => v9Tester.run(name, rule as any, jsTests));
+  }
+  if (all || parser === "v10") {
+    describe("eslint v10", () => v10Tester.run(name, rule as any, jsTests));
   }
 
   return tests;

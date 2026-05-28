@@ -1,5 +1,5 @@
 {
-  "name": "@iamssen/eslint-plugin-solid",
+  "name": "eslint-plugin-solid",
   "version": "0.14.5",
   "description": "Solid-specific linting rules for ESLint.",
   "type": "module",
@@ -41,6 +41,7 @@
     "test:all": "PARSER=all vitest --run",
     "test:babel": "PARSER=babel vitest --run",
     "test:ts": "PARSER=ts vitest --run",
+    "test:v10": "PARSER=v10 vitest --run",
     "test:watch": "vitest",
     "docs": "PARSER=none tsx scripts/docs.ts"
   },
@@ -60,14 +61,15 @@
     "@types/babel__core": "~7.20.5",
     "@types/eslint": "^8.56.10",
     "@types/eslint__js": "^8.42.3",
-    "@types/eslint-v8": "npm:@types/eslint@8",
+    "@types/eslint-v8": "npm:@types/eslint@^8",
     "@types/estraverse": "^5.1.7",
     "@types/is-html": "^2.0.2",
     "@types/markdown-magic": "~1.0.4",
     "@typescript-eslint/eslint-plugin": "^8.0.0",
     "@typescript-eslint/parser": "^8.0.0",
     "eslint": "^9.5.0",
-    "eslint-v8": "npm:eslint@8",
+    "eslint-v8": "npm:eslint@^8",
+    "eslint-v10": "npm:eslint@^10",
     "markdown-magic": "^3.3.0",
     "prettier": "^2.8.8",
     "tsup": "^8.2.4",
@@ -76,7 +78,7 @@
     "vitest": "^1.5.2"
   },
   "peerDependencies": {
-    "eslint": "^8.0.0 || ^9.0.0",
+    "eslint": "^8.0.0 || ^9.0.0 || ^10.0.0",
     "typescript": ">=4.8.4"
   },
   "engines": {
