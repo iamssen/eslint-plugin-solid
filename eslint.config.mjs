@@ -1,9 +1,8 @@
-// @ts-check
-import path from "node:path";
 import js from "@eslint/js";
-import globals from "globals";
-import tseslint from "typescript-eslint";
 import pluginEslintPlugin from "eslint-plugin-eslint-plugin";
+import globals from "globals";
+import path from "node:path";
+import tseslint from "typescript-eslint";
 
 const tsconfigPath = path.resolve("tsconfig.json");
 

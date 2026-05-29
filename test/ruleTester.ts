@@ -1,11 +1,10 @@
+import * as babelEslintParser from "@babel/eslint-parser";
 import type { TSESLint } from "@typescript-eslint/utils";
 import { RuleTester } from "eslint";
 import { RuleTester as RuleTester_v10 } from "eslint-v10";
 import { RuleTester as RuleTester_v8 } from "eslint-v8";
-import tseslint from "typescript-eslint";
-// @ts-expect-error no types here
-import * as babelEslintParser from "@babel/eslint-parser";
 import { createRequire } from "node:module";
+import tseslint from "typescript-eslint";
 import { describe } from "vitest";
 
 const requireModule = createRequire(import.meta.url);
