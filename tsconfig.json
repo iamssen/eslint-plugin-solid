@@ -11,6 +11,6 @@
     "resolveJsonModule": true,
     "allowImportingTsExtensions": true
   },
-  "include": ["src", "test", "scripts"],
+  "include": ["src", "cases", "scripts"],
   "exclude": ["**/dist", "**/dist.*", "**/vitest.*.js"]
 }

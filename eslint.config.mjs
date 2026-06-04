@@ -8,7 +8,7 @@ const tsconfigPath = path.resolve("tsconfig.json");
 
 export default tseslint.config(
   {
-    ignores: ["**/dist/", "**/dist.*", "**/.tsup/", "**/eslint.config.mjs", "test/"],
+    ignores: ["**/dist/", "**/dist.*", "**/.tsup/", "**/eslint.config.mjs", "cases/"],
   },
   js.configs.recommended,
   tseslint.configs.eslintRecommended,
