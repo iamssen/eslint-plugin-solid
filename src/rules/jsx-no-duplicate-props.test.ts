@@ -1,5 +1,5 @@
-import { run } from "../../test/ruleTester.ts";
 import rule from "./jsx-no-duplicate-props.ts";
+import { run } from "./ruleTester.ts";
 
 export const cases = run("jsx-no-duplicate-props", rule, {
   valid: [

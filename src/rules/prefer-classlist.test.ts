@@ -1,5 +1,5 @@
-import { run } from "../../test/ruleTester.ts";
 import rule from "./prefer-classlist.ts";
+import { run } from "./ruleTester.ts";
 
 export const cases = run("prefer-classlist", rule, {
   valid: [

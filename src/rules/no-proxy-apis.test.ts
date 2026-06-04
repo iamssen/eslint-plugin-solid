@@ -1,5 +1,5 @@
-import { run } from "../../test/ruleTester.ts";
 import rule from "./no-proxy-apis.ts";
+import { run } from "./ruleTester.ts";
 
 export const cases = run("no-proxy-apis", rule, {
   valid: [

@@ -1,4 +1,4 @@
-import { run } from "../../test/ruleTester.ts";
+import { run } from "./ruleTester.ts";
 import rule from "./style-prop.ts";
 
 export const cases = run("style-prop", rule, {

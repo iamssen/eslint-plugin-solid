@@ -1,4 +1,4 @@
-import { run } from "../../test/ruleTester.ts";
+import { run } from "./ruleTester.ts";
 import rule from "./self-closing-comp.ts";
 
 export const cases = run("self-closing-comp", rule, {
