@@ -9,9 +9,9 @@ import {
   findParent,
   findInScope,
   isPropsByName,
-  FunctionNode,
+  type FunctionNode,
   isFunctionNode,
-  ProgramOrFunctionNode,
+  type ProgramOrFunctionNode,
   isProgramOrFunctionNode,
   trackImports,
   isDOMElementName,
@@ -20,7 +20,7 @@ import {
   isJSXElementOrFragment,
   trace,
 } from "../utils.js";
-import { findVariable, CompatContext, getSourceCode } from "../compat.js";
+import { findVariable, type CompatContext, getSourceCode } from "../compat.js";
 
 const { getFunctionHeadLocation } = ASTUtils;
 const createRule = ESLintUtils.RuleCreator.withoutDocs;

@@ -1,5 +1,5 @@
-import rule from "./jsx-no-script-url.ts";
-import { run } from "./ruleTester.ts";
+import rule from "./jsx-no-script-url.js";
+import { run } from "./ruleTester.js";
 
 export const cases = run("jsx-no-script-url", rule, {
   valid: [

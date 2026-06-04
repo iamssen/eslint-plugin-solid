@@ -1,5 +1,5 @@
-import rule from "./imports.ts";
-import { run, tsOnly } from "./ruleTester.ts";
+import rule from "./imports.js";
+import { run, tsOnly } from "./ruleTester.js";
 
 export const cases = run("imports", rule, {
   valid: [

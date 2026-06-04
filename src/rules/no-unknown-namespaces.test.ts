@@ -1,5 +1,5 @@
-import rule from "./no-unknown-namespaces.ts";
-import { run } from "./ruleTester.ts";
+import rule from "./no-unknown-namespaces.js";
+import { run } from "./ruleTester.js";
 
 export const cases = run("no-unknown-namespaces", rule, {
   valid: [

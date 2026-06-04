@@ -1,5 +1,5 @@
-import rule from "./prefer-for.ts";
-import { run, tsOnly } from "./ruleTester.ts";
+import rule from "./prefer-for.js";
+import { run, tsOnly } from "./ruleTester.js";
 
 export const cases = run("prefer-for", rule, {
   valid: [

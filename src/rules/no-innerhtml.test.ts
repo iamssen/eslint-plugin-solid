@@ -1,5 +1,5 @@
-import rule from "./no-innerhtml.ts";
-import { run } from "./ruleTester.ts";
+import rule from "./no-innerhtml.js";
+import { run } from "./ruleTester.js";
 
 export const cases = run("no-innerhtml", rule, {
   valid: [

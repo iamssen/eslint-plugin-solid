@@ -1,5 +1,5 @@
-import rule from "./event-handlers.ts";
-import { run } from "./ruleTester.ts";
+import rule from "./event-handlers.js";
+import { run } from "./ruleTester.js";
 
 export const cases = run("event-handlers", rule, {
   valid: [

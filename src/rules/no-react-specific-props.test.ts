@@ -1,5 +1,5 @@
-import rule from "./no-react-specific-props.ts";
-import { run } from "./ruleTester.ts";
+import rule from "./no-react-specific-props.js";
+import { run } from "./ruleTester.js";
 
 export const cases = run("no-react-specific-props", rule, {
   valid: [

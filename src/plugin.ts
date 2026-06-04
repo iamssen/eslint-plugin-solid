@@ -1,11 +1,3 @@
-/**
- * FIXME: remove this comments and import when below issue is fixed.
- * This import is necessary for type generation due to a bug in the TypeScript compiler.
- * See: https://github.com/microsoft/TypeScript/issues/42873
- */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import type { TSESLint } from "@typescript-eslint/utils";
-
 import componentsReturnOnce from "./rules/components-return-once.js";
 import eventHandlers from "./rules/event-handlers.js";
 import imports from "./rules/imports.js";
@@ -13,6 +5,7 @@ import jsxNoDuplicateProps from "./rules/jsx-no-duplicate-props.js";
 import jsxNoScriptUrl from "./rules/jsx-no-script-url.js";
 import jsxNoUndef from "./rules/jsx-no-undef.js";
 import jsxUsesVars from "./rules/jsx-uses-vars.js";
+import noArrayHandlers from "./rules/no-array-handlers.js";
 import noDestructure from "./rules/no-destructure.js";
 import noInnerHTML from "./rules/no-innerhtml.js";
 import noProxyApis from "./rules/no-proxy-apis.js";
@@ -25,7 +18,6 @@ import preferShow from "./rules/prefer-show.js";
 import reactivity from "./rules/reactivity.js";
 import selfClosingComp from "./rules/self-closing-comp.js";
 import styleProp from "./rules/style-prop.js";
-import noArrayHandlers from "./rules/no-array-handlers.js";
 // import validateJsxNesting from "./rules/validate-jsx-nesting";
 
 import { createRequire } from "node:module";

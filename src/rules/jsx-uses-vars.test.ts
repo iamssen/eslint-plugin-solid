@@ -1,6 +1,6 @@
 import eslint, { RuleTester } from "eslint-v8";
 import { builtinRules } from "eslint-v8/use-at-your-own-risk";
-import rule from "./jsx-uses-vars.ts";
+import rule from "./jsx-uses-vars.js";
 
 const noUnused = builtinRules.get("no-unused-vars");
 
