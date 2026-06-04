@@ -1,5 +1,5 @@
-import { run, tsOnly } from "../ruleTester";
-import rule from "../../src/rules/no-array-handlers";
+import { run, tsOnly } from "../../test/ruleTester.ts";
+import rule from "./no-array-handlers.ts";
 
 export const cases = run("no-array-handlers", rule, {
   valid: [

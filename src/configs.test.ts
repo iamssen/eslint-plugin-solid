@@ -1,8 +1,8 @@
 import { expect, expectTypeOf, test } from "vitest";
 
-import recommendedConfig from "../src/configs/recommended";
-import typescriptConfig from "../src/configs/typescript";
-import * as plugin from "../src/index";
+import recommendedConfig from "./configs/recommended.js";
+import typescriptConfig from "./configs/typescript.js";
+import * as plugin from "./index.js";
 
 test("flat config has meta", () => {
   expect(recommendedConfig.plugins.solid.meta.name).toBe("eslint-plugin-solid");

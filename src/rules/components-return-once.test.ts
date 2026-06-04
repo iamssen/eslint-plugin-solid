@@ -1,5 +1,5 @@
-import { run } from "../ruleTester";
-import rule from "../../src/rules/components-return-once";
+import { run } from "../../test/ruleTester.ts";
+import rule from "./components-return-once.ts";
 
 export const cases = run("components-return-once", rule, {
   valid: [

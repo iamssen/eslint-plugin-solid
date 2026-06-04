@@ -1,5 +1,5 @@
-import { run } from "../ruleTester";
-import rule from "../../src/rules/self-closing-comp";
+import { run } from "../../test/ruleTester.ts";
+import rule from "./self-closing-comp.ts";
 
 export const cases = run("self-closing-comp", rule, {
   valid: [
