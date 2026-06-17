@@ -39,7 +39,7 @@
     "README.md"
   ],
   "scripts": {
-    "type-check": "tsc --watch --noEmit",
+    "type-check": "tsc --noEmit",
     "build": "tsup",
     "test": "vitest --run",
     "test:all": "PARSER=all vitest --run",
