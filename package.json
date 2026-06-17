@@ -1,6 +1,6 @@
 {
-  "name": "eslint-plugin-solid",
-  "version": "0.14.5",
+  "name": "@ssen/eslint-plugin-solid",
+  "version": "2.0.0-dev.1",
   "description": "Solid-specific linting rules for ESLint.",
   "type": "module",
   "keywords": [
@@ -10,9 +10,12 @@
     "solidjs",
     "reactivity"
   ],
-  "repository": "https://github.com/solidjs-community/eslint-plugin-solid",
+  "repository": "https://github.com/iamssen/eslint-plugin-solid",
   "license": "MIT",
-  "author": "Josh Wilson <joshwilsonvu@gmail.com>",
+  "author": "Seoyoen Lee <ssen1980@naver.com>",
+  "contributors": [
+    "Josh Wilson <joshwilsonvu@gmail.com>"
+  ],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",

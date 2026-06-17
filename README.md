@@ -4,6 +4,12 @@
 
 # Solid ESLint Plugin
 
+> **⚠️ NOTICE: THIS IS A HARD FORK**
+> 
+> This repository is a hard fork of the original [eslint-plugin-solid](https://github.com/solidjs-community/eslint-plugin-solid) created by Josh Wilson. 
+> It has been completely separated from the original project and is maintained independently by Seoyoen Lee (@ssen).
+> 
+> **Please note that the documentation below may contain outdated information or links pointing to the original repository. Proceed with caution.**
 [![npm version](https://img.shields.io/npm/v/eslint-plugin-solid?style=for-the-badge)](https://npmjs.com/package/eslint-plugin-solid)
 [![GitHub package version](https://img.shields.io/github/package-json/v/solidjs-community/eslint-plugin-solid/main?filename=packages%2Feslint-plugin-solid%2Fpackage.json&style=for-the-badge)](https://github.com/solidjs-community/eslint-plugin-solid)
 ![ESLint peer dependency](https://img.shields.io/badge/eslint-6.x--9.x-blue?style=for-the-badge)
