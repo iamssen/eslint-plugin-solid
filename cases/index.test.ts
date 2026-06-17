@@ -36,14 +36,14 @@ test.concurrent("fixture (legacy)", async () => {
   const eslint = new LegacyESLint({
     cwd,
     plugins: {
-      "solid": plugin as any
+      "@ssen/solid": plugin as any
     },
     baseConfig: {
       root: true,
       parser: "@typescript-eslint/parser",
       env: { browser: true },
-      plugins: ["solid"],
-      extends: "plugin:solid/recommended",
+      plugins: ["@ssen/solid"],
+      extends: "plugin:@ssen/solid/recommended",
     },
     useEslintrc: false,
   });

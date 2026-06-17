@@ -12,9 +12,9 @@ const typescript = {
   // this rather than cause potential conflicts
   rules: {
     ...recommended.rules,
-    "solid/jsx-no-undef": [2, { typescriptEnabled: true }] satisfies Linter.RuleEntry,
+    "@ssen/solid/jsx-no-undef": [2, { typescriptEnabled: true }] satisfies Linter.RuleEntry,
     // namespaces taken care of by TS
-    "solid/no-unknown-namespaces": 0,
+    "@ssen/solid/no-unknown-namespaces": 0,
   },
 } satisfies TSESLint.FlatConfig.Config;
 

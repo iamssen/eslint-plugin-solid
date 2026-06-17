@@ -4,7 +4,7 @@ import { createSignal, createContext, useContext } from "solid-js";
 const CounterContext = createContext();
 
 export function CounterProvider(props) {
-  // eslint-disable-next-line solid/reactivity
+  // eslint-disable-next-line @ssen/solid/reactivity
   const [count, setCount] = createSignal(props.count || 0),
     store = [
       count,

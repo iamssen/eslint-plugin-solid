@@ -10,6 +10,8 @@
 > It has been completely separated from the original project and is maintained independently by Seoyoen Lee (@ssen).
 > 
 > **Please note that the documentation below may contain outdated information or links pointing to the original repository. Proceed with caution.**
+
+
 [![npm version](https://img.shields.io/npm/v/eslint-plugin-solid?style=for-the-badge)](https://npmjs.com/package/eslint-plugin-solid)
 [![GitHub package version](https://img.shields.io/github/package-json/v/solidjs-community/eslint-plugin-solid/main?filename=packages%2Feslint-plugin-solid%2Fpackage.json&style=for-the-badge)](https://github.com/solidjs-community/eslint-plugin-solid)
 ![ESLint peer dependency](https://img.shields.io/badge/eslint-6.x--9.x-blue?style=for-the-badge)
@@ -73,25 +75,25 @@ useful rules for writing accessible HTML.
 
 ## Configuration
 
-Use the `"plugin:solid/recommended"` configuration to get reasonable defaults as shown [below](#rules).
+Use the `"plugin:@ssen/solid/recommended"` configuration to get reasonable defaults as shown [below](#rules).
 
 ```json
 {
   "plugins": ["solid"],
-  "extends": ["eslint:recommended", "plugin:solid/recommended"]
+  "extends": ["eslint:recommended", "plugin:@ssen/solid/recommended"]
 }
 ```
 
 ### TypeScript
 
-If you're using TypeScript, use the `"plugin:solid/typescript"` configuration instead.
+If you're using TypeScript, use the `"plugin:@ssen/solid/typescript"` configuration instead.
 This disables some features that overlap with type checking.
 
 ```json
 {
   "parser": "@typescript-eslint/parser",
   "plugins": ["solid"],
-  "extends": ["eslint:recommended", "plugin:solid/typescript"]
+  "extends": ["eslint:recommended", "plugin:@ssen/solid/typescript"]
 }
 ```
 
@@ -111,9 +113,9 @@ options you can set.
     }
   },
   "rules": {
-    "solid/reactivity": "warn",
-    "solid/no-destructure": "warn",
-    "solid/jsx-no-undef": "error"
+    "@ssen/solid/reactivity": "warn",
+    "@ssen/solid/no-destructure": "warn",
+    "@ssen/solid/jsx-no-undef": "error"
   }
 }
 ```
@@ -128,7 +130,7 @@ and/or `.eslintignore`.
 
 ```js
 import js from "@eslint/js";
-import solid from "eslint-plugin-solid/configs/recommended";
+import solid from "@ssen/eslint-plugin-solid/configs/recommended";
 
 export default [
   js.configs.recommended, // replaces eslint:recommended
@@ -140,7 +142,7 @@ For TypeScript:
 
 ```js
 import js from "@eslint/js";
-import solid from "eslint-plugin-solid/configs/typescript";
+import solid from "@ssen/eslint-plugin-solid/configs/typescript";
 import * as tsParser from "@typescript-eslint/parser";
 
 export default [
@@ -166,7 +168,7 @@ as well as at least ES2015.
 Note for the ESLint VSCode Extension: Enable the "Use Flat Config" setting for your workspace to
 enable Flat Config support.
 
-Flat configs are also available as `plugin.configs['flat/recommended']` and `plugin.configs['flat/typescript']`, after using `import plugin from 'eslint-plugin-solid'`.
+Flat configs are also available as `plugin.configs['flat/recommended']` and `plugin.configs['flat/typescript']`, after using `import plugin from '@ssen/eslint-plugin-solid'`.
 
 ## Rules
 

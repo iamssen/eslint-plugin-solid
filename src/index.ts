@@ -4,7 +4,7 @@ import typescriptConfig from "./configs/typescript.js";
 
 export const configs = {
   recommended: {
-    plugins: ["solid"],
+    plugins: ["@ssen/solid"],
     env: {
       browser: true,
       es6: true,
@@ -13,7 +13,7 @@ export const configs = {
     rules: recommendedConfig.rules,
   },
   typescript: {
-    plugins: ["solid"],
+    plugins: ["@ssen/solid"],
     env: {
       browser: true,
       es6: true,
