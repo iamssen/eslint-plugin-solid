@@ -1,5 +1,5 @@
 import * as babelEslintParser from '@babel/eslint-parser';
-import type { TSESLint } from '@typescript-eslint/utils';
+import type { ESLintUtils, TSESLint } from '@typescript-eslint/utils';
 import { RuleTester } from 'eslint';
 import { RuleTester as RuleTester_v10 } from 'eslint-v10';
 import { RuleTester as RuleTester_v8 } from 'eslint-v8';
@@ -106,7 +106,7 @@ interface Tests {
 }
 export const run = (
   name: string,
-  rule: TSESLint.RuleModule<string, Array<unknown>>,
+  rule: ESLintUtils.RuleModule<string, readonly unknown[]>,
   tests: Tests,
 ) => {
   const jsOnlyPredicate = (test: { [tsOnly]?: boolean } | string) =>
