@@ -6,10 +6,17 @@ import tseslint from "typescript-eslint";
 
 const tsconfigPath = path.resolve("tsconfig.json");
 
-export default tseslint.config(
+export default [
   {
-    ignores: ["**/dist/", "**/dist.*", "**/.tsup/", "**/eslint.config.*", "cases/", "tsup.config.ts", 
-  "vitest.*.js"],
+    ignores: [
+      "**/dist/",
+      "**/dist.*",
+      "**/.tsup/",
+      "**/eslint.config.*",
+      "cases/",
+      "tsup.config.ts",
+      "vitest.*.js",
+    ],
   },
   js.configs.recommended,
   tseslint.configs.eslintRecommended,
@@ -59,5 +66,5 @@ export default tseslint.config(
         },
       ],
     },
-  }
-);
+  },
+];
