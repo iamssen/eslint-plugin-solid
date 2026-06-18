@@ -50,7 +50,7 @@ export default createRule<Options, MessageIds>({
         'The dangerouslySetInnerHTML prop is not supported; use innerHTML instead.',
     },
   },
-  defaultOptions: [{ allowStatic: true }],
+  // defaultOptions: [{ allowStatic: true }],
   create(context) {
     const allowStatic = Boolean(context.options[0]?.allowStatic ?? true);
     return {

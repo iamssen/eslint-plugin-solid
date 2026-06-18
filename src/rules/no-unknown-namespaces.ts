@@ -8,7 +8,7 @@ const styleNamespaces = ['style', 'class'];
 const otherNamespaces = ['xmlns', 'xlink'];
 
 type MessageIds = 'unknown' | 'style' | 'component' | 'component-suggest';
-type Options = [{ allowedNamespaces: Array<string> }?];
+type Options = [{ allowedNamespaces?: Array<string> }?];
 
 export default createRule<Options, MessageIds>({
   meta: {
@@ -37,7 +37,7 @@ export default createRule<Options, MessageIds>({
         additionalProperties: false,
       },
     ],
-    defaultOptions: [{ allowedNamespaces: [] }],
+    defaultOptions: [{}],
     messages: {
       'unknown': `'{{namespace}}:' is not one of Solid's special prefixes for JSX attributes (${knownNamespaces
         .map((n) => `'${n}:'`)
@@ -48,9 +48,10 @@ export default createRule<Options, MessageIds>({
       'component-suggest': 'Replace {{namespace}}:{{name}} with {{name}}.',
     },
   },
-  defaultOptions: [],
+  // defaultOptions: [],
   create(context) {
-    const explicitlyAllowedNamespaces = context.options?.[0]?.allowedNamespaces;
+    const explicitlyAllowedNamespaces: string[] | undefined =
+      context.options?.[0]?.allowedNamespaces;
     return {
       'JSXAttribute > JSXNamespacedName': (node: T.JSXNamespacedName) => {
         const openingElement = node.parent!.parent as T.JSXOpeningElement;

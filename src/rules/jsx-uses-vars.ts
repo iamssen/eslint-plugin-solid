@@ -1,4 +1,4 @@
-import { TSESTree as T, ESLintUtils } from '@typescript-eslint/utils';
+import { ESLintUtils, TSESTree as T } from '@typescript-eslint/utils';
 import { markVariableAsUsed } from '../compat.js';
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
@@ -21,7 +21,7 @@ export default createRule({
     // eslint-disable-next-line eslint-plugin/prefer-message-ids
     messages: {},
   },
-  defaultOptions: [],
+  // defaultOptions: [],
   create(context) {
     return {
       'JSXOpeningElement'(node) {

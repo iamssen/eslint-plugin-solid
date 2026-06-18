@@ -1,4 +1,4 @@
-import { ESLintUtils, ASTUtils } from '@typescript-eslint/utils';
+import { ASTUtils, ESLintUtils } from '@typescript-eslint/utils';
 import { getScope } from '../compat.js';
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
@@ -32,7 +32,7 @@ export default createRule({
         "For security, don't use javascript: URLs. Use event handlers instead if you can.",
     },
   },
-  defaultOptions: [],
+  // defaultOptions: [],
   create(context) {
     return {
       JSXAttribute(node) {

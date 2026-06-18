@@ -1,6 +1,6 @@
-import { TSESTree as T, TSESLint, ESLintUtils } from '@typescript-eslint/utils';
-import { appendImports, insertImports, removeSpecifier } from '../utils.js';
+import { ESLintUtils, TSESTree as T, TSESLint } from '@typescript-eslint/utils';
 import { getSourceCode } from '../compat.js';
+import { appendImports, insertImports, removeSpecifier } from '../utils.js';
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 
@@ -138,7 +138,7 @@ export default createRule({
       'prefer-source': 'Prefer importing {{name}} from "{{source}}".',
     },
   },
-  defaultOptions: [],
+  // defaultOptions: [],
   create(context) {
     return {
       ImportDeclaration(node) {

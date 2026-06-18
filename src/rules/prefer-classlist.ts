@@ -40,7 +40,7 @@ export default createRule<Options, MessageIds>({
         'The classlist prop should be used instead of {{ classnames }} to efficiently set classes based on an object.',
     },
   },
-  defaultOptions: [],
+  // defaultOptions: [],
   create(context) {
     const classnames = context.options[0]?.classnames ?? [
       'cn',

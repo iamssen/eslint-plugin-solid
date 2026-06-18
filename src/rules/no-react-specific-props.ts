@@ -1,4 +1,4 @@
-import { TSESLint, ESLintUtils } from '@typescript-eslint/utils';
+import { ESLintUtils, TSESLint } from '@typescript-eslint/utils';
 import { isDOMElementName, jsxGetProp, jsxHasProp } from '../utils.js';
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
@@ -25,7 +25,7 @@ export default createRule({
         'Elements in a <For> or <Index> list do not need a key prop.',
     },
   },
-  defaultOptions: [],
+  // defaultOptions: [],
   create(context) {
     return {
       JSXOpeningElement(node) {

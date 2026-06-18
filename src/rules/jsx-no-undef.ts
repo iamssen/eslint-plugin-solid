@@ -70,7 +70,7 @@ export default createRule<Options, MessageIds>({
       autoImport: "{{imports}} should be imported from '{{source}}'.",
     },
   },
-  defaultOptions: [],
+  // defaultOptions: [],
   create(context) {
     const allowGlobals = context.options[0]?.allowGlobals ?? false;
     const autoImport = context.options[0]?.autoImport !== false;

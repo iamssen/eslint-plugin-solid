@@ -1,4 +1,4 @@
-import { TSESTree as T, ESLintUtils, ASTUtils } from '@typescript-eslint/utils';
+import { ASTUtils, ESLintUtils, TSESTree as T } from '@typescript-eslint/utils';
 import { isFunctionNode, isJSXElementOrFragment } from '../utils.js';
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
@@ -21,7 +21,7 @@ export default createRule({
         "Use Solid's `<For />` component or `<Index />` component for rendering lists. Array#map causes DOM elements to be recreated.",
     },
   },
-  defaultOptions: [],
+  // defaultOptions: [],
   create(context) {
     const reportPreferFor = (node: T.CallExpression) => {
       const jsxExpressionContainerNode =

@@ -1,4 +1,4 @@
-import { TSESTree as T, ESLintUtils } from '@typescript-eslint/utils';
+import { ESLintUtils, TSESTree as T } from '@typescript-eslint/utils';
 import { isDOMElementName, trace } from '../utils.js';
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
@@ -16,7 +16,7 @@ export default createRule({
         'Passing an array as an event handler is potentially type-unsafe.',
     },
   },
-  defaultOptions: [],
+  // defaultOptions: [],
   create(context) {
     return {
       JSXAttribute(node) {

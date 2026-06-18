@@ -304,11 +304,11 @@ export default createRule<Options, MessageIds>({
         "This tracked scope should not be async. Solid's reactivity only tracks synchronously.",
     },
   },
-  defaultOptions: [
-    {
-      customReactiveFunctions: [],
-    },
-  ],
+  // defaultOptions: [
+  //   {
+  //     customReactiveFunctions: [],
+  //   },
+  // ],
   create(context, [options]) {
     const warnShouldDestructure = (node: T.Node, nth?: string) =>
       context.report({

@@ -40,7 +40,7 @@ export default createRule({
         'Solid components run once, so a conditional return breaks reactivity. Move the condition inside a JSX element, such as a fragment or <Show />.',
     },
   },
-  defaultOptions: [],
+  // defaultOptions: [],
   create(context) {
     const functionStack: Array<{
       /** switched to true by :exit if the current function is detected to be a component */

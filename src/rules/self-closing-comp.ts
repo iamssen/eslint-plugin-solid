@@ -78,7 +78,7 @@ export default createRule<Options, MessageIds>({
       dontSelfClose: 'This element should not be self-closing.',
     },
   },
-  defaultOptions: [],
+  // defaultOptions: [],
   create(context) {
     function shouldBeSelfClosedWhenPossible(
       node: T.JSXOpeningElement,

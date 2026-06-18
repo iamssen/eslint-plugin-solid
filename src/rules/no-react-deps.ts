@@ -18,7 +18,7 @@ export default createRule({
         "In Solid, `{{name}}` doesn't accept a dependency array because it automatically tracks its dependencies. If you really need to override the list of dependencies, use `on`.",
     },
   },
-  defaultOptions: [],
+  // defaultOptions: [],
   create(context) {
     /** Tracks imports from 'solid-js', handling aliases. */
     const { matchImport, handleImportDeclaration } = trackImports();

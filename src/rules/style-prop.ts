@@ -62,7 +62,7 @@ export default createRule<Options, MessageIds>({
       stringStyle: 'Use an object for the style prop instead of a string.',
     },
   },
-  defaultOptions: [],
+  // defaultOptions: [],
   create(context) {
     const allCssPropertiesSet: Set<string> = new Set(allCssProperties);
     const allowString = Boolean(context.options[0]?.allowString);

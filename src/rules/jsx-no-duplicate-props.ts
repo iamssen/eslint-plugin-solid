@@ -43,7 +43,7 @@ export default createRule<Options, MessageIds>({
       noDuplicateChildren: 'Using {{used}} at the same time is not allowed.',
     },
   },
-  defaultOptions: [],
+  // defaultOptions: [],
   create(context) {
     return {
       JSXOpeningElement(node) {

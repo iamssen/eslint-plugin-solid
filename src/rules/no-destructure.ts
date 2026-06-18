@@ -1,11 +1,11 @@
 import {
+  ASTUtils,
+  ESLintUtils,
   TSESTree as T,
   TSESLint,
-  ESLintUtils,
-  ASTUtils,
 } from '@typescript-eslint/utils';
-import type { FunctionNode } from '../utils.js';
 import { getSourceCode } from '../compat.js';
+import type { FunctionNode } from '../utils.js';
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 const { getStringIfConstant } = ASTUtils;
@@ -62,7 +62,7 @@ export default createRule({
       // noWriteToProps: "Component props are readonly, writing to props is not supported.",
     },
   },
-  defaultOptions: [],
+  // defaultOptions: [],
   create(context) {
     const functionStack: Array<{
       /** switched to true by :exit if JSX is detected in the current function */

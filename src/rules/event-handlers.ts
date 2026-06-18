@@ -153,7 +153,7 @@ export default createRule<Options, MessageIds>({
         "The {{name}} prop should be added as a JSX attribute, not spread in. Solid doesn't add listeners when spreading into JSX.",
     },
   },
-  defaultOptions: [],
+  // defaultOptions: [],
   create(context) {
     const sourceCode = getSourceCode(context);
 

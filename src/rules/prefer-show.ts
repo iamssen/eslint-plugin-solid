@@ -1,6 +1,6 @@
-import { TSESTree as T, ESLintUtils } from '@typescript-eslint/utils';
-import { isJSXElementOrFragment } from '../utils.js';
+import { ESLintUtils, TSESTree as T } from '@typescript-eslint/utils';
 import { getSourceCode } from '../compat.js';
+import { isJSXElementOrFragment } from '../utils.js';
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 
@@ -23,7 +23,7 @@ export default createRule({
         "Use Solid's `<Show />` component for conditionally showing content with a fallback.",
     },
   },
-  defaultOptions: [],
+  // defaultOptions: [],
   create(context) {
     const sourceCode = getSourceCode(context);
     const putIntoJSX = (node: T.Node): string => {
