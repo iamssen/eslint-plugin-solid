@@ -1,5 +1,9 @@
 import * as babelEslintParser from '@babel/eslint-parser';
-import type { ESLintUtils, TSESLint } from '@typescript-eslint/utils';
+import type {
+  InvalidTestCase,
+  ValidTestCase,
+} from '@typescript-eslint/rule-tester';
+import type { ESLintUtils } from '@typescript-eslint/utils';
 import { RuleTester } from 'eslint';
 import { RuleTester as RuleTester_v10 } from 'eslint-v10';
 import { RuleTester as RuleTester_v8 } from 'eslint-v8';
@@ -97,12 +101,8 @@ const v10Tester = new RuleTester_v10({
 });
 
 interface Tests {
-  valid?: Array<
-    (TSESLint.ValidTestCase<unknown[]> & { [tsOnly]?: boolean }) | string
-  >;
-  invalid?: Array<
-    TSESLint.InvalidTestCase<string, unknown[]> & { [tsOnly]?: boolean }
-  >;
+  valid?: Array<(ValidTestCase<unknown[]> & { [tsOnly]?: boolean }) | string>;
+  invalid?: Array<InvalidTestCase<string, unknown[]> & { [tsOnly]?: boolean }>;
 }
 export const run = (
   name: string,
