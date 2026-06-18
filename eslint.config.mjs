@@ -1,4 +1,5 @@
 import js from '@eslint/js';
+import prettier from 'eslint-config-prettier';
 import pluginEslintPlugin from 'eslint-plugin-eslint-plugin';
 import globals from 'globals';
 import path from 'node:path';
@@ -19,8 +20,8 @@ export default [
     ],
   },
   js.configs.recommended,
-  tseslint.configs.eslintRecommended,
   ...tseslint.configs.recommended,
+  prettier,
   {
     languageOptions: {
       sourceType: 'module',
@@ -66,5 +67,10 @@ export default [
         },
       ],
     },
+  },
+  {
+    // disable type-aware linting on JS files
+    files: ['**/*.{js,jsx,mjs,cjs}'],
+    rules: tseslint.configs.disableTypeChecked.rules,
   },
 ];
