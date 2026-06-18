@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { createEffect, children } from "solid-js";
+import { createEffect, children } from 'solid-js';
 
 export default function ColoredList(props) {
   const c = children(() => props.children);

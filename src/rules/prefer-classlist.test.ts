@@ -1,7 +1,7 @@
-import rule from "./prefer-classlist.js";
-import { run } from "./ruleTester.js";
+import rule from './prefer-classlist.js';
+import { run } from './ruleTester.js';
 
-export const cases = run("prefer-classlist", rule, {
+export const cases = run('prefer-classlist', rule, {
   valid: [
     `let el = <div classlist={{ red: true }}>Hello, world!</div>`,
     `let el = <div class="red">Hello, world!</div>`,
@@ -15,39 +15,41 @@ export const cases = run("prefer-classlist", rule, {
     `let el = <div class={clsx({ red: true })} classlist={{}}>Hello, world!</div>`,
     {
       code: `let el = <div class={clsx({ red: true })}>Hello, world!</div>`,
-      options: [{ classnames: ["x", "y", "z"] }],
+      options: [{ classnames: ['x', 'y', 'z'] }],
     },
   ],
   invalid: [
     {
       code: `let el = <div class={cn({ red: true })}>Hello, world!</div>`,
-      errors: [{ messageId: "preferClasslist", data: { classnames: "cn" } }],
+      errors: [{ messageId: 'preferClasslist', data: { classnames: 'cn' } }],
       output: `let el = <div classlist={{ red: true }}>Hello, world!</div>`,
     },
     {
       code: `let el = <div class={clsx({ red: true })}>Hello, world!</div>`,
-      errors: [{ messageId: "preferClasslist", data: { classnames: "clsx" } }],
+      errors: [{ messageId: 'preferClasslist', data: { classnames: 'clsx' } }],
       output: `let el = <div classlist={{ red: true }}>Hello, world!</div>`,
     },
     {
       code: `let el = <div class={classnames({ red: true })}>Hello, world!</div>`,
-      errors: [{ messageId: "preferClasslist", data: { classnames: "classnames" } }],
+      errors: [
+        { messageId: 'preferClasslist', data: { classnames: 'classnames' } },
+      ],
       output: `let el = <div classlist={{ red: true }}>Hello, world!</div>`,
     },
     {
       code: `let el = <div class={x({ red: true })}>Hello, world!</div>`,
-      options: [{ classnames: ["x", "y", "z"] }],
-      errors: [{ messageId: "preferClasslist", data: { classnames: "x" } }],
+      options: [{ classnames: ['x', 'y', 'z'] }],
+      errors: [{ messageId: 'preferClasslist', data: { classnames: 'x' } }],
       output: `let el = <div classlist={{ red: true }}>Hello, world!</div>`,
     },
     {
       code: `let el = <div className={cn({ red: true })}>Hello, world!</div>`,
-      errors: [{ messageId: "preferClasslist", data: { classnames: "cn" } }],
+      errors: [{ messageId: 'preferClasslist', data: { classnames: 'cn' } }],
       output: `let el = <div classlist={{ red: true }}>Hello, world!</div>`,
     },
     {
       code: `let el = <div class={cn({ red: true, "mx-4": props.size > 2 })}>Hello, world!</div>`,
-      errors: [{ messageId: "preferClasslist", data: { classnames: "cn" } }],
+      errors: [{ messageId: 'preferClasslist', data: { classnames: 'cn' } }],
       output: `let el = <div classlist={{ red: true, "mx-4": props.size > 2 }}>Hello, world!</div>`,
     },
   ],

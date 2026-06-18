@@ -1,6 +1,6 @@
 // @ts-nocheck
-import { render } from "solid-js/web";
-import { For, createSignal } from "solid-js";
+import { render } from 'solid-js/web';
+import { For, createSignal } from 'solid-js';
 
 const App = () => {
   const [todos, setTodos] = createSignal([]);
@@ -25,7 +25,7 @@ const App = () => {
           onClick={() => {
             if (!input.value.trim()) return;
             addTodo(input.value);
-            input.value = "";
+            input.value = '';
           }}
         >
           Add Todo
@@ -37,8 +37,16 @@ const App = () => {
           console.log(`Creating ${text}`);
           return (
             <div>
-              <input type="checkbox" checked={todo.completed()} onChange={[toggleTodo, id]} />
-              <span style={{ "text-decoration": todo.completed() ? "line-through" : "none" }}>
+              <input
+                type="checkbox"
+                checked={todo.completed()}
+                onChange={[toggleTodo, id]}
+              />
+              <span
+                style={{
+                  'text-decoration': todo.completed() ? 'line-through' : 'none',
+                }}
+              >
                 {text}
               </span>
             </div>
@@ -49,4 +57,4 @@ const App = () => {
   );
 };
 
-render(App, document.getElementById("app"));
+render(App, document.getElementById('app'));

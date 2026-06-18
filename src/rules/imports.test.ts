@@ -1,7 +1,7 @@
-import rule from "./imports.js";
-import { run, tsOnly } from "./ruleTester.js";
+import rule from './imports.js';
+import { run, tsOnly } from './ruleTester.js';
 
-export const cases = run("imports", rule, {
+export const cases = run('imports', rule, {
   valid: [
     `import { createSignal, mergeProps as merge } from "solid-js";`,
     `import { createSignal, mergeProps as merge } from 'solid-js';`,
@@ -23,8 +23,8 @@ import type { Store } from "solid-js/store";`,
       code: `import { createEffect } from "solid-js/web";`,
       errors: [
         {
-          messageId: "prefer-source",
-          data: { name: "createEffect", source: "solid-js" },
+          messageId: 'prefer-source',
+          data: { name: 'createEffect', source: 'solid-js' },
         },
       ],
       output: `import { createEffect } from "solid-js";
@@ -35,8 +35,8 @@ import type { Store } from "solid-js/store";`,
 import { createSignal } from "solid-js";`,
       errors: [
         {
-          messageId: "prefer-source",
-          data: { name: "createEffect", source: "solid-js" },
+          messageId: 'prefer-source',
+          data: { name: 'createEffect', source: 'solid-js' },
         },
       ],
       output: `
@@ -49,8 +49,8 @@ import { createSignal } from "solid-js";
 console.log('hi');`,
       errors: [
         {
-          messageId: "prefer-source",
-          data: { name: "Component", source: "solid-js" },
+          messageId: 'prefer-source',
+          data: { name: 'Component', source: 'solid-js' },
         },
       ],
       output: `
@@ -63,8 +63,8 @@ console.log('hi');`,
 import "solid-js";`,
       errors: [
         {
-          messageId: "prefer-source",
-          data: { name: "createSignal", source: "solid-js" },
+          messageId: 'prefer-source',
+          data: { name: 'createSignal', source: 'solid-js' },
         },
       ],
       output: `
@@ -75,8 +75,8 @@ import { createSignal } from "solid-js";`,
 import {} from "solid-js";`,
       errors: [
         {
-          messageId: "prefer-source",
-          data: { name: "createSignal", source: "solid-js" },
+          messageId: 'prefer-source',
+          data: { name: 'createSignal', source: 'solid-js' },
         },
       ],
       output: `
@@ -88,12 +88,12 @@ import { createSignal } from "solid-js";`,
 import { render } from "solid-js";`,
       errors: [
         {
-          messageId: "prefer-source",
-          data: { name: "createEffect", source: "solid-js" },
+          messageId: 'prefer-source',
+          data: { name: 'createEffect', source: 'solid-js' },
         },
         {
-          messageId: "prefer-source",
-          data: { name: "render", source: "solid-js/web" },
+          messageId: 'prefer-source',
+          data: { name: 'render', source: 'solid-js/web' },
         },
       ],
       output: `
@@ -105,8 +105,8 @@ import { render, createEffect } from "solid-js";`,
 import { render, createEffect } from "solid-js";`,
       errors: [
         {
-          messageId: "prefer-source",
-          data: { name: "render", source: "solid-js/web" },
+          messageId: 'prefer-source',
+          data: { name: 'render', source: 'solid-js/web' },
         },
       ],
       output: `

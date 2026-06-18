@@ -1,9 +1,9 @@
 // @ts-nocheck
-import { createStore } from "solid-js/store";
+import { createStore } from 'solid-js/store';
 
 function checkValid({ element, validators = [] }, setErrors, errorClass) {
   return async () => {
-    element.setCustomValidity("");
+    element.setCustomValidity('');
     element.checkValidity();
     let message = element.validationMessage;
     if (!message) {
@@ -41,7 +41,7 @@ export function useForm({ errorClass }) {
 
   const formSubmit = (ref, accessor) => {
     const callback = accessor() || (() => {});
-    ref.setAttribute("novalidate", "");
+    ref.setAttribute('novalidate', '');
     ref.onsubmit = async (e) => {
       e.preventDefault();
       let errored = false;

@@ -1,6 +1,6 @@
 // @ts-nocheck
-import { render } from "solid-js/web";
-import { createSignal, Switch, Match } from "solid-js";
+import { render } from 'solid-js/web';
+import { createSignal, Switch, Match } from 'solid-js';
 
 function App() {
   const [x] = createSignal(7);
@@ -17,4 +17,4 @@ function App() {
   );
 }
 
-render(() => <App />, document.getElementById("app"));
+render(() => <App />, document.getElementById('app'));

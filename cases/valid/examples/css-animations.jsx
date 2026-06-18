@@ -1,7 +1,7 @@
-import { createSignal, For, Match, Switch } from "solid-js";
-import { render } from "solid-js/web";
-import { Transition, TransitionGroup } from "solid-transition-group";
-import "./styles.css";
+import { createSignal, For, Match, Switch } from 'solid-js';
+import { render } from 'solid-js/web';
+import { Transition, TransitionGroup } from 'solid-transition-group';
+import './styles.css';
 
 function shuffle(array) {
   return array.sort(() => Math.random() - 0.5);
@@ -16,14 +16,17 @@ const App = () => {
 
   return (
     <>
-      <button onClick={() => toggleShow(!show())}>{show() ? "Hide" : "Show"}</button>
+      <button onClick={() => toggleShow(!show())}>
+        {show() ? 'Hide' : 'Show'}
+      </button>
       <br />
       <b>Transition:</b>
       <Transition name="slide-fade">
         {show() && (
           <div>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris facilisis enim libero,
-            at lacinia diam fermentum id. Pellentesque habitant morbi tristique senectus et netus.
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris
+            facilisis enim libero, at lacinia diam fermentum id. Pellentesque
+            habitant morbi tristique senectus et netus.
           </div>
         )}
       </Transition>
@@ -32,8 +35,9 @@ const App = () => {
       <Transition name="bounce">
         {show() && (
           <div>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris facilisis enim libero,
-            at lacinia diam fermentum id. Pellentesque habitant morbi tristique senectus et netus.
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris
+            facilisis enim libero, at lacinia diam fermentum id. Pellentesque
+            habitant morbi tristique senectus et netus.
           </div>
         )}
       </Transition>
@@ -55,8 +59,9 @@ const App = () => {
       >
         {show() && (
           <div>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris facilisis enim libero,
-            at lacinia diam fermentum id. Pellentesque habitant morbi tristique senectus et netus.
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris
+            facilisis enim libero, at lacinia diam fermentum id. Pellentesque
+            habitant morbi tristique senectus et netus.
           </div>
         )}
       </Transition>
@@ -113,4 +118,4 @@ const App = () => {
   );
 };
 
-render(App, document.getElementById("app"));
+render(App, document.getElementById('app'));

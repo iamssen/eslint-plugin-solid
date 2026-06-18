@@ -1,6 +1,6 @@
 // @ts-nocheck
-import { render } from "solid-js/web";
-import { createSignal, createEffect, on } from "solid-js";
+import { render } from 'solid-js/web';
+import { createSignal, createEffect, on } from 'solid-js';
 
 const App = () => {
   const [a, setA] = createSignal(1);
@@ -13,8 +13,8 @@ const App = () => {
       (a) => {
         console.log(a, b());
       },
-      { defer: true }
-    )
+      { defer: true },
+    ),
   );
 
   return (
@@ -29,4 +29,4 @@ const App = () => {
   );
 };
 
-render(App, document.getElementById("app"));
+render(App, document.getElementById('app'));

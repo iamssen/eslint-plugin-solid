@@ -1,7 +1,7 @@
-import rule from "./no-unknown-namespaces.js";
-import { run } from "./ruleTester.js";
+import rule from './no-unknown-namespaces.js';
+import { run } from './ruleTester.js';
 
-export const cases = run("no-unknown-namespaces", rule, {
+export const cases = run('no-unknown-namespaces', rule, {
   valid: [
     `let el = <div on:click={null} />;`,
     `let el = <div on:focus={null} />;`,
@@ -14,44 +14,44 @@ export const cases = run("no-unknown-namespaces", rule, {
     `let el = <div attr:title="title" />;`,
     `let el = <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"></svg>`,
     {
-      options: [{ allowedNamespaces: ["foo"] }],
+      options: [{ allowedNamespaces: ['foo'] }],
       code: `let el = <bar foo="http://www.w3.org/2000/svg" version="1.1" foo:bar="http://www.w3.org/1999/xlink" />`,
     },
   ],
   invalid: [
     {
       code: `let el = <div foo:boo={null} />`,
-      errors: [{ messageId: "unknown", data: { namespace: "foo" } }],
+      errors: [{ messageId: 'unknown', data: { namespace: 'foo' } }],
     },
     {
       code: `let el = <div bar:car={null} />`,
-      errors: [{ messageId: "unknown", data: { namespace: "bar" } }],
+      errors: [{ messageId: 'unknown', data: { namespace: 'bar' } }],
     },
     {
       code: `let el = <div style:width="100%" />`,
-      errors: [{ messageId: "style", data: { namespace: "style" } }],
+      errors: [{ messageId: 'style', data: { namespace: 'style' } }],
     },
     {
       code: `let el = <div style:width={0} />`,
-      errors: [{ messageId: "style", data: { namespace: "style" } }],
+      errors: [{ messageId: 'style', data: { namespace: 'style' } }],
     },
     {
       code: `let el = <div class:mt-10={true} />`,
-      errors: [{ messageId: "style", data: { namespace: "class" } }],
+      errors: [{ messageId: 'style', data: { namespace: 'class' } }],
     },
     {
       code: `let el = <div class:mt-10 />`,
-      errors: [{ messageId: "style", data: { namespace: "class" } }],
+      errors: [{ messageId: 'style', data: { namespace: 'class' } }],
     },
     {
       code: `let el = <Box attr:foo="bar" />`,
       errors: [
         {
-          messageId: "component",
+          messageId: 'component',
           suggestions: [
             {
-              messageId: "component-suggest",
-              data: { namespace: "attr", name: "foo" },
+              messageId: 'component-suggest',
+              data: { namespace: 'attr', name: 'foo' },
               output: `let el = <Box foo="bar" />`,
             },
           ],
@@ -62,11 +62,11 @@ export const cases = run("no-unknown-namespaces", rule, {
       code: `let el = <Box foo:boo={null} />`,
       errors: [
         {
-          messageId: "component",
+          messageId: 'component',
           suggestions: [
             {
-              messageId: "component-suggest",
-              data: { namespace: "foo", name: "boo" },
+              messageId: 'component-suggest',
+              data: { namespace: 'foo', name: 'boo' },
               output: `let el = <Box boo={null} />`,
             },
           ],

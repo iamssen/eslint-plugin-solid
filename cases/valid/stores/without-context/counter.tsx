@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { createSignal, createMemo, createRoot } from "solid-js";
+import { createSignal, createMemo, createRoot } from 'solid-js';
 
 function createCounter() {
   const [count, setCount] = createSignal(0);

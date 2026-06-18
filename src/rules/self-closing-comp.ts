@@ -1,13 +1,13 @@
-import { ESLintUtils, TSESTree as T } from "@typescript-eslint/utils";
-import { getSourceCode } from "../compat.js";
-import { isDOMElementName } from "../utils.js";
+import { ESLintUtils, TSESTree as T } from '@typescript-eslint/utils';
+import { getSourceCode } from '../compat.js';
+import { isDOMElementName } from '../utils.js';
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 
 function isComponent(node: T.JSXOpeningElement) {
   return (
-    (node.name.type === "JSXIdentifier" && !isDOMElementName(node.name.name)) ||
-    node.name.type === "JSXMemberExpression"
+    (node.name.type === 'JSXIdentifier' && !isDOMElementName(node.name.name)) ||
+    node.name.type === 'JSXMemberExpression'
   );
 }
 
@@ -26,14 +26,16 @@ function childrenIsMultilineSpaces(node: T.JSXOpeningElement) {
 
   return (
     childrens.length === 1 &&
-    childrens[0].type === "JSXText" &&
-    childrens[0].value.indexOf("\n") !== -1 &&
-    childrens[0].value.replace(/(?!\xA0)\s/g, "") === ""
+    childrens[0].type === 'JSXText' &&
+    childrens[0].value.indexOf('\n') !== -1 &&
+    childrens[0].value.replace(/(?!\xA0)\s/g, '') === ''
   );
 }
 
-type MessageIds = "selfClose" | "dontSelfClose";
-type Options = [{ component?: "all" | "none"; html?: "all" | "void" | "none" }?];
+type MessageIds = 'selfClose' | 'dontSelfClose';
+type Options = [
+  { component?: 'all' | 'none'; html?: 'all' | 'void' | 'none' }?,
+];
 
 /**
  * This rule is adapted from eslint-plugin-react's self-closing-comp rule under the MIT license,
@@ -41,52 +43,60 @@ type Options = [{ component?: "all" | "none"; html?: "all" | "void" | "none" }?]
  */
 export default createRule<Options, MessageIds>({
   meta: {
-    type: "layout",
+    type: 'layout',
     docs: {
-      description: "Disallow extra closing tags for components without children.",
-      url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/self-closing-comp.md",
+      description:
+        'Disallow extra closing tags for components without children.',
+      url: 'https://github.com/solidjs-community/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/self-closing-comp.md',
     },
-    fixable: "code",
+    fixable: 'code',
     schema: [
       {
-        type: "object",
+        type: 'object',
         properties: {
           component: {
-            type: "string",
-            description: "which Solid components should be self-closing when possible",
-            enum: ["all", "none"],
+            type: 'string',
+            description:
+              'which Solid components should be self-closing when possible',
+            enum: ['all', 'none'],
             // default: "all",
           },
           html: {
-            type: "string",
-            description: "which native elements should be self-closing when possible",
-            enum: ["all", "void", "none"],
+            type: 'string',
+            description:
+              'which native elements should be self-closing when possible',
+            enum: ['all', 'void', 'none'],
             // default: "all",
           },
         },
         additionalProperties: false,
       },
     ],
-    defaultOptions: [{component: 'all', html: 'all'}],
+    defaultOptions: [{ component: 'all', html: 'all' }],
     messages: {
-      selfClose: "Empty components are self-closing.",
-      dontSelfClose: "This element should not be self-closing.",
+      selfClose: 'Empty components are self-closing.',
+      dontSelfClose: 'This element should not be self-closing.',
     },
   },
   defaultOptions: [],
   create(context) {
-    function shouldBeSelfClosedWhenPossible(node: T.JSXOpeningElement): boolean {
+    function shouldBeSelfClosedWhenPossible(
+      node: T.JSXOpeningElement,
+    ): boolean {
       if (isComponent(node)) {
-        const whichComponents = context.options[0]?.component ?? "all";
-        return whichComponents === "all";
-      } else if (node.name.type === "JSXIdentifier" && isDOMElementName(node.name.name)) {
-        const whichComponents = context.options[0]?.html ?? "all";
+        const whichComponents = context.options[0]?.component ?? 'all';
+        return whichComponents === 'all';
+      } else if (
+        node.name.type === 'JSXIdentifier' &&
+        isDOMElementName(node.name.name)
+      ) {
+        const whichComponents = context.options[0]?.html ?? 'all';
         switch (whichComponents) {
-          case "all":
+          case 'all':
             return true;
-          case "void":
+          case 'void':
             return isVoidDOMElementName(node.name.name);
-          case "none":
+          case 'none':
             return false;
         }
       }
@@ -95,28 +105,33 @@ export default createRule<Options, MessageIds>({
 
     return {
       JSXOpeningElement(node) {
-        const canSelfClose = childrenIsEmpty(node) || childrenIsMultilineSpaces(node);
+        const canSelfClose =
+          childrenIsEmpty(node) || childrenIsMultilineSpaces(node);
         if (canSelfClose) {
           const shouldSelfClose = shouldBeSelfClosedWhenPossible(node);
           if (shouldSelfClose && !node.selfClosing) {
             context.report({
               node,
-              messageId: "selfClose",
+              messageId: 'selfClose',
               fix(fixer) {
                 // Represents the last character of the JSXOpeningElement, the '>' character
                 const openingElementEnding = node.range[1] - 1;
                 // Represents the last character of the JSXClosingElement, the '>' character
-                const closingElementEnding = (node.parent as T.JSXElement).closingElement!.range[1];
+                const closingElementEnding = (node.parent as T.JSXElement)
+                  .closingElement!.range[1];
 
                 // Replace />.*<\/.*>/ with '/>'
-                const range = [openingElementEnding, closingElementEnding] as const;
-                return fixer.replaceTextRange(range, " />");
+                const range = [
+                  openingElementEnding,
+                  closingElementEnding,
+                ] as const;
+                return fixer.replaceTextRange(range, ' />');
               },
             });
           } else if (!shouldSelfClose && node.selfClosing) {
             context.report({
               node,
-              messageId: "dontSelfClose",
+              messageId: 'dontSelfClose',
               fix(fixer) {
                 const sourceCode = getSourceCode(context);
                 const tagName = sourceCode.getText(node.name);
@@ -126,10 +141,12 @@ export default createRule<Options, MessageIds>({
                 const lastTokens = sourceCode.getLastTokens(node, { count: 3 }); // JSXIdentifier, '/', '>'
                 const isSpaceBeforeSelfClose = sourceCode.isSpaceBetween?.(
                   lastTokens[0],
-                  lastTokens[1]
+                  lastTokens[1],
                 );
                 const range = [
-                  isSpaceBeforeSelfClose ? selfCloseEnding - 3 : selfCloseEnding - 2,
+                  isSpaceBeforeSelfClose
+                    ? selfCloseEnding - 3
+                    : selfCloseEnding - 2,
                   selfCloseEnding,
                 ] as const;
                 return fixer.replaceTextRange(range, `></${tagName}>`);

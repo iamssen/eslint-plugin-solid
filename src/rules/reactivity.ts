@@ -3,9 +3,14 @@
  * @link https://github.com/solidjs-community/eslint-plugin-solid/blob/main/docs/reactivity.md
  */
 
-import { ASTUtils, ESLintUtils, TSESTree as T, TSESLint } from "@typescript-eslint/utils";
-import { traverse } from "estraverse";
-import { findVariable, getSourceCode, type CompatContext } from "../compat.js";
+import {
+  ASTUtils,
+  ESLintUtils,
+  TSESTree as T,
+  TSESLint,
+} from '@typescript-eslint/utils';
+import { traverse } from 'estraverse';
+import { findVariable, getSourceCode, type CompatContext } from '../compat.js';
 import {
   findInScope,
   findParent,
@@ -20,7 +25,7 @@ import {
   trackImports,
   type FunctionNode,
   type ProgramOrFunctionNode,
-} from "../utils.js";
+} from '../utils.js';
 
 const { getFunctionHeadLocation } = ASTUtils;
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
@@ -60,7 +65,7 @@ interface TrackedScope {
    *   event handler that isn't really a tracked scope but allows reactivity
    * - "expression": some value containing reactivity somewhere
    */
-  expect: "function" | "called-function" | "expression";
+  expect: 'function' | 'called-function' | 'expression';
 }
 
 class ScopeStackItem {
@@ -90,7 +95,7 @@ class ScopeStack extends Array<ScopeStackItem> {
   /** Add references to a signal, memo, derived signal, etc. */
   pushSignal(
     variable: Variable,
-    declarationScope: ProgramOrFunctionNode = this.currentScope().node
+    declarationScope: ProgramOrFunctionNode = this.currentScope().node,
   ) {
     this.signals.push({
       references: variable.references.filter((reference) => !reference.init),
@@ -105,14 +110,17 @@ class ScopeStack extends Array<ScopeStackItem> {
    * declaration scope of the function, but rather the minimum declaration scope
    * of any signals they contain.
    */
-  pushUniqueSignal(variable: Variable, declarationScope: ProgramOrFunctionNode) {
+  pushUniqueSignal(
+    variable: Variable,
+    declarationScope: ProgramOrFunctionNode,
+  ) {
     const foundSignal = this.signals.find((s) => s.variable === variable);
     if (!foundSignal) {
       this.pushSignal(variable, declarationScope);
     } else {
       foundSignal.declarationScope = this.findDeepestDeclarationScope(
         foundSignal.declarationScope,
-        declarationScope
+        declarationScope,
       );
     }
   }
@@ -120,7 +128,7 @@ class ScopeStack extends Array<ScopeStackItem> {
   /** Add references to a props or store. */
   pushProps(
     variable: Variable,
-    declarationScope: ProgramOrFunctionNode = this.currentScope().node
+    declarationScope: ProgramOrFunctionNode = this.currentScope().node,
   ) {
     this.props.push({
       references: variable.references.filter((reference) => !reference.init),
@@ -138,18 +146,25 @@ class ScopeStack extends Array<ScopeStackItem> {
    */
   *consumeSignalReferencesInScope() {
     yield* this.consumeReferencesInScope(this.signals);
-    this.signals = this.signals.filter((variable) => variable.references.length !== 0);
+    this.signals = this.signals.filter(
+      (variable) => variable.references.length !== 0,
+    );
   }
 
   /** Iterate through and remove the props references in the current scope. */
   *consumePropsReferencesInScope() {
     yield* this.consumeReferencesInScope(this.props);
-    this.props = this.props.filter((variable) => variable.references.length !== 0);
+    this.props = this.props.filter(
+      (variable) => variable.references.length !== 0,
+    );
   }
 
   private *consumeReferencesInScope(
-    variables: Array<ReactiveVariable>
-  ): Iterable<{ reference: Reference; declarationScope: ProgramOrFunctionNode }> {
+    variables: Array<ReactiveVariable>,
+  ): Iterable<{
+    reference: Reference;
+    declarationScope: ProgramOrFunctionNode;
+  }> {
     for (const variable of variables) {
       const { references } = variable;
       const inScope: Array<Reference> = [],
@@ -173,7 +188,7 @@ class ScopeStack extends Array<ScopeStackItem> {
   /** Returns the function node deepest in the tree. Assumes a === b, a is inside b, or b is inside a. */
   private findDeepestDeclarationScope = (
     a: ProgramOrFunctionNode,
-    b: ProgramOrFunctionNode
+    b: ProgramOrFunctionNode,
   ): ProgramOrFunctionNode => {
     if (a === b) return a;
     for (let i = this.length - 1; i >= 0; i -= 1) {
@@ -182,7 +197,7 @@ class ScopeStack extends Array<ScopeStackItem> {
         return node;
       }
     }
-    throw new Error("This should never happen");
+    throw new Error('This should never happen');
   };
 
   /**
@@ -190,8 +205,14 @@ class ScopeStack extends Array<ScopeStackItem> {
    * callbacks. Must be called on the :exit pass only.
    */
   private isReferenceInCurrentScope(reference: Reference) {
-    let parentFunction = findParent(reference.identifier, isProgramOrFunctionNode);
-    while (isFunctionNode(parentFunction) && this.syncCallbacks.has(parentFunction)) {
+    let parentFunction = findParent(
+      reference.identifier,
+      isProgramOrFunctionNode,
+    );
+    while (
+      isFunctionNode(parentFunction) &&
+      this.syncCallbacks.has(parentFunction)
+    ) {
       parentFunction = findParent(parentFunction, isProgramOrFunctionNode);
     }
     return parentFunction === this.currentScope().node;
@@ -203,52 +224,59 @@ class ScopeStack extends Array<ScopeStackItem> {
   private props: Array<ReactiveVariable> = [];
 }
 
-const getNthDestructuredVar = (id: T.Node, n: number, context: CompatContext): Variable | null => {
-  if (id?.type === "ArrayPattern") {
+const getNthDestructuredVar = (
+  id: T.Node,
+  n: number,
+  context: CompatContext,
+): Variable | null => {
+  if (id?.type === 'ArrayPattern') {
     const el = id.elements[n];
-    if (el?.type === "Identifier") {
+    if (el?.type === 'Identifier') {
       return findVariable(context, el);
     }
   }
   return null;
 };
 
-const getReturnedVar = (id: T.Node, context: CompatContext): Variable | null => {
-  if (id.type === "Identifier") {
+const getReturnedVar = (
+  id: T.Node,
+  context: CompatContext,
+): Variable | null => {
+  if (id.type === 'Identifier') {
     return findVariable(context, id);
   }
   return null;
 };
 
 type MessageIds =
-  | "noWrite"
-  | "untrackedReactive"
-  | "expectedFunctionGotExpression"
-  | "badSignal"
-  | "badUnnamedDerivedSignal"
-  | "shouldDestructure"
-  | "shouldAssign"
-  | "noAsyncTrackedScope";
+  | 'noWrite'
+  | 'untrackedReactive'
+  | 'expectedFunctionGotExpression'
+  | 'badSignal'
+  | 'badUnnamedDerivedSignal'
+  | 'shouldDestructure'
+  | 'shouldAssign'
+  | 'noAsyncTrackedScope';
 type Options = [{ customReactiveFunctions: string[] }];
 
 export default createRule<Options, MessageIds>({
   meta: {
-    type: "problem",
+    type: 'problem',
     docs: {
       description:
-        "Enforce that reactivity (props, signals, memos, etc.) is properly used, so changes in those values will be tracked and update the view as expected.",
-      url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/reactivity.md",
+        'Enforce that reactivity (props, signals, memos, etc.) is properly used, so changes in those values will be tracked and update the view as expected.',
+      url: 'https://github.com/solidjs-community/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/reactivity.md',
     },
     schema: [
       {
-        type: "object",
+        type: 'object',
         properties: {
           customReactiveFunctions: {
             description:
-              "List of function names to consider as reactive functions (allow signals to be safely passed as arguments). In addition, any create* or use* functions are automatically included.",
-            type: "array",
+              'List of function names to consider as reactive functions (allow signals to be safely passed as arguments). In addition, any create* or use* functions are automatically included.',
+            type: 'array',
             items: {
-              type: "string",
+              type: 'string',
             },
             // default: [],
           },
@@ -256,9 +284,10 @@ export default createRule<Options, MessageIds>({
         additionalProperties: false,
       },
     ],
-    defaultOptions: [{customReactiveFunctions: []}],
+    defaultOptions: [{ customReactiveFunctions: [] }],
     messages: {
-      noWrite: "The reactive variable '{{name}}' should not be reassigned or altered directly.",
+      noWrite:
+        "The reactive variable '{{name}}' should not be reassigned or altered directly.",
       untrackedReactive:
         "The reactive variable '{{name}}' should be used within JSX, a tracked scope (like createEffect), or inside an event handler function, or else changes will be ignored.",
       expectedFunctionGotExpression:
@@ -266,11 +295,11 @@ export default createRule<Options, MessageIds>({
       badSignal:
         "The reactive variable '{{name}}' should be called as a function when used in {{where}}.",
       badUnnamedDerivedSignal:
-        "This function should be passed to a tracked scope (like createEffect) or an event handler because it contains reactivity, or else changes will be ignored.",
+        'This function should be passed to a tracked scope (like createEffect) or an event handler because it contains reactivity, or else changes will be ignored.',
       shouldDestructure:
-        "For proper analysis, array destructuring should be used to capture the {{nth}}result of this function call.",
+        'For proper analysis, array destructuring should be used to capture the {{nth}}result of this function call.',
       shouldAssign:
-        "For proper analysis, a variable should be used to capture the result of this function call.",
+        'For proper analysis, a variable should be used to capture the result of this function call.',
       noAsyncTrackedScope:
         "This tracked scope should not be async. Solid's reactivity only tracks synchronously.",
     },
@@ -284,10 +313,11 @@ export default createRule<Options, MessageIds>({
     const warnShouldDestructure = (node: T.Node, nth?: string) =>
       context.report({
         node,
-        messageId: "shouldDestructure",
-        data: nth ? { nth: nth + " " } : undefined,
+        messageId: 'shouldDestructure',
+        data: nth ? { nth: nth + ' ' } : undefined,
       });
-    const warnShouldAssign = (node: T.Node) => context.report({ node, messageId: "shouldAssign" });
+    const warnShouldAssign = (node: T.Node) =>
+      context.report({ node, messageId: 'shouldAssign' });
 
     const sourceCode = getSourceCode(context);
 
@@ -299,12 +329,15 @@ export default createRule<Options, MessageIds>({
     const { matchImport, handleImportDeclaration } = trackImports();
 
     /** Workaround for #61 */
-    const markPropsOnCondition = (node: FunctionNode, cb: (props: T.Identifier) => boolean) => {
+    const markPropsOnCondition = (
+      node: FunctionNode,
+      cb: (props: T.Identifier) => boolean,
+    ) => {
       if (
         node.params.length === 1 &&
-        node.params[0].type === "Identifier" &&
-        node.parent?.type !== "JSXExpressionContainer" && // "render props" aren't components
-        node.parent?.type !== "TemplateLiteral" && // inline functions in tagged template literals aren't components
+        node.params[0].type === 'Identifier' &&
+        node.parent?.type !== 'JSXExpressionContainer' && // "render props" aren't components
+        node.parent?.type !== 'TemplateLiteral' && // inline functions in tagged template literals aren't components
         cb(node.params[0])
       ) {
         // This function is a component, consider its parameter a props
@@ -328,14 +361,21 @@ export default createRule<Options, MessageIds>({
     };
 
     /** Returns whether a node falls under a tracked scope in the current function scope */
-    const matchTrackedScope = (trackedScope: TrackedScope, node: T.Node): boolean => {
+    const matchTrackedScope = (
+      trackedScope: TrackedScope,
+      node: T.Node,
+    ): boolean => {
       switch (trackedScope.expect) {
-        case "function":
-        case "called-function":
+        case 'function':
+        case 'called-function':
           return node === trackedScope.node;
-        case "expression":
+        case 'expression':
           return Boolean(
-            findInScope(node, currentScope().node, (node) => node === trackedScope.node)
+            findInScope(
+              node,
+              currentScope().node,
+              (node) => node === trackedScope.node,
+            ),
           );
       }
     };
@@ -343,17 +383,21 @@ export default createRule<Options, MessageIds>({
     /** Inspects a specific reference of a reactive variable for correct handling. */
     const handleTrackedScopes = (
       identifier: T.Identifier,
-      declarationScope: ProgramOrFunctionNode
+      declarationScope: ProgramOrFunctionNode,
     ) => {
       const currentScopeNode = currentScope().node;
       // Check if the call falls outside any tracked scopes in the current scope
       if (
         !currentScope().trackedScopes.find((trackedScope) =>
-          matchTrackedScope(trackedScope, identifier)
+          matchTrackedScope(trackedScope, identifier),
         )
       ) {
-        const matchedExpression = currentScope().trackedScopes.find((trackedScope) =>
-          matchTrackedScope({ ...trackedScope, expect: "expression" }, identifier)
+        const matchedExpression = currentScope().trackedScopes.find(
+          (trackedScope) =>
+            matchTrackedScope(
+              { ...trackedScope, expect: 'expression' },
+              identifier,
+            ),
         );
         if (declarationScope === currentScopeNode) {
           // If the reactivity is not contained in a tracked scope, and any of
@@ -362,17 +406,23 @@ export default createRule<Options, MessageIds>({
           // MemberExpression (props/store) or a function call (signal), report
           // that, otherwise the identifier.
           let parentMemberExpression: T.MemberExpression | null = null;
-          if (identifier.parent?.type === "MemberExpression") {
+          if (identifier.parent?.type === 'MemberExpression') {
             parentMemberExpression = identifier.parent;
-            while (parentMemberExpression!.parent?.type === "MemberExpression") {
+            while (
+              parentMemberExpression!.parent?.type === 'MemberExpression'
+            ) {
               parentMemberExpression = parentMemberExpression!.parent;
             }
           }
           const parentCallExpression =
-            identifier.parent?.type === "CallExpression" ? identifier.parent : null;
+            identifier.parent?.type === 'CallExpression'
+              ? identifier.parent
+              : null;
           context.report({
             node: parentMemberExpression ?? parentCallExpression ?? identifier,
-            messageId: matchedExpression ? "expectedFunctionGotExpression" : "untrackedReactive",
+            messageId: matchedExpression
+              ? 'expectedFunctionGotExpression'
+              : 'untrackedReactive',
             data: {
               name: parentMemberExpression
                 ? sourceCode.getText(parentMemberExpression)
@@ -393,31 +443,36 @@ export default createRule<Options, MessageIds>({
           // this to be okay, the arrow function has to be the same node as one
           // of the tracked scopes, as we can't easily find references.
           const pushUnnamedDerivedSignal = () =>
-            (parentScope().unnamedDerivedSignals ??= new Set()).add(currentScopeNode);
+            (parentScope().unnamedDerivedSignals ??= new Set()).add(
+              currentScopeNode,
+            );
 
-          if (currentScopeNode.type === "FunctionDeclaration") {
+          if (currentScopeNode.type === 'FunctionDeclaration') {
             // get variable representing function, function node only defines one variable
             const functionVariable: Variable | undefined =
-              sourceCode.scopeManager?.getDeclaredVariables(currentScopeNode)?.[0];
+              sourceCode.scopeManager?.getDeclaredVariables(
+                currentScopeNode,
+              )?.[0];
             if (functionVariable) {
               scopeStack.pushUniqueSignal(
                 functionVariable,
-                declarationScope // use declaration scope of a signal contained in this function
+                declarationScope, // use declaration scope of a signal contained in this function
               );
             } else {
               pushUnnamedDerivedSignal();
             }
-          } else if (currentScopeNode.parent?.type === "VariableDeclarator") {
+          } else if (currentScopeNode.parent?.type === 'VariableDeclarator') {
             const declarator = currentScopeNode.parent;
             // for nameless or arrow function expressions, use the declared variable it's assigned to
-            const functionVariable = sourceCode.scopeManager?.getDeclaredVariables(declarator)?.[0];
+            const functionVariable =
+              sourceCode.scopeManager?.getDeclaredVariables(declarator)?.[0];
             if (functionVariable) {
               // use declaration scope of a signal contained in this scope, not the function itself
               scopeStack.pushUniqueSignal(functionVariable, declarationScope);
             } else {
               pushUnnamedDerivedSignal();
             }
-          } else if (currentScopeNode.parent?.type === "Property") {
+          } else if (currentScopeNode.parent?.type === 'Property') {
             // todo make this a unique props or something--for now, just ignore (unsafe)
           } else {
             pushUnnamedDerivedSignal();
@@ -446,83 +501,90 @@ export default createRule<Options, MessageIds>({
       // Ignore sync callbacks like Array#forEach and certain Solid primitives.
       // In this case only, currentScopeNode !== currentScope().node, but we're
       // returning early so it doesn't matter.
-      if (isFunctionNode(currentScopeNode) && scopeStack.syncCallbacks.has(currentScopeNode)) {
+      if (
+        isFunctionNode(currentScopeNode) &&
+        scopeStack.syncCallbacks.has(currentScopeNode)
+      ) {
         return;
       }
 
       // Iterate through all usages of (derived) signals in the current scope
-      for (const { reference, declarationScope } of scopeStack.consumeSignalReferencesInScope()) {
+      for (const {
+        reference,
+        declarationScope,
+      } of scopeStack.consumeSignalReferencesInScope()) {
         const identifier = reference.identifier;
         if (reference.isWrite()) {
           // don't allow reassigning signals
           context.report({
             node: identifier,
-            messageId: "noWrite",
+            messageId: 'noWrite',
             data: {
               name: identifier.name,
             },
           });
-        } else if (identifier.type === "Identifier") {
+        } else if (identifier.type === 'Identifier') {
           const reportBadSignal = (where: string) =>
             context.report({
               node: identifier,
-              messageId: "badSignal",
+              messageId: 'badSignal',
               data: { name: identifier.name, where },
             });
           if (
             // This allows both calling a signal and calling a function with a signal.
-            identifier.parent?.type === "CallExpression" ||
+            identifier.parent?.type === 'CallExpression' ||
             // Also allow the case where we pass an array of signals, such as in a custom hook
-            (identifier.parent?.type === "ArrayExpression" &&
-              identifier.parent.parent?.type === "CallExpression")
+            (identifier.parent?.type === 'ArrayExpression' &&
+              identifier.parent.parent?.type === 'CallExpression')
           ) {
             // This signal is getting called properly, analyze it.
             handleTrackedScopes(identifier, declarationScope);
-          } else if (identifier.parent?.type === "TemplateLiteral") {
-            reportBadSignal("template literals");
+          } else if (identifier.parent?.type === 'TemplateLiteral') {
+            reportBadSignal('template literals');
           } else if (
-            identifier.parent?.type === "BinaryExpression" &&
+            identifier.parent?.type === 'BinaryExpression' &&
             [
-              "<",
-              "<=",
-              ">",
-              ">=",
-              "<<",
-              ">>",
-              ">>>",
-              "+",
-              "-",
-              "*",
-              "/",
-              "%",
-              "**",
-              "|",
-              "^",
-              "&",
-              "in",
+              '<',
+              '<=',
+              '>',
+              '>=',
+              '<<',
+              '>>',
+              '>>>',
+              '+',
+              '-',
+              '*',
+              '/',
+              '%',
+              '**',
+              '|',
+              '^',
+              '&',
+              'in',
             ].includes(identifier.parent.operator)
           ) {
             // We're in an arithmetic/comparison expression where using an uncalled signal wouldn't make sense
-            reportBadSignal("arithmetic or comparisons");
+            reportBadSignal('arithmetic or comparisons');
           } else if (
-            identifier.parent?.type === "UnaryExpression" &&
-            ["-", "+", "~"].includes(identifier.parent.operator)
+            identifier.parent?.type === 'UnaryExpression' &&
+            ['-', '+', '~'].includes(identifier.parent.operator)
           ) {
             // We're in a unary expression where using an uncalled signal wouldn't make sense
-            reportBadSignal("unary expressions");
+            reportBadSignal('unary expressions');
           } else if (
-            identifier.parent?.type === "MemberExpression" &&
+            identifier.parent?.type === 'MemberExpression' &&
             identifier.parent.computed &&
             identifier.parent.property === identifier
           ) {
             // We're using an uncalled signal to index an object or array, which doesn't make sense
-            reportBadSignal("property accesses");
+            reportBadSignal('property accesses');
           } else if (
-            identifier.parent?.type === "JSXExpressionContainer" &&
+            identifier.parent?.type === 'JSXExpressionContainer' &&
             !currentScope().trackedScopes.find(
               (trackedScope) =>
                 trackedScope.node === identifier &&
-                (trackedScope.expect === "function" || trackedScope.expect === "called-function")
+                (trackedScope.expect === 'function' ||
+                  trackedScope.expect === 'called-function'),
             )
           ) {
             // If the signal is in a JSXExpressionContainer that's also marked as a "function" or "called-function" tracked scope,
@@ -534,12 +596,12 @@ export default createRule<Options, MessageIds>({
               isJSXElementOrFragment(elementOrAttribute) ||
               // We can't say for sure about user components, but we know for a fact that a signal
               // should not be passed to a non-event handler DOM element attribute without calling it.
-              (elementOrAttribute?.type === "JSXAttribute" &&
-                elementOrAttribute.parent?.type === "JSXOpeningElement" &&
-                elementOrAttribute.parent.name.type === "JSXIdentifier" &&
+              (elementOrAttribute?.type === 'JSXAttribute' &&
+                elementOrAttribute.parent?.type === 'JSXOpeningElement' &&
+                elementOrAttribute.parent.name.type === 'JSXIdentifier' &&
                 isDOMElementName(elementOrAttribute.parent.name.name))
             ) {
-              reportBadSignal("JSX");
+              reportBadSignal('JSX');
             }
           }
         }
@@ -549,33 +611,39 @@ export default createRule<Options, MessageIds>({
       }
 
       // Do a similar thing with all usages of props in the current function
-      for (const { reference, declarationScope } of scopeStack.consumePropsReferencesInScope()) {
+      for (const {
+        reference,
+        declarationScope,
+      } of scopeStack.consumePropsReferencesInScope()) {
         const identifier = reference.identifier;
         if (reference.isWrite()) {
           // don't allow reassigning props or stores
           context.report({
             node: identifier,
-            messageId: "noWrite",
+            messageId: 'noWrite',
             data: {
               name: identifier.name,
             },
           });
         } else if (
-          identifier.parent?.type === "MemberExpression" &&
+          identifier.parent?.type === 'MemberExpression' &&
           identifier.parent.object === identifier
         ) {
           const { parent } = identifier;
-          if (parent.parent?.type === "AssignmentExpression" && parent.parent.left === parent) {
+          if (
+            parent.parent?.type === 'AssignmentExpression' &&
+            parent.parent.left === parent
+          ) {
             // don't allow writing to props or stores directly
             context.report({
               node: identifier,
-              messageId: "noWrite",
+              messageId: 'noWrite',
               data: {
                 name: identifier.name,
               },
             });
           } else if (
-            parent.property.type === "Identifier" &&
+            parent.property.type === 'Identifier' &&
             /^(?:initial|default|static[A-Z])/.test(parent.property.name)
           ) {
             // We're using a prop with a name that starts with `initial` or
@@ -589,13 +657,13 @@ export default createRule<Options, MessageIds>({
             handleTrackedScopes(identifier, declarationScope);
           }
         } else if (
-          identifier.parent?.type === "AssignmentExpression" ||
-          identifier.parent?.type === "VariableDeclarator"
+          identifier.parent?.type === 'AssignmentExpression' ||
+          identifier.parent?.type === 'VariableDeclarator'
         ) {
           // There's no reason to allow `... = props`, it's usually destructuring, which breaks reactivity.
           context.report({
             node: identifier,
-            messageId: "untrackedReactive",
+            messageId: 'untrackedReactive',
             data: { name: identifier.name },
           });
         }
@@ -612,12 +680,12 @@ export default createRule<Options, MessageIds>({
         for (const node of unnamedDerivedSignals) {
           if (
             !currentScope().trackedScopes.find((trackedScope) =>
-              matchTrackedScope(trackedScope, node)
+              matchTrackedScope(trackedScope, node),
             )
           ) {
             context.report({
               loc: getFunctionHeadLocation(node, sourceCode),
-              messageId: "badUnnamedDerivedSignal",
+              messageId: 'badUnnamedDerivedSignal',
             });
           }
         }
@@ -650,27 +718,27 @@ export default createRule<Options, MessageIds>({
         !node.arguments[0].async
       ) {
         if (
-          node.callee.type === "Identifier" &&
-          matchImport(["batch", "produce"], node.callee.name)
+          node.callee.type === 'Identifier' &&
+          matchImport(['batch', 'produce'], node.callee.name)
         ) {
           // These Solid APIs take callbacks that run in the current scope
           scopeStack.syncCallbacks.add(node.arguments[0]);
         } else if (
-          node.callee.type === "MemberExpression" &&
+          node.callee.type === 'MemberExpression' &&
           !node.callee.computed &&
-          node.callee.object.type !== "ObjectExpression" &&
+          node.callee.object.type !== 'ObjectExpression' &&
           /^(?:forEach|map|flatMap|reduce|reduceRight|find|findIndex|filter|every|some)$/.test(
-            node.callee.property.name
+            node.callee.property.name,
           )
         ) {
           // These common array methods (or likely array methods) take synchronous callbacks
           scopeStack.syncCallbacks.add(node.arguments[0]);
         }
       }
-      if (node.callee.type === "Identifier") {
+      if (node.callee.type === 'Identifier') {
         if (
-          matchImport(["createSignal", "createStore"], node.callee.name) &&
-          node.parent?.type === "VariableDeclarator"
+          matchImport(['createSignal', 'createStore'], node.callee.name) &&
+          node.parent?.type === 'VariableDeclarator'
         ) {
           // Allow using reactive variables in state setter if the current scope is tracked.
           // ex.  const [state, setState] = createStore({ ... });
@@ -682,7 +750,7 @@ export default createRule<Options, MessageIds>({
               if (
                 !reference.init &&
                 reference.isRead() &&
-                identifier.parent?.type === "CallExpression"
+                identifier.parent?.type === 'CallExpression'
               ) {
                 for (const arg of identifier.parent.arguments) {
                   if (isFunctionNode(arg) && !arg.async) {
@@ -692,7 +760,7 @@ export default createRule<Options, MessageIds>({
               }
             }
           }
-        } else if (matchImport(["mapArray", "indexArray"], node.callee.name)) {
+        } else if (matchImport(['mapArray', 'indexArray'], node.callee.name)) {
           const arg1 = node.arguments[1];
           if (isFunctionNode(arg1)) {
             scopeStack.syncCallbacks.add(arg1);
@@ -707,22 +775,22 @@ export default createRule<Options, MessageIds>({
 
     /** Checks VariableDeclarators, AssignmentExpressions, and CallExpressions for reactivity. */
     const checkForReactiveAssignment = (
-      id: T.BindingName | T.AssignmentExpression["left"] | null,
-      init: T.Node
+      id: T.BindingName | T.AssignmentExpression['left'] | null,
+      init: T.Node,
     ) => {
       init = ignoreTransparentWrappers(init);
 
       // Mark return values of certain functions as reactive
-      if (init.type === "CallExpression" && init.callee.type === "Identifier") {
+      if (init.type === 'CallExpression' && init.callee.type === 'Identifier') {
         const { callee } = init;
-        if (matchImport(["createSignal", "useTransition"], callee.name)) {
+        if (matchImport(['createSignal', 'useTransition'], callee.name)) {
           const signal = id && getNthDestructuredVar(id, 0, context);
           if (signal) {
             scopeStack.pushSignal(signal, currentScope().node);
           } else {
-            warnShouldDestructure(id ?? init, "first");
+            warnShouldDestructure(id ?? init, 'first');
           }
-        } else if (matchImport(["createMemo", "createSelector"], callee.name)) {
+        } else if (matchImport(['createMemo', 'createSelector'], callee.name)) {
           const memo = id && getReturnedVar(id, context);
           // memos act like signals
           if (memo) {
@@ -730,24 +798,24 @@ export default createRule<Options, MessageIds>({
           } else {
             warnShouldAssign(id ?? init);
           }
-        } else if (matchImport("createStore", callee.name)) {
+        } else if (matchImport('createStore', callee.name)) {
           const store = id && getNthDestructuredVar(id, 0, context);
           // stores act like props
           if (store) {
             scopeStack.pushProps(store, currentScope().node);
           } else {
-            warnShouldDestructure(id ?? init, "first");
+            warnShouldDestructure(id ?? init, 'first');
           }
-        } else if (matchImport("mergeProps", callee.name)) {
+        } else if (matchImport('mergeProps', callee.name)) {
           const merged = id && getReturnedVar(id, context);
           if (merged) {
             scopeStack.pushProps(merged, currentScope().node);
           } else {
             warnShouldAssign(id ?? init);
           }
-        } else if (matchImport("splitProps", callee.name)) {
+        } else if (matchImport('splitProps', callee.name)) {
           // splitProps can return an unbounded array of props variables, though it's most often two
-          if (id?.type === "ArrayPattern") {
+          if (id?.type === 'ArrayPattern') {
             const vars = id.elements
               .map((_, i) => getNthDestructuredVar(id, i, context))
               .filter(Boolean) as Array<Variable>;
@@ -765,35 +833,35 @@ export default createRule<Options, MessageIds>({
               scopeStack.pushProps(vars, currentScope().node);
             }
           }
-        } else if (matchImport("createResource", callee.name)) {
+        } else if (matchImport('createResource', callee.name)) {
           // createResource return value has reactive .loading and .error
           const resourceReturn = id && getNthDestructuredVar(id, 0, context);
           if (resourceReturn) {
             scopeStack.pushProps(resourceReturn, currentScope().node);
           }
-        } else if (matchImport("createMutable", callee.name)) {
+        } else if (matchImport('createMutable', callee.name)) {
           const mutable = id && getReturnedVar(id, context);
           if (mutable) {
             scopeStack.pushProps(mutable, currentScope().node);
           }
-        } else if (matchImport("mapArray", callee.name)) {
+        } else if (matchImport('mapArray', callee.name)) {
           const arg1 = init.arguments[1];
           if (
             isFunctionNode(arg1) &&
             arg1.params.length >= 2 &&
-            arg1.params[1].type === "Identifier"
+            arg1.params[1].type === 'Identifier'
           ) {
             const indexSignal = findVariable(context, arg1.params[1]);
             if (indexSignal) {
               scopeStack.pushSignal(indexSignal);
             }
           }
-        } else if (matchImport("indexArray", callee.name)) {
+        } else if (matchImport('indexArray', callee.name)) {
           const arg1 = init.arguments[1];
           if (
             isFunctionNode(arg1) &&
             arg1.params.length >= 1 &&
-            arg1.params[0].type === "Identifier"
+            arg1.params[0].type === 'Identifier'
           ) {
             const valueSignal = findVariable(context, arg1.params[0]);
             if (valueSignal) {
@@ -812,17 +880,24 @@ export default createRule<Options, MessageIds>({
         | T.VariableDeclarator
         | T.AssignmentExpression
         | T.TaggedTemplateExpression
-        | T.NewExpression
+        | T.NewExpression,
     ) => {
-      const pushTrackedScope = (node: T.Node, expect: TrackedScope["expect"]) => {
+      const pushTrackedScope = (
+        node: T.Node,
+        expect: TrackedScope['expect'],
+      ) => {
         currentScope().trackedScopes.push({ node, expect });
-        if (expect !== "called-function" && isFunctionNode(node) && node.async) {
+        if (
+          expect !== 'called-function' &&
+          isFunctionNode(node) &&
+          node.async
+        ) {
           // From the docs: "[Solid's] approach only tracks synchronously. If you
           // have a setTimeout or use an async function in your Effect the code
           // that executes async after the fact won't be tracked."
           context.report({
             node,
-            messageId: "noAsyncTrackedScope",
+            messageId: 'noAsyncTrackedScope',
           });
         }
       };
@@ -836,24 +911,27 @@ export default createRule<Options, MessageIds>({
             // when referencing a function or something that could be a derived signal, track it
             if (
               isFunctionNode(traced) ||
-              (traced.type === "Identifier" &&
-                traced.parent.type !== "MemberExpression" &&
-                !(traced.parent.type === "CallExpression" && traced.parent.callee === traced))
+              (traced.type === 'Identifier' &&
+                traced.parent.type !== 'MemberExpression' &&
+                !(
+                  traced.parent.type === 'CallExpression' &&
+                  traced.parent.callee === traced
+                ))
             ) {
-              pushTrackedScope(childNode, "called-function");
+              pushTrackedScope(childNode, 'called-function');
               this.skip(); // poor-man's `findInScope`: don't enter child scopes
             }
           },
-          fallback: "iteration", // Don't crash when encounter unknown node.
+          fallback: 'iteration', // Don't crash when encounter unknown node.
         });
       };
 
-      if (node.type === "JSXExpressionContainer") {
+      if (node.type === 'JSXExpressionContainer') {
         if (
-          node.parent?.type === "JSXAttribute" &&
-          sourceCode.getText(node.parent.name).startsWith("on") &&
-          node.parent.parent?.type === "JSXOpeningElement" &&
-          node.parent.parent.name.type === "JSXIdentifier" &&
+          node.parent?.type === 'JSXAttribute' &&
+          sourceCode.getText(node.parent.name).startsWith('on') &&
+          node.parent.parent?.type === 'JSXOpeningElement' &&
+          node.parent.parent.name.type === 'JSXIdentifier' &&
           isDOMElementName(node.parent.parent.name.name)
         ) {
           // Expect a function if the attribute is like onClick={}, onclick={}, on:click={}, or
@@ -868,23 +946,23 @@ export default createRule<Options, MessageIds>({
           // function, even though the changes don't affect when the handler will run. This is what
           // "called-function" represents—not quite a tracked scope, but a place where it's okay to
           // read reactive values.
-          pushTrackedScope(node.expression, "called-function");
+          pushTrackedScope(node.expression, 'called-function');
         } else if (
-          node.parent?.type === "JSXAttribute" &&
-          node.parent.name.type === "JSXNamespacedName" &&
-          node.parent.name.namespace.name === "use" &&
+          node.parent?.type === 'JSXAttribute' &&
+          node.parent.name.type === 'JSXNamespacedName' &&
+          node.parent.name.namespace.name === 'use' &&
           isFunctionNode(node.expression)
         ) {
           // With a `use:` hook, assume that a function passed is a called function.
-          pushTrackedScope(node.expression, "called-function");
+          pushTrackedScope(node.expression, 'called-function');
         } else if (
-          node.parent?.type === "JSXAttribute" &&
-          node.parent.name.name === "value" &&
-          node.parent.parent?.type === "JSXOpeningElement" &&
-          ((node.parent.parent.name.type === "JSXIdentifier" &&
-            node.parent.parent.name.name.endsWith("Provider")) ||
-            (node.parent.parent.name.type === "JSXMemberExpression" &&
-              node.parent.parent.name.property.name === "Provider"))
+          node.parent?.type === 'JSXAttribute' &&
+          node.parent.name.name === 'value' &&
+          node.parent.parent?.type === 'JSXOpeningElement' &&
+          ((node.parent.parent.name.type === 'JSXIdentifier' &&
+            node.parent.parent.name.name.endsWith('Provider')) ||
+            (node.parent.parent.name.type === 'JSXMemberExpression' &&
+              node.parent.parent.name.property.name === 'Provider'))
         ) {
           // From the docs: "The value passed to provider is passed to useContext as is. That means
           // wrapping as a reactive expression will not work. You should pass in Signals and Stores
@@ -894,11 +972,11 @@ export default createRule<Options, MessageIds>({
           // TODO: add some kind of "anti- tracked scope" that still warns but enhances the error
           // message if matched.
         } else if (
-          node.parent?.type === "JSXAttribute" &&
-          node.parent.name?.type === "JSXIdentifier" &&
+          node.parent?.type === 'JSXAttribute' &&
+          node.parent.name?.type === 'JSXIdentifier' &&
           /^static[A-Z]/.test(node.parent.name.name) &&
-          node.parent.parent?.type === "JSXOpeningElement" &&
-          node.parent.parent.name.type === "JSXIdentifier" &&
+          node.parent.parent?.type === 'JSXOpeningElement' &&
+          node.parent.parent.name.type === 'JSXIdentifier' &&
           !isDOMElementName(node.parent.parent.name.name)
         ) {
           // A caller is passing a value to a prop prefixed with `static` in a component, i.e.
@@ -906,47 +984,50 @@ export default createRule<Options, MessageIds>({
           // we shouldn't allow passing reactive values to them, as this isn't just ignoring reactivity
           // like initial*/default*; this is disabling it altogether as a convention. Do nothing.
         } else if (
-          node.parent?.type === "JSXAttribute" &&
-          node.parent.name.name === "ref" &&
+          node.parent?.type === 'JSXAttribute' &&
+          node.parent.name.name === 'ref' &&
           isFunctionNode(node.expression)
         ) {
           // Callback/function refs are called when an element is created but before it is connected
           // to the DOM. This is semantically a "called function", so it's fine to read reactive
           // variables here.
-          pushTrackedScope(node.expression, "called-function");
-        } else if (isJSXElementOrFragment(node.parent) && isFunctionNode(node.expression)) {
-          pushTrackedScope(node.expression, "function"); // functions inline in JSX containers will be tracked
+          pushTrackedScope(node.expression, 'called-function');
+        } else if (
+          isJSXElementOrFragment(node.parent) &&
+          isFunctionNode(node.expression)
+        ) {
+          pushTrackedScope(node.expression, 'function'); // functions inline in JSX containers will be tracked
         } else {
-          pushTrackedScope(node.expression, "expression");
+          pushTrackedScope(node.expression, 'expression');
         }
-      } else if (node.type === "JSXSpreadAttribute") {
+      } else if (node.type === 'JSXSpreadAttribute') {
         // allow <div {...props.nestedProps} />; {...props} is already ignored
-        pushTrackedScope(node.argument, "expression");
-      } else if (node.type === "NewExpression") {
+        pushTrackedScope(node.argument, 'expression');
+      } else if (node.type === 'NewExpression') {
         const {
           callee,
           arguments: { 0: arg0 },
         } = node;
         if (
-          callee.type === "Identifier" &&
+          callee.type === 'Identifier' &&
           arg0 &&
           // Observers from Standard Web APIs
           [
-            "IntersectionObserver",
-            "MutationObserver",
-            "PerformanceObserver",
-            "ReportingObserver",
-            "ResizeObserver",
+            'IntersectionObserver',
+            'MutationObserver',
+            'PerformanceObserver',
+            'ReportingObserver',
+            'ResizeObserver',
           ].includes(callee.name)
         ) {
           // Observers callbacks are NOT tracked scopes. However, they
           // don't need to react to updates to reactive variables; it's okay
           // to poll the current value. Consider them called-function tracked
           // scopes for our purposes.
-          pushTrackedScope(arg0, "called-function");
+          pushTrackedScope(arg0, 'called-function');
         }
-      } else if (node.type === "CallExpression") {
-        if (node.callee.type === "Identifier") {
+      } else if (node.type === 'CallExpression') {
+        if (node.callee.type === 'Identifier') {
           const {
             callee,
             arguments: { 0: arg0, 1: arg1 },
@@ -954,97 +1035,106 @@ export default createRule<Options, MessageIds>({
           if (
             matchImport(
               [
-                "createMemo",
-                "children",
-                "createEffect",
-                "createRenderEffect",
-                "createDeferred",
-                "createComputed",
-                "createSelector",
-                "untrack",
-                "mapArray",
-                "indexArray",
-                "observable",
+                'createMemo',
+                'children',
+                'createEffect',
+                'createRenderEffect',
+                'createDeferred',
+                'createComputed',
+                'createSelector',
+                'untrack',
+                'mapArray',
+                'indexArray',
+                'observable',
               ],
-              callee.name
+              callee.name,
             ) ||
-            (matchImport("createResource", callee.name) && node.arguments.length >= 2)
+            (matchImport('createResource', callee.name) &&
+              node.arguments.length >= 2)
           ) {
             // createEffect, createMemo, etc. fn arg, and createResource optional
             // `source` first argument may be a signal
-            pushTrackedScope(arg0, "function");
+            pushTrackedScope(arg0, 'function');
           } else if (
-            matchImport(["onMount", "onCleanup", "onError"], callee.name) ||
+            matchImport(['onMount', 'onCleanup', 'onError'], callee.name) ||
             [
               // Timers
-              "setInterval",
-              "setTimeout",
-              "setImmediate",
-              "requestAnimationFrame",
-              "requestIdleCallback",
+              'setInterval',
+              'setTimeout',
+              'setImmediate',
+              'requestAnimationFrame',
+              'requestIdleCallback',
             ].includes(callee.name)
           ) {
             // on* and timers are NOT tracked scopes. However, they
             // don't need to react to updates to reactive variables; it's okay
             // to poll the current value. Consider them called-function tracked
             // scopes for our purposes.
-            pushTrackedScope(arg0, "called-function");
-          } else if (matchImport("on", callee.name)) {
+            pushTrackedScope(arg0, 'called-function');
+          } else if (matchImport('on', callee.name)) {
             // on accepts a signal or an array of signals as its first argument,
             // and a tracking function as its second
             if (arg0) {
-              if (arg0.type === "ArrayExpression") {
+              if (arg0.type === 'ArrayExpression') {
                 arg0.elements.forEach((element) => {
-                  if (element && element?.type !== "SpreadElement") {
-                    pushTrackedScope(element, "function");
+                  if (element && element?.type !== 'SpreadElement') {
+                    pushTrackedScope(element, 'function');
                   }
                 });
               } else {
-                pushTrackedScope(arg0, "function");
+                pushTrackedScope(arg0, 'function');
               }
             }
             if (arg1) {
               // Since dependencies are known, function can be async
-              pushTrackedScope(arg1, "called-function");
+              pushTrackedScope(arg1, 'called-function');
             }
-          } else if (matchImport("createStore", callee.name) && arg0?.type === "ObjectExpression") {
+          } else if (
+            matchImport('createStore', callee.name) &&
+            arg0?.type === 'ObjectExpression'
+          ) {
             for (const property of arg0.properties) {
               if (
-                property.type === "Property" &&
-                property.kind === "get" &&
+                property.type === 'Property' &&
+                property.kind === 'get' &&
                 isFunctionNode(property.value)
               ) {
-                pushTrackedScope(property.value, "function");
+                pushTrackedScope(property.value, 'function');
               }
             }
-          } else if (matchImport("runWithOwner", callee.name)) {
+          } else if (matchImport('runWithOwner', callee.name)) {
             // runWithOwner(owner, fn) only creates a tracked scope if `owner =
             // getOwner()` runs in a tracked scope. If owner is a variable,
             // attempt to detect if it's a tracked scope or not, but if this
             // can't be done, assume it's a tracked scope.
             if (arg1) {
               let isTrackedScope = true;
-              const owner = arg0.type === "Identifier" && findVariable(context, arg0);
+              const owner =
+                arg0.type === 'Identifier' && findVariable(context, arg0);
               if (owner) {
                 const decl = owner.defs[0];
                 if (
                   decl &&
-                  decl.node.type === "VariableDeclarator" &&
-                  decl.node.init?.type === "CallExpression" &&
-                  decl.node.init.callee.type === "Identifier" &&
-                  matchImport("getOwner", decl.node.init.callee.name)
+                  decl.node.type === 'VariableDeclarator' &&
+                  decl.node.init?.type === 'CallExpression' &&
+                  decl.node.init.callee.type === 'Identifier' &&
+                  matchImport('getOwner', decl.node.init.callee.name)
                 ) {
                   // Check if the function in which getOwner() is called is a tracked scope. If the scopeStack
                   // has moved on from that scope already, assume it's tracked, since that's less intrusive.
-                  const ownerFunction = findParent(decl.node, isProgramOrFunctionNode);
+                  const ownerFunction = findParent(
+                    decl.node,
+                    isProgramOrFunctionNode,
+                  );
                   const scopeStackIndex = scopeStack.findIndex(
-                    ({ node }) => ownerFunction === node
+                    ({ node }) => ownerFunction === node,
                   );
                   if (
                     (scopeStackIndex >= 1 &&
                       !scopeStack[scopeStackIndex - 1].trackedScopes.some(
                         (trackedScope) =>
-                          trackedScope.expect === "function" && trackedScope.node === ownerFunction
+                          trackedScope.expect === 'function' &&
+                          trackedScope.node === ownerFunction,
                       )) ||
                     scopeStackIndex === 0
                   ) {
@@ -1053,7 +1143,7 @@ export default createRule<Options, MessageIds>({
                 }
               }
               if (isTrackedScope) {
-                pushTrackedScope(arg1, "function");
+                pushTrackedScope(arg1, 'function');
               }
             }
           } else if (
@@ -1067,17 +1157,17 @@ export default createRule<Options, MessageIds>({
               permissivelyTrackNode(arg);
             }
           }
-        } else if (node.callee.type === "MemberExpression") {
+        } else if (node.callee.type === 'MemberExpression') {
           const { property } = node.callee;
           if (
-            property.type === "Identifier" &&
-            property.name === "addEventListener" &&
+            property.type === 'Identifier' &&
+            property.name === 'addEventListener' &&
             node.arguments.length >= 2
           ) {
             // Like `on*` event handlers, mark all `addEventListener` listeners as called functions.
-            pushTrackedScope(node.arguments[1], "called-function");
+            pushTrackedScope(node.arguments[1], 'called-function');
           } else if (
-            property.type === "Identifier" &&
+            property.type === 'Identifier' &&
             (/^(?:use|create)[A-Z]/.test(property.name) ||
               options.customReactiveFunctions.includes(property.name))
           ) {
@@ -1087,37 +1177,45 @@ export default createRule<Options, MessageIds>({
             }
           }
         }
-      } else if (node.type === "VariableDeclarator") {
+      } else if (node.type === 'VariableDeclarator') {
         // Solid 1.3 createReactive (renamed createReaction?) returns a track
         // function, a tracked scope expecting a reactive function. All of the
         // track function's references where it's called push a tracked scope.
-        if (node.init?.type === "CallExpression" && node.init.callee.type === "Identifier") {
-          if (matchImport(["createReactive", "createReaction"], node.init.callee.name)) {
+        if (
+          node.init?.type === 'CallExpression' &&
+          node.init.callee.type === 'Identifier'
+        ) {
+          if (
+            matchImport(
+              ['createReactive', 'createReaction'],
+              node.init.callee.name,
+            )
+          ) {
             const track = getReturnedVar(node.id, context);
             if (track) {
               for (const reference of track.references) {
                 if (
                   !reference.init &&
                   reference.isReadOnly() &&
-                  reference.identifier.parent?.type === "CallExpression" &&
+                  reference.identifier.parent?.type === 'CallExpression' &&
                   reference.identifier.parent.callee === reference.identifier
                 ) {
                   const arg0 = reference.identifier.parent.arguments[0];
                   if (arg0) {
-                    pushTrackedScope(arg0, "function");
+                    pushTrackedScope(arg0, 'function');
                   }
                 }
               }
             }
             if (isFunctionNode(node.init.arguments[0])) {
-              pushTrackedScope(node.init.arguments[0], "called-function");
+              pushTrackedScope(node.init.arguments[0], 'called-function');
             }
           }
         }
-      } else if (node.type === "AssignmentExpression") {
+      } else if (node.type === 'AssignmentExpression') {
         if (
-          node.left.type === "MemberExpression" &&
-          node.left.property.type === "Identifier" &&
+          node.left.type === 'MemberExpression' &&
+          node.left.property.type === 'Identifier' &&
           isFunctionNode(node.right) &&
           /^on[a-z]+$/.test(node.left.property.name)
         ) {
@@ -1129,19 +1227,20 @@ export default createRule<Options, MessageIds>({
           // where event handlers are manually attached to refs, detect these
           // scenarios and mark the right hand sides as tracked scopes expecting
           // functions.
-          pushTrackedScope(node.right, "called-function");
+          pushTrackedScope(node.right, 'called-function');
         }
-      } else if (node.type === "TaggedTemplateExpression") {
+      } else if (node.type === 'TaggedTemplateExpression') {
         for (const expression of node.quasi.expressions) {
           if (isFunctionNode(expression)) {
             // ex. css`color: ${props => props.color}`. Use "called-function" to allow async handlers (permissive)
-            pushTrackedScope(expression, "called-function");
+            pushTrackedScope(expression, 'called-function');
 
             // exception case: add a reactive variable within checkForTrackedScopes when a param is props
             for (const param of expression.params) {
-              if (param.type === "Identifier" && isPropsByName(param.name)) {
+              if (param.type === 'Identifier' && isPropsByName(param.name)) {
                 const variable = findVariable(context, param);
-                if (variable) scopeStack.pushProps(variable, currentScope().node);
+                if (variable)
+                  scopeStack.pushProps(variable, currentScope().node);
               }
             }
           }
@@ -1150,55 +1249,59 @@ export default createRule<Options, MessageIds>({
     };
 
     return {
-      ImportDeclaration: handleImportDeclaration,
-      JSXExpressionContainer(node: T.JSXExpressionContainer) {
+      'ImportDeclaration': handleImportDeclaration,
+      'JSXExpressionContainer'(node: T.JSXExpressionContainer) {
         checkForTrackedScopes(node);
       },
-      JSXSpreadAttribute(node: T.JSXSpreadAttribute) {
+      'JSXSpreadAttribute'(node: T.JSXSpreadAttribute) {
         checkForTrackedScopes(node);
       },
-      CallExpression(node: T.CallExpression) {
+      'CallExpression'(node: T.CallExpression) {
         checkForTrackedScopes(node);
         checkForSyncCallbacks(node);
 
         // ensure calls to reactive primitives use the results.
-        const parent = node.parent && ignoreTransparentWrappers(node.parent, true);
-        if (parent?.type !== "AssignmentExpression" && parent?.type !== "VariableDeclarator") {
+        const parent =
+          node.parent && ignoreTransparentWrappers(node.parent, true);
+        if (
+          parent?.type !== 'AssignmentExpression' &&
+          parent?.type !== 'VariableDeclarator'
+        ) {
           checkForReactiveAssignment(null, node);
         }
       },
-      NewExpression(node: T.NewExpression) {
+      'NewExpression'(node: T.NewExpression) {
         checkForTrackedScopes(node);
       },
-      VariableDeclarator(node: T.VariableDeclarator) {
+      'VariableDeclarator'(node: T.VariableDeclarator) {
         if (node.init) {
           checkForReactiveAssignment(node.id, node.init);
           checkForTrackedScopes(node);
         }
       },
-      AssignmentExpression(node: T.AssignmentExpression) {
-        if (node.left.type !== "MemberExpression") {
+      'AssignmentExpression'(node: T.AssignmentExpression) {
+        if (node.left.type !== 'MemberExpression') {
           checkForReactiveAssignment(node.left, node.right);
         }
         checkForTrackedScopes(node);
       },
-      TaggedTemplateExpression(node: T.TaggedTemplateExpression) {
+      'TaggedTemplateExpression'(node: T.TaggedTemplateExpression) {
         checkForTrackedScopes(node);
       },
-      "JSXElement > JSXExpressionContainer > :function"(node: T.Node) {
+      'JSXElement > JSXExpressionContainer > :function'(node: T.Node) {
         if (
           isFunctionNode(node) &&
-          node.parent?.type === "JSXExpressionContainer" &&
-          node.parent.parent?.type === "JSXElement"
+          node.parent?.type === 'JSXExpressionContainer' &&
+          node.parent.parent?.type === 'JSXElement'
         ) {
           const element = node.parent.parent;
 
-          if (element.openingElement.name.type === "JSXIdentifier") {
+          if (element.openingElement.name.type === 'JSXIdentifier') {
             const tagName = element.openingElement.name.name;
             if (
-              matchImport("For", tagName) &&
+              matchImport('For', tagName) &&
               node.params.length === 2 &&
-              node.params[1].type === "Identifier"
+              node.params[1].type === 'Identifier'
             ) {
               // Mark `index` in `<For>{(item, index) => <div /></For>` as a signal
               const index = findVariable(context, node.params[1]);
@@ -1206,9 +1309,9 @@ export default createRule<Options, MessageIds>({
                 scopeStack.pushSignal(index, currentScope().node);
               }
             } else if (
-              matchImport("Index", tagName) &&
+              matchImport('Index', tagName) &&
               node.params.length >= 1 &&
-              node.params[0].type === "Identifier"
+              node.params[0].type === 'Identifier'
             ) {
               // Mark `item` in `<Index>{(item, index) => <div />}</Index>` as a signal
               const item = findVariable(context, node.params[0]);
@@ -1221,22 +1324,22 @@ export default createRule<Options, MessageIds>({
       },
 
       /* Function enter/exit */
-      FunctionExpression: onFunctionEnter,
-      ArrowFunctionExpression: onFunctionEnter,
-      FunctionDeclaration: onFunctionEnter,
-      Program: onFunctionEnter,
-      "FunctionExpression:exit": onFunctionExit,
-      "ArrowFunctionExpression:exit": onFunctionExit,
-      "FunctionDeclaration:exit": onFunctionExit,
-      "Program:exit": onFunctionExit,
+      'FunctionExpression': onFunctionEnter,
+      'ArrowFunctionExpression': onFunctionEnter,
+      'FunctionDeclaration': onFunctionEnter,
+      'Program': onFunctionEnter,
+      'FunctionExpression:exit': onFunctionExit,
+      'ArrowFunctionExpression:exit': onFunctionExit,
+      'FunctionDeclaration:exit': onFunctionExit,
+      'Program:exit': onFunctionExit,
 
       /* Detect JSX for adding props */
-      JSXElement() {
+      'JSXElement'() {
         if (scopeStack.length) {
           currentScope().hasJSX = true;
         }
       },
-      JSXFragment() {
+      'JSXFragment'() {
         if (scopeStack.length) {
           currentScope().hasJSX = true;
         }

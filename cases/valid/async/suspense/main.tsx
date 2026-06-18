@@ -1,11 +1,11 @@
 // @ts-nocheck
-import { render } from "solid-js/web";
-import { lazy, Suspense } from "solid-js";
+import { render } from 'solid-js/web';
+import { lazy, Suspense } from 'solid-js';
 
 const Greeting = lazy(async () => {
   // simulate delay
   await new Promise((r) => setTimeout(r, 1000));
-  return import("./greeting");
+  return import('./greeting');
 });
 
 function App() {
@@ -19,4 +19,4 @@ function App() {
   );
 }
 
-render(() => <App />, document.getElementById("app"));
+render(() => <App />, document.getElementById('app'));

@@ -1,13 +1,13 @@
 // @ts-nocheck
-import { render } from "solid-js/web";
-import { onMount, onCleanup } from "solid-js";
+import { render } from 'solid-js/web';
+import { onMount, onCleanup } from 'solid-js';
 
-import Canvas from "./canvas";
+import Canvas from './canvas';
 
 function App() {
   let canvas;
   onMount(() => {
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext('2d');
     let frame = requestAnimationFrame(loop);
 
     function loop(t) {
@@ -39,4 +39,4 @@ function App() {
   return <Canvas ref={canvas} />;
 }
 
-render(() => <App />, document.getElementById("app"));
+render(() => <App />, document.getElementById('app'));

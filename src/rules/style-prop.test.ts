@@ -1,7 +1,7 @@
-import { run } from "./ruleTester.js";
-import rule from "./style-prop.js";
+import { run } from './ruleTester.js';
+import rule from './style-prop.js';
 
-export const cases = run("style-prop", rule, {
+export const cases = run('style-prop', rule, {
   valid: [
     `let el = <div style={{ color: 'red' }}>Hello, world!</div>`,
     `let el = <div style={{ color: 'red', 'background-color': 'green' }}>Hello, world!</div>`,
@@ -23,84 +23,101 @@ export const cases = run("style-prop", rule, {
     },
     {
       code: `let el = <div css={{ color: 'red' }}>Hello, world</div>`,
-      options: [{ styleProps: ["style", "css"] }],
+      options: [{ styleProps: ['style', 'css'] }],
     },
     {
       code: `let el = <div style={{ fontSize: 10 }}>Hello, world!</div>`,
-      options: [{ styleProps: ["css"] }],
+      options: [{ styleProps: ['css'] }],
     },
   ],
   invalid: [
     {
       code: `let el = <div style={{ fontSize: '10px' }}>Hello, world!</div>`,
-      errors: [{ messageId: "kebabStyleProp", data: { name: "fontSize", kebabName: "font-size" } }],
+      errors: [
+        {
+          messageId: 'kebabStyleProp',
+          data: { name: 'fontSize', kebabName: 'font-size' },
+        },
+      ],
       output: `let el = <div style={{ "font-size": '10px' }}>Hello, world!</div>`,
     },
     {
       code: `let el = <div style={{ backgroundColor: 'red' }}>Hello, world!</div>`,
       errors: [
         {
-          messageId: "kebabStyleProp",
-          data: { name: "backgroundColor", kebabName: "background-color" },
+          messageId: 'kebabStyleProp',
+          data: { name: 'backgroundColor', kebabName: 'background-color' },
         },
       ],
       output: `let el = <div style={{ "background-color": 'red' }}>Hello, world!</div>`,
     },
     {
       code: `let el = <div style={{ "-webkitAlignContent": "center" }}>Hello, world!</div>`,
-      errors: [{ messageId: "kebabStyleProp" }],
+      errors: [{ messageId: 'kebabStyleProp' }],
       output: `let el = <div style={{ "-webkit-align-content": "center" }}>Hello, world!</div>`,
     },
     {
       code: `let el = <div style={{ COLOR: '10px' }}>Hello, world!</div>`,
-      errors: [{ messageId: "invalidStyleProp", data: { name: "COLOR" } }],
+      errors: [{ messageId: 'invalidStyleProp', data: { name: 'COLOR' } }],
     },
     {
       code: `let el = <div style={{ unknownStyleProp: '10px' }}>Hello, world!</div>`,
-      errors: [{ messageId: "invalidStyleProp", data: { name: "unknownStyleProp" } }],
+      errors: [
+        { messageId: 'invalidStyleProp', data: { name: 'unknownStyleProp' } },
+      ],
     },
     {
       code: `let el = <div css={{ fontSize: '10px' }}>Hello, world!</div>`,
-      options: [{ styleProps: ["style", "css"] }],
-      errors: [{ messageId: "kebabStyleProp", data: { name: "fontSize", kebabName: "font-size" } }],
+      options: [{ styleProps: ['style', 'css'] }],
+      errors: [
+        {
+          messageId: 'kebabStyleProp',
+          data: { name: 'fontSize', kebabName: 'font-size' },
+        },
+      ],
       output: `let el = <div css={{ "font-size": '10px' }}>Hello, world!</div>`,
     },
     {
       code: `let el = <div css={{ fontSize: '10px' }}>Hello, world!</div>`,
-      options: [{ styleProps: ["css"] }],
-      errors: [{ messageId: "kebabStyleProp", data: { name: "fontSize", kebabName: "font-size" } }],
+      options: [{ styleProps: ['css'] }],
+      errors: [
+        {
+          messageId: 'kebabStyleProp',
+          data: { name: 'fontSize', kebabName: 'font-size' },
+        },
+      ],
       output: `let el = <div css={{ "font-size": '10px' }}>Hello, world!</div>`,
     },
     {
       code: `let el = <div style="font-size: 10px;">Hello, world!</div>`,
-      errors: [{ messageId: "stringStyle" }],
+      errors: [{ messageId: 'stringStyle' }],
       output: `let el = <div style={{"font-size":"10px"}}>Hello, world!</div>`,
     },
     {
       code: `let el = <div style={"font-size: 10px;"}>Hello, world!</div>`,
-      errors: [{ messageId: "stringStyle" }],
+      errors: [{ messageId: 'stringStyle' }],
       output: `let el = <div style={{"font-size":"10px"}}>Hello, world!</div>`,
     },
     {
       code: `let el = <div style="font-size: 10px; missing-value: ;">Hello, world!</div>`,
-      errors: [{ messageId: "stringStyle" }],
+      errors: [{ messageId: 'stringStyle' }],
       output: `let el = <div style={{"font-size":"10px"}}>Hello, world!</div>`,
     },
     {
       code: `let el = <div style="Super invalid CSS! Not CSS at all!">Hello, world!</div>`,
-      errors: [{ messageId: "stringStyle" }],
+      errors: [{ messageId: 'stringStyle' }],
     },
     {
       code: `let el = <div style={\`font-size: 10px;\`}>Hello, world!</div>`,
-      errors: [{ messageId: "stringStyle" }],
+      errors: [{ messageId: 'stringStyle' }],
     },
     {
       code: `let el = <div style={{ 'font-size': 10 }}>Hello, world!</div>`,
-      errors: [{ messageId: "numericStyleValue" }],
+      errors: [{ messageId: 'numericStyleValue' }],
     },
     {
       code: `let el = <div style={{ 'margin-top': -10 }}>Hello, world!</div>`,
-      errors: [{ messageId: "numericStyleValue" }],
+      errors: [{ messageId: 'numericStyleValue' }],
     },
   ],
 });

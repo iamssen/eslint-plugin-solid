@@ -1,7 +1,7 @@
-import { run } from "./ruleTester.js";
-import rule from "./self-closing-comp.js";
+import { run } from './ruleTester.js';
+import rule from './self-closing-comp.js';
 
-export const cases = run("self-closing-comp", rule, {
+export const cases = run('self-closing-comp', rule, {
   valid: [
     `let el = <Component name="Foo" />;`,
     `let el = <Compound.Component name="Foo" />;`,
@@ -21,61 +21,61 @@ export const cases = run("self-closing-comp", rule, {
     `let el = <div>{' '}</div>`,
     {
       code: `let el = <div></div>;`,
-      options: [{ html: "none" }],
+      options: [{ html: 'none' }],
     },
     {
       code: `let el = <img></img>;`,
-      options: [{ html: "none" }],
+      options: [{ html: 'none' }],
     },
     {
       code: `let el = <div></div>;`,
-      options: [{ html: "void" }],
+      options: [{ html: 'void' }],
     },
     {
       code: `let el = (
         <div>
         </div>
       )`,
-      options: [{ html: "none" }],
+      options: [{ html: 'none' }],
     },
     {
       code: `let el = <Component></Component>`,
-      options: [{ component: "none" }],
+      options: [{ component: 'none' }],
     },
   ],
   invalid: [
     {
       code: `let el = <div></div>;`,
-      errors: [{ messageId: "selfClose" }],
+      errors: [{ messageId: 'selfClose' }],
       output: `let el = <div />;`,
     },
     {
       code: `let el = <img></img>;`,
-      errors: [{ messageId: "selfClose" }],
+      errors: [{ messageId: 'selfClose' }],
       output: `let el = <img />;`,
     },
     {
       code: `let el = <div/>;`,
-      options: [{ html: "void" }],
-      errors: [{ messageId: "dontSelfClose" }],
+      options: [{ html: 'void' }],
+      errors: [{ messageId: 'dontSelfClose' }],
       output: `let el = <div></div>;`,
     },
     {
       code: `let el = <div />;`,
-      options: [{ html: "void" }],
-      errors: [{ messageId: "dontSelfClose" }],
+      options: [{ html: 'void' }],
+      errors: [{ messageId: 'dontSelfClose' }],
       output: `let el = <div></div>;`,
     },
     {
       code: `let el = <img/>;`,
-      options: [{ html: "none" }],
-      errors: [{ messageId: "dontSelfClose" }],
+      options: [{ html: 'none' }],
+      errors: [{ messageId: 'dontSelfClose' }],
       output: `let el = <img></img>;`,
     },
     {
       code: `let el = <img />;`,
-      options: [{ html: "none" }],
-      errors: [{ messageId: "dontSelfClose" }],
+      options: [{ html: 'none' }],
+      errors: [{ messageId: 'dontSelfClose' }],
       output: `let el = <img></img>;`,
     },
     {
@@ -83,7 +83,7 @@ export const cases = run("self-closing-comp", rule, {
         <div>
         </div>
       );`,
-      errors: [{ messageId: "selfClose" }],
+      errors: [{ messageId: 'selfClose' }],
       output: `let el = (
         <div />
       );`,
@@ -93,15 +93,15 @@ export const cases = run("self-closing-comp", rule, {
         <Component>
         </Component>
       );`,
-      errors: [{ messageId: "selfClose" }],
+      errors: [{ messageId: 'selfClose' }],
       output: `let el = (
         <Component />
       );`,
     },
     {
       code: `let el = <Component />;`,
-      options: [{ component: "none" }],
-      errors: [{ messageId: "dontSelfClose" }],
+      options: [{ component: 'none' }],
+      errors: [{ messageId: 'dontSelfClose' }],
       output: `let el = <Component></Component>;`,
     },
   ],

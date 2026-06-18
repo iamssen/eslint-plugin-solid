@@ -1,4 +1,8 @@
-import { type TSESLint, type TSESTree, ASTUtils } from "@typescript-eslint/utils";
+import {
+  type TSESLint,
+  type TSESTree,
+  ASTUtils,
+} from '@typescript-eslint/utils';
 
 export type CompatContext =
   | {
@@ -15,19 +19,22 @@ export type CompatContext =
     };
 
 export function getSourceCode(context: CompatContext) {
-  if (typeof context.getSourceCode === "function") {
+  if (typeof context.getSourceCode === 'function') {
     return context.getSourceCode();
   }
   return context.sourceCode;
 }
 
-export function getScope(context: CompatContext, node: TSESTree.Node): TSESLint.Scope.Scope {
+export function getScope(
+  context: CompatContext,
+  node: TSESTree.Node,
+): TSESLint.Scope.Scope {
   const sourceCode = getSourceCode(context);
 
-  if (typeof sourceCode.getScope === "function") {
+  if (typeof sourceCode.getScope === 'function') {
     return sourceCode.getScope(node); // >= v8, I think
   }
-  if (typeof context.getScope === "function") {
+  if (typeof context.getScope === 'function') {
     return context.getScope();
   }
   return context.sourceCode.getScope(node);
@@ -35,7 +42,7 @@ export function getScope(context: CompatContext, node: TSESTree.Node): TSESLint.
 
 export function findVariable(
   context: CompatContext,
-  node: TSESTree.Identifier
+  node: TSESTree.Identifier,
 ): TSESLint.Scope.Variable | null {
   return ASTUtils.findVariable(getScope(context, node), node);
 }
@@ -43,9 +50,9 @@ export function findVariable(
 export function markVariableAsUsed(
   context: CompatContext,
   name: string,
-  node: TSESTree.Node
+  node: TSESTree.Node,
 ): void {
-  if (typeof context.markVariableAsUsed === "function") {
+  if (typeof context.markVariableAsUsed === 'function') {
     context.markVariableAsUsed(name);
   } else {
     getSourceCode(context).markVariableAsUsed(name, node);

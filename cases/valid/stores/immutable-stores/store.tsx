@@ -1,10 +1,10 @@
 // @ts-nocheck
-import { createStore } from "redux";
+import { createStore } from 'redux';
 
 // todos reducer
 const todos = (state = { todos: [] }, action) => {
   switch (action.type) {
-    case "ADD_TODO":
+    case 'ADD_TODO':
       return {
         todos: [
           ...state.todos,
@@ -15,10 +15,12 @@ const todos = (state = { todos: [] }, action) => {
           },
         ],
       };
-    case "TOGGLE_TODO":
+    case 'TOGGLE_TODO':
       return {
         todos: state.todos.map((todo) =>
-          todo.id === action.id ? { ...todo, completed: !todo.completed } : todo
+          todo.id === action.id
+            ? { ...todo, completed: !todo.completed }
+            : todo,
         ),
       };
     default:

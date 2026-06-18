@@ -1,7 +1,7 @@
-import rule from "./components-return-once.js";
-import { run } from "./ruleTester.js";
+import rule from './components-return-once.js';
+import { run } from './ruleTester.js';
 
-export const cases = run("components-return-once", rule, {
+export const cases = run('components-return-once', rule, {
   valid: [
     `function Component() {
       return <div />;
@@ -73,7 +73,7 @@ export const cases = run("components-return-once", rule, {
         };
         return <span />;
       }`,
-      errors: [{ messageId: "noEarlyReturn" }],
+      errors: [{ messageId: 'noEarlyReturn' }],
     },
     {
       code: `const Component = () => {
@@ -82,7 +82,7 @@ export const cases = run("components-return-once", rule, {
         }
         return <span />;
       }`,
-      errors: [{ messageId: "noEarlyReturn" }],
+      errors: [{ messageId: 'noEarlyReturn' }],
     },
     {
       code: `const Component = () => {
@@ -92,14 +92,14 @@ export const cases = run("components-return-once", rule, {
         return <span />;
         function hoisted() {}
       }`,
-      errors: [{ messageId: "noEarlyReturn" }],
+      errors: [{ messageId: 'noEarlyReturn' }],
     },
     // Balanced ternaries
     {
       code: `function Component() {
   return Math.random() > 0.5 ? <div>Big!</div> : <div>Small!</div>;
 }`,
-      errors: [{ messageId: "noConditionalReturn" }],
+      errors: [{ messageId: 'noConditionalReturn' }],
       output: `function Component() {
   return <>{Math.random() > 0.5 ? <div>Big!</div> : <div>Small!</div>}</>;
 }`,
@@ -108,7 +108,7 @@ export const cases = run("components-return-once", rule, {
       code: `function Component() {
   return Math.random() > 0.5 ? <div>Big!</div> : "Small!";
 }`,
-      errors: [{ messageId: "noConditionalReturn" }],
+      errors: [{ messageId: 'noConditionalReturn' }],
       output: `function Component() {
   return <>{Math.random() > 0.5 ? <div>Big!</div> : "Small!"}</>;
 }`,
@@ -123,7 +123,7 @@ export const cases = run("components-return-once", rule, {
     </div>
   ) : <div>Small!</div>;
 }`,
-      errors: [{ messageId: "noConditionalReturn" }],
+      errors: [{ messageId: 'noConditionalReturn' }],
       output: `function Component() {
   return <Show when={Math.random() > 0.5} fallback={<div>Small!</div>}><div>
       Big!
@@ -142,7 +142,7 @@ export const cases = run("components-return-once", rule, {
     <div>Neither condition 1 or 2</div>
   );
 }`,
-      errors: [{ messageId: "noConditionalReturn" }],
+      errors: [{ messageId: 'noConditionalReturn' }],
       output: `function Component(props) {
   return <Switch fallback={<div>Neither condition 1 or 2</div>}>
 <Match when={props.cond1}><div>Condition 1</div></Match>
@@ -155,7 +155,7 @@ export const cases = run("components-return-once", rule, {
       code: `function Component(props) {
   return !!props.cond && <div>Conditional</div>;
 }`,
-      errors: [{ messageId: "noConditionalReturn" }],
+      errors: [{ messageId: 'noConditionalReturn' }],
       output: `function Component(props) {
   return <Show when={!!props.cond}><div>Conditional</div></Show>;
 }`,
@@ -164,7 +164,7 @@ export const cases = run("components-return-once", rule, {
       code: `function Component(props) {
   return props.primary || <div>{props.secondaryText}</div>;
 }`,
-      errors: [{ messageId: "noConditionalReturn" }],
+      errors: [{ messageId: 'noConditionalReturn' }],
     },
     // HOCs
     {
@@ -174,7 +174,7 @@ export const cases = run("components-return-once", rule, {
         }
         return <div />;
       });`,
-      errors: [{ messageId: "noEarlyReturn" }],
+      errors: [{ messageId: 'noEarlyReturn' }],
     },
   ],
 });

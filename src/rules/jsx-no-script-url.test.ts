@@ -1,7 +1,7 @@
-import rule from "./jsx-no-script-url.js";
-import { run } from "./ruleTester.js";
+import rule from './jsx-no-script-url.js';
+import { run } from './ruleTester.js';
 
-export const cases = run("jsx-no-script-url", rule, {
+export const cases = run('jsx-no-script-url', rule, {
   valid: [
     `let el = <a href="https://example.com" />`,
     `let el = <Link to="https://example.com" />`,
@@ -12,30 +12,30 @@ export const cases = run("jsx-no-script-url", rule, {
   invalid: [
     {
       code: `let el = <a href="javascript:alert('hacked!')" />`,
-      errors: [{ messageId: "noJSURL" }],
+      errors: [{ messageId: 'noJSURL' }],
     },
     {
       code: `let el = <Link to="javascript:alert('hacked!')" />`,
-      errors: [{ messageId: "noJSURL" }],
+      errors: [{ messageId: 'noJSURL' }],
     },
     {
       code: `let el = <Foo bar="javascript:alert('hacked!')" />`,
-      errors: [{ messageId: "noJSURL" }],
+      errors: [{ messageId: 'noJSURL' }],
     },
     {
       code: `const link = "javascript:alert('hacked!')";
     let el = <a href={link} />`,
-      errors: [{ messageId: "noJSURL" }],
+      errors: [{ messageId: 'noJSURL' }],
     },
     {
       code: `const link = "\\tj\\na\\tv\\na\\ts\\nc\\tr\\ni\\tpt:alert('hacked!')";
     let el = <a href={link} />`,
-      errors: [{ messageId: "noJSURL" }],
+      errors: [{ messageId: 'noJSURL' }],
     },
     {
       code: `const link = "javascrip" + "t:alert('hacked!')";
     let el = <a href={link} />`,
-      errors: [{ messageId: "noJSURL" }],
+      errors: [{ messageId: 'noJSURL' }],
     },
   ],
 });

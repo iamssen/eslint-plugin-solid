@@ -41,6 +41,7 @@
   "scripts": {
     "type-check": "tsc --noEmit",
     "build": "tsup",
+    "format": "prettier --write \"**/*.{js,jsx,mjs,cjs,ts,tsx,mts,cts}\"",
     "lint": "eslint .",
     "test": "vitest --run",
     "test:all": "PARSER=all vitest --run",

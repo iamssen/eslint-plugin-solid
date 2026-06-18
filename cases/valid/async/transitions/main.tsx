@@ -1,7 +1,7 @@
 // @ts-nocheck
-import { createSignal, Suspense, Switch, Match, useTransition } from "solid-js";
-import { render } from "solid-js/web";
-import Child from "./child";
+import { createSignal, Suspense, Switch, Match, useTransition } from 'solid-js';
+import { render } from 'solid-js/web';
+import Child from './child';
 
 const App = () => {
   const [tab, setTab] = createSignal(0);
@@ -40,4 +40,4 @@ const App = () => {
   );
 };
 
-render(App, document.getElementById("app"));
+render(App, document.getElementById('app'));

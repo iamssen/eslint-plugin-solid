@@ -1,6 +1,6 @@
 // @ts-nocheck
-import { render } from "solid-js/web";
-import { createSignal } from "solid-js";
+import { render } from 'solid-js/web';
+import { createSignal } from 'solid-js';
 
 function App() {
   const [num, setNum] = createSignal(0);
@@ -9,9 +9,9 @@ function App() {
   return (
     <div
       style={{
-        color: `rgb(${num()}, 180, ${num()})`,
-        "font-weight": "800",
-        "font-size": `${num()}px`,
+        'color': `rgb(${num()}, 180, ${num()})`,
+        'font-weight': '800',
+        'font-size': `${num()}px`,
       }}
     >
       Some Text
@@ -19,4 +19,4 @@ function App() {
   );
 }
 
-render(() => <App />, document.getElementById("app"));
+render(() => <App />, document.getElementById('app'));

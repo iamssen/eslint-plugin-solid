@@ -1,6 +1,6 @@
-import { TSESTree as T, TSESLint, ESLintUtils } from "@typescript-eslint/utils";
-import { appendImports, insertImports, removeSpecifier } from "../utils.js";
-import { getSourceCode } from "../compat.js";
+import { TSESTree as T, TSESLint, ESLintUtils } from '@typescript-eslint/utils';
+import { appendImports, insertImports, removeSpecifier } from '../utils.js';
+import { getSourceCode } from '../compat.js';
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 
@@ -11,114 +11,114 @@ const createRule = ESLintUtils.RuleCreator.withoutDocs;
 // should be imported from "solid-js", etc.
 // ==============
 
-type Source = "solid-js" | "solid-js/web" | "solid-js/store";
+type Source = 'solid-js' | 'solid-js/web' | 'solid-js/store';
 
 // Set up map of imports to module
 const primitiveMap = new Map<string, Source>();
 for (const primitive of [
-  "createSignal",
-  "createEffect",
-  "createMemo",
-  "createResource",
-  "onMount",
-  "onCleanup",
-  "onError",
-  "untrack",
-  "batch",
-  "on",
-  "createRoot",
-  "getOwner",
-  "runWithOwner",
-  "mergeProps",
-  "splitProps",
-  "useTransition",
-  "observable",
-  "from",
-  "mapArray",
-  "indexArray",
-  "createContext",
-  "useContext",
-  "children",
-  "lazy",
-  "createUniqueId",
-  "createDeferred",
-  "createRenderEffect",
-  "createComputed",
-  "createReaction",
-  "createSelector",
-  "DEV",
-  "For",
-  "Show",
-  "Switch",
-  "Match",
-  "Index",
-  "ErrorBoundary",
-  "Suspense",
-  "SuspenseList",
+  'createSignal',
+  'createEffect',
+  'createMemo',
+  'createResource',
+  'onMount',
+  'onCleanup',
+  'onError',
+  'untrack',
+  'batch',
+  'on',
+  'createRoot',
+  'getOwner',
+  'runWithOwner',
+  'mergeProps',
+  'splitProps',
+  'useTransition',
+  'observable',
+  'from',
+  'mapArray',
+  'indexArray',
+  'createContext',
+  'useContext',
+  'children',
+  'lazy',
+  'createUniqueId',
+  'createDeferred',
+  'createRenderEffect',
+  'createComputed',
+  'createReaction',
+  'createSelector',
+  'DEV',
+  'For',
+  'Show',
+  'Switch',
+  'Match',
+  'Index',
+  'ErrorBoundary',
+  'Suspense',
+  'SuspenseList',
 ]) {
-  primitiveMap.set(primitive, "solid-js");
+  primitiveMap.set(primitive, 'solid-js');
 }
 for (const primitive of [
-  "Portal",
-  "render",
-  "hydrate",
-  "renderToString",
-  "renderToStream",
-  "isServer",
-  "renderToStringAsync",
-  "generateHydrationScript",
-  "HydrationScript",
-  "Dynamic",
+  'Portal',
+  'render',
+  'hydrate',
+  'renderToString',
+  'renderToStream',
+  'isServer',
+  'renderToStringAsync',
+  'generateHydrationScript',
+  'HydrationScript',
+  'Dynamic',
 ]) {
-  primitiveMap.set(primitive, "solid-js/web");
+  primitiveMap.set(primitive, 'solid-js/web');
 }
 for (const primitive of [
-  "createStore",
-  "produce",
-  "reconcile",
-  "unwrap",
-  "createMutable",
-  "modifyMutable",
+  'createStore',
+  'produce',
+  'reconcile',
+  'unwrap',
+  'createMutable',
+  'modifyMutable',
 ]) {
-  primitiveMap.set(primitive, "solid-js/store");
+  primitiveMap.set(primitive, 'solid-js/store');
 }
 
 // Set up map of type imports to module
 const typeMap = new Map<string, Source>();
 for (const type of [
-  "Signal",
-  "Accessor",
-  "Setter",
-  "Resource",
-  "ResourceActions",
-  "ResourceOptions",
-  "ResourceReturn",
-  "ResourceFetcher",
-  "InitializedResourceReturn",
-  "Component",
-  "VoidProps",
-  "VoidComponent",
-  "ParentProps",
-  "ParentComponent",
-  "FlowProps",
-  "FlowComponent",
-  "ValidComponent",
-  "ComponentProps",
-  "Ref",
-  "MergeProps",
-  "SplitPrips",
-  "Context",
-  "JSX",
-  "ResolvedChildren",
-  "MatchProps",
+  'Signal',
+  'Accessor',
+  'Setter',
+  'Resource',
+  'ResourceActions',
+  'ResourceOptions',
+  'ResourceReturn',
+  'ResourceFetcher',
+  'InitializedResourceReturn',
+  'Component',
+  'VoidProps',
+  'VoidComponent',
+  'ParentProps',
+  'ParentComponent',
+  'FlowProps',
+  'FlowComponent',
+  'ValidComponent',
+  'ComponentProps',
+  'Ref',
+  'MergeProps',
+  'SplitPrips',
+  'Context',
+  'JSX',
+  'ResolvedChildren',
+  'MatchProps',
 ]) {
-  typeMap.set(type, "solid-js");
+  typeMap.set(type, 'solid-js');
 }
-for (const type of [/* "JSX", */ "MountableElement"]) {
-  typeMap.set(type, "solid-js/web");
+for (const type of [/* "JSX", */ 'MountableElement']) {
+  typeMap.set(type, 'solid-js/web');
 }
-for (const type of ["StoreNode", "Store", "SetStoreFunction"]) {
-  typeMap.set(type, "solid-js/store");
+for (const type of ['StoreNode', 'Store', 'SetStoreFunction']) {
+  typeMap.set(type, 'solid-js/store');
 }
 
 const sourceRegex = /^solid-js(?:\/web|\/store)?$/;
@@ -126,16 +126,16 @@ const isSource = (source: string): source is Source => sourceRegex.test(source);
 
 export default createRule({
   meta: {
-    type: "suggestion",
+    type: 'suggestion',
     docs: {
       description:
         'Enforce consistent imports from "solid-js", "solid-js/web", and "solid-js/store".',
-      url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/imports.md",
+      url: 'https://github.com/solidjs-community/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/imports.md',
     },
-    fixable: "code",
+    fixable: 'code',
     schema: [],
     messages: {
-      "prefer-source": 'Prefer importing {{name}} from "{{source}}".',
+      'prefer-source': 'Prefer importing {{name}} from "{{source}}".',
     },
   },
   defaultOptions: [],
@@ -146,18 +146,19 @@ export default createRule({
         if (!isSource(source)) return;
 
         for (const specifier of node.specifiers) {
-          if (specifier.type === "ImportSpecifier") {
-            const isType = specifier.importKind === "type" || node.importKind === "type";
+          if (specifier.type === 'ImportSpecifier') {
+            const isType =
+              specifier.importKind === 'type' || node.importKind === 'type';
             const map = isType ? typeMap : primitiveMap;
             const importedName =
-              specifier.imported.type === "Identifier"
+              specifier.imported.type === 'Identifier'
                 ? specifier.imported.name
                 : specifier.imported.value;
             const correctSource = map.get(importedName);
             if (correctSource != null && correctSource !== source) {
               context.report({
                 node: specifier,
-                messageId: "prefer-source",
+                messageId: 'prefer-source',
                 data: {
                   name: importedName,
                   source: correctSource,
@@ -167,7 +168,8 @@ export default createRule({
                   const program: T.Program = sourceCode.ast;
                   const correctDeclaration = program.body.find(
                     (node) =>
-                      node.type === "ImportDeclaration" && node.source.value === correctSource
+                      node.type === 'ImportDeclaration' &&
+                      node.source.value === correctSource,
                   ) as T.ImportDeclaration | undefined;
 
                   if (correctDeclaration) {
@@ -180,7 +182,9 @@ export default createRule({
                   }
 
                   const firstSolidDeclaration = program.body.find(
-                    (node) => node.type === "ImportDeclaration" && isSource(node.source.value)
+                    (node) =>
+                      node.type === 'ImportDeclaration' &&
+                      isSource(node.source.value),
                   ) as T.ImportDeclaration | undefined;
                   return [
                     removeSpecifier(fixer, sourceCode, specifier),
@@ -190,7 +194,7 @@ export default createRule({
                       correctSource,
                       [sourceCode.getText(specifier)],
                       firstSolidDeclaration,
-                      isType
+                      isType,
                     ),
                   ];
                 },

@@ -1,7 +1,7 @@
-import rule from "./no-proxy-apis.js";
-import { run } from "./ruleTester.js";
+import rule from './no-proxy-apis.js';
+import { run } from './ruleTester.js';
 
-export const cases = run("no-proxy-apis", rule, {
+export const cases = run('no-proxy-apis', rule, {
   valid: [
     `let merged = mergeProps({}, props);`,
     `const obj = {}; let merged = mergeProps(obj, props);`,
@@ -14,39 +14,39 @@ export const cases = run("no-proxy-apis", rule, {
   invalid: [
     {
       code: `let proxy = new Proxy(asdf, {});`,
-      errors: [{ messageId: "proxyLiteral" }],
+      errors: [{ messageId: 'proxyLiteral' }],
     },
     {
       code: `let proxy = Proxy.revocable(asdf, {});`,
-      errors: [{ messageId: "proxyLiteral" }],
+      errors: [{ messageId: 'proxyLiteral' }],
     },
     {
       code: `import {} from 'solid-js/store';`,
-      errors: [{ messageId: "noStore" }],
+      errors: [{ messageId: 'noStore' }],
     },
     {
       code: `let el = <div {...maybeSignal()} />`,
-      errors: [{ messageId: "spreadCall" }],
+      errors: [{ messageId: 'spreadCall' }],
     },
     {
       code: `let el = <div {...{ ...maybeSignal() }} />`,
-      errors: [{ messageId: "spreadCall" }],
+      errors: [{ messageId: 'spreadCall' }],
     },
     {
       code: `let el = <div {...maybeProps.foo} />`,
-      errors: [{ messageId: "spreadMember" }],
+      errors: [{ messageId: 'spreadMember' }],
     },
     {
       code: `let el = <div {...{ ...maybeProps.foo }} />`,
-      errors: [{ messageId: "spreadMember" }],
+      errors: [{ messageId: 'spreadMember' }],
     },
     {
       code: `let merged = mergeProps(maybeSignal)`,
-      errors: [{ messageId: "mergeProps" }],
+      errors: [{ messageId: 'mergeProps' }],
     },
     {
       code: `let func = () => ({}); let merged = mergeProps(func, props)`,
-      errors: [{ messageId: "mergeProps" }],
+      errors: [{ messageId: 'mergeProps' }],
     },
   ],
 });

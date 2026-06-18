@@ -1,7 +1,7 @@
-import rule from "./reactivity.js";
-import { run, tsOnly } from "./ruleTester.js";
+import rule from './reactivity.js';
+import { run, tsOnly } from './ruleTester.js';
 
-export const cases = run("reactivity", rule, {
+export const cases = run('reactivity', rule, {
   valid: [
     `function MyComponent(props) {
       return <div>Hello {props.name}</div>;
@@ -171,7 +171,7 @@ export const cases = run("reactivity", rule, {
       code: `function customQuery(v) {}
       const [signal, setSignal] = createSignal();
       customQuery(() => signal());`,
-      options: [{ customReactiveFunctions: ["customQuery"] }], // only needed when not create*/use*
+      options: [{ customReactiveFunctions: ['customQuery'] }], // only needed when not create*/use*
     },
     // Event listeners
     `const [signal, setSignal] = createSignal(1);
@@ -244,9 +244,9 @@ export const cases = run("reactivity", rule, {
       return <div />;
     }`,
     // function expression inside tagged template literal expression is tracked scope
-    "css`color: ${props => props.color}`;",
-    "html`<div>${props => props.name}</div>`;",
-    "styled.css`color: ${props => props.color};`",
+    'css`color: ${props => props.color}`;',
+    'html`<div>${props => props.name}</div>`;',
+    'styled.css`color: ${props => props.color};`',
     // refs
     `function Component() {
       let canvas;
@@ -366,7 +366,7 @@ export const cases = run("reactivity", rule, {
         console.log(signal());
         return null;
       }`,
-      errors: [{ messageId: "untrackedReactive", line: 4 }],
+      errors: [{ messageId: 'untrackedReactive', line: 4 }],
     },
     {
       code: `
@@ -375,7 +375,7 @@ export const cases = run("reactivity", rule, {
         console.log(signal());
         return <div>{signal()}</div>
       }`,
-      errors: [{ messageId: "untrackedReactive", line: 4 }],
+      errors: [{ messageId: 'untrackedReactive', line: 4 }],
     },
     // Untracked property access
     {
@@ -384,7 +384,7 @@ export const cases = run("reactivity", rule, {
         const value = props.value;
         return <div>{value()}</div>;
       }`,
-      errors: [{ messageId: "untrackedReactive" }],
+      errors: [{ messageId: 'untrackedReactive' }],
     },
     {
       code: `
@@ -393,7 +393,9 @@ export const cases = run("reactivity", rule, {
         const value = createMemo(() => valueProp || "default");
         return <div>{value()}</div>;
       };`,
-      errors: [{ messageId: "untrackedReactive", line: 3, column: 38, endColumn: 43 }],
+      errors: [
+        { messageId: 'untrackedReactive', line: 3, column: 38, endColumn: 43 },
+      ],
     },
     {
       code: `
@@ -404,8 +406,8 @@ export const cases = run("reactivity", rule, {
       };`,
       errors: [
         {
-          messageId: "untrackedReactive",
-          data: { name: "props.value" },
+          messageId: 'untrackedReactive',
+          data: { name: 'props.value' },
         },
       ],
     },
@@ -414,7 +416,7 @@ export const cases = run("reactivity", rule, {
       const Component = props => {
         const [value] = createSignal(props.value);
       }`,
-      errors: [{ messageId: "untrackedReactive" }],
+      errors: [{ messageId: 'untrackedReactive' }],
     },
     // mark `props` as props by name before we've determined if Component is a component in :exit
     {
@@ -426,8 +428,8 @@ export const cases = run("reactivity", rule, {
       }`,
       errors: [
         {
-          messageId: "untrackedReactive",
-          data: { name: "derived" },
+          messageId: 'untrackedReactive',
+          data: { name: 'derived' },
         },
       ],
     },
@@ -438,7 +440,7 @@ export const cases = run("reactivity", rule, {
         console.log(something.a);
         return <div />;
       }`,
-      errors: [{ messageId: "untrackedReactive" }],
+      errors: [{ messageId: 'untrackedReactive' }],
     },
     // Derived signals
     {
@@ -452,8 +454,8 @@ export const cases = run("reactivity", rule, {
       }`,
       errors: [
         {
-          messageId: "untrackedReactive",
-          data: { name: "d" },
+          messageId: 'untrackedReactive',
+          data: { name: 'd' },
         },
       ],
     },
@@ -468,8 +470,8 @@ export const cases = run("reactivity", rule, {
       }`,
       errors: [
         {
-          messageId: "untrackedReactive",
-          data: { name: "d" },
+          messageId: 'untrackedReactive',
+          data: { name: 'd' },
         },
       ],
     },
@@ -487,8 +489,8 @@ export const cases = run("reactivity", rule, {
       }`,
       errors: [
         {
-          messageId: "untrackedReactive",
-          data: { name: "d" },
+          messageId: 'untrackedReactive',
+          data: { name: 'd' },
         },
       ],
     },
@@ -507,8 +509,8 @@ export const cases = run("reactivity", rule, {
       }`,
       errors: [
         {
-          messageId: "untrackedReactive",
-          data: { name: "e" },
+          messageId: 'untrackedReactive',
+          data: { name: 'e' },
         },
       ],
     },
@@ -526,8 +528,8 @@ export const cases = run("reactivity", rule, {
       }`,
       errors: [
         {
-          messageId: "untrackedReactive",
-          data: { name: "bar" },
+          messageId: 'untrackedReactive',
+          data: { name: 'bar' },
         },
       ],
     },
@@ -539,8 +541,8 @@ export const cases = run("reactivity", rule, {
       }`,
       errors: [
         {
-          messageId: "shouldDestructure",
-          data: { nth: "first " },
+          messageId: 'shouldDestructure',
+          data: { nth: 'first ' },
         },
       ],
     },
@@ -551,8 +553,8 @@ export const cases = run("reactivity", rule, {
       }`,
       errors: [
         {
-          messageId: "shouldDestructure",
-          data: { nth: "first " },
+          messageId: 'shouldDestructure',
+          data: { nth: 'first ' },
         },
       ],
     },
@@ -563,7 +565,7 @@ export const cases = run("reactivity", rule, {
       }`,
       errors: [
         {
-          messageId: "shouldAssign",
+          messageId: 'shouldAssign',
         },
       ],
     },
@@ -576,9 +578,9 @@ export const cases = run("reactivity", rule, {
       }`,
       errors: [
         {
-          messageId: "badSignal",
+          messageId: 'badSignal',
           line: 4,
-          data: { name: "signal", where: "JSX" },
+          data: { name: 'signal', where: 'JSX' },
         },
       ],
     },
@@ -590,9 +592,9 @@ export const cases = run("reactivity", rule, {
       }`,
       errors: [
         {
-          messageId: "badSignal",
+          messageId: 'badSignal',
           line: 4,
-          data: { name: "memo", where: "JSX" },
+          data: { name: 'memo', where: 'JSX' },
         },
       ],
     },
@@ -604,9 +606,9 @@ export const cases = run("reactivity", rule, {
       }`,
       errors: [
         {
-          messageId: "badSignal",
+          messageId: 'badSignal',
           line: 4,
-          data: { name: "signal", where: "JSX" },
+          data: { name: 'signal', where: 'JSX' },
         },
       ],
     },
@@ -618,9 +620,9 @@ export const cases = run("reactivity", rule, {
       }`,
       errors: [
         {
-          messageId: "badSignal",
+          messageId: 'badSignal',
           line: 4,
-          data: { name: "signal", where: "arithmetic or comparisons" },
+          data: { name: 'signal', where: 'arithmetic or comparisons' },
         },
       ],
     },
@@ -632,9 +634,9 @@ export const cases = run("reactivity", rule, {
       }`,
       errors: [
         {
-          messageId: "badSignal",
+          messageId: 'badSignal',
           line: 4,
-          data: { name: "signal", where: "template literals" },
+          data: { name: 'signal', where: 'template literals' },
         },
       ],
     },
@@ -646,9 +648,9 @@ export const cases = run("reactivity", rule, {
       }`,
       errors: [
         {
-          messageId: "badSignal",
+          messageId: 'badSignal',
           line: 4,
-          data: { name: "signal", where: "unary expressions" },
+          data: { name: 'signal', where: 'unary expressions' },
         },
       ],
     },
@@ -660,9 +662,9 @@ export const cases = run("reactivity", rule, {
       }`,
       errors: [
         {
-          messageId: "badSignal",
+          messageId: 'badSignal',
           line: 4,
-          data: { name: "signal", where: "property accesses" },
+          data: { name: 'signal', where: 'property accesses' },
         },
       ],
     },
@@ -674,9 +676,9 @@ export const cases = run("reactivity", rule, {
       }`,
       errors: [
         {
-          messageId: "expectedFunctionGotExpression",
+          messageId: 'expectedFunctionGotExpression',
           line: 3,
-          data: { name: "props.onClick" },
+          data: { name: 'props.onClick' },
         },
       ],
     },
@@ -687,9 +689,9 @@ export const cases = run("reactivity", rule, {
       }`,
       errors: [
         {
-          messageId: "expectedFunctionGotExpression",
+          messageId: 'expectedFunctionGotExpression',
           line: 3,
-          data: { name: "props.theEffect" },
+          data: { name: 'props.theEffect' },
         },
       ],
     },
@@ -699,14 +701,18 @@ export const cases = run("reactivity", rule, {
       const Component = props => {
         return <SomeContext.Provider value={props.value}>{props.children}</SomeContext.Provider>;
       }`,
-      errors: [{ messageId: "untrackedReactive", data: { name: "props.value" } }],
+      errors: [
+        { messageId: 'untrackedReactive', data: { name: 'props.value' } },
+      ],
     },
     {
       code: `
       const Component = props => {
         return <SomeProvider value={props.value}>{props.children}</SomeProvider>;
       }`,
-      errors: [{ messageId: "untrackedReactive", data: { name: "props.value" } }],
+      errors: [
+        { messageId: 'untrackedReactive', data: { name: 'props.value' } },
+      ],
     },
     {
       code: `
@@ -714,7 +720,7 @@ export const cases = run("reactivity", rule, {
         const [signal] = createSignal();
         return <SomeContext.Provider value={signal()} someOtherProp={props.foo}>{props.children}</SomeContext.Provider>;
       }`,
-      errors: [{ messageId: "untrackedReactive", data: { name: "signal" } }],
+      errors: [{ messageId: 'untrackedReactive', data: { name: 'signal' } }],
     },
     // getOwner/runWithOwner
     {
@@ -722,7 +728,7 @@ export const cases = run("reactivity", rule, {
       const owner = getOwner();
       const [signal] = createSignal();
       createEffect(() => runWithOwner(owner, () => console.log(signal())));`,
-      errors: [{ messageId: "badUnnamedDerivedSignal", line: 4 }],
+      errors: [{ messageId: 'badUnnamedDerivedSignal', line: 4 }],
     },
     {
       code: `
@@ -731,7 +737,7 @@ export const cases = run("reactivity", rule, {
         const [signal] = createSignal();
         createEffect(() => runWithOwner(owner, () => console.log(signal())));
       }`,
-      errors: [{ messageId: "badUnnamedDerivedSignal", line: 5 }],
+      errors: [{ messageId: 'badUnnamedDerivedSignal', line: 5 }],
     },
     // Async tracking scopes
     {
@@ -741,7 +747,7 @@ export const cases = run("reactivity", rule, {
         await Promise.resolve();
         console.log(count());
       });`,
-      errors: [{ messageId: "noAsyncTrackedScope", line: 3 }],
+      errors: [{ messageId: 'noAsyncTrackedScope', line: 3 }],
     },
     {
       code: `
@@ -750,21 +756,21 @@ export const cases = run("reactivity", rule, {
         const res = await fetch("https://jsonplaceholder.typicode.com/photos?_limit=20");
         setPhotos(await res.json());
       });`,
-      errors: [{ messageId: "noAsyncTrackedScope", line: 3 }],
+      errors: [{ messageId: 'noAsyncTrackedScope', line: 3 }],
     },
     // non-function expression inside tagged template literal expression is not tracked scope
     {
       code: `
       const [signal] = createSignal("red");
       css\`color: \${signal}\`;`,
-      errors: [{ messageId: "badSignal", line: 3 }],
+      errors: [{ messageId: 'badSignal', line: 3 }],
     },
     {
       code: `
       const [signal] = createSignal("red");
       const f = () => signal();
       css\`color: \${f}\`;`,
-      errors: [{ messageId: "badSignal", line: 4 }],
+      errors: [{ messageId: 'badSignal', line: 4 }],
     },
     // mapArray
     {
@@ -776,7 +782,7 @@ export const cases = run("reactivity", rule, {
           (item) => store.path.to.field
         );
       }`,
-      errors: [{ messageId: "untrackedReactive" }],
+      errors: [{ messageId: 'untrackedReactive' }],
     },
     {
       code: `
@@ -784,7 +790,7 @@ export const cases = run("reactivity", rule, {
       const result = mapArray(array, (item, i) => {
         i()
       });`,
-      errors: [{ messageId: "untrackedReactive", line: 4 }],
+      errors: [{ messageId: 'untrackedReactive', line: 4 }],
     },
     {
       code: `
@@ -792,39 +798,39 @@ export const cases = run("reactivity", rule, {
       const result = indexArray(array, (item) => {
         item()
       });`,
-      errors: [{ messageId: "untrackedReactive", line: 4 }],
+      errors: [{ messageId: 'untrackedReactive', line: 4 }],
     },
     // static* prefix for props
     {
       code: `
       const [signal] = createSignal();
       let el = <Component staticProp={signal()} />;`,
-      errors: [{ messageId: "untrackedReactive" }],
+      errors: [{ messageId: 'untrackedReactive' }],
     },
     // custom hooks
     {
       code: `
       const [signal] = createSignal(0);
       useExample(signal())`,
-      errors: [{ messageId: "untrackedReactive" }],
+      errors: [{ messageId: 'untrackedReactive' }],
     },
     {
       code: `
       const [signal] = createSignal(0);
       useExample([signal()])`,
-      errors: [{ messageId: "untrackedReactive" }],
+      errors: [{ messageId: 'untrackedReactive' }],
     },
     {
       code: `
       const [signal] = createSignal(0);
       useExample({ value: signal() })`,
-      errors: [{ messageId: "untrackedReactive" }],
+      errors: [{ messageId: 'untrackedReactive' }],
     },
     {
       code: `
       const [signal] = createSignal(0);
       useExample((() => signal())())`,
-      errors: [{ messageId: "expectedFunctionGotExpression" }],
+      errors: [{ messageId: 'expectedFunctionGotExpression' }],
     },
   ],
 });

@@ -1,7 +1,7 @@
-import rule from "./no-innerhtml.js";
-import { run } from "./ruleTester.js";
+import rule from './no-innerhtml.js';
+import { run } from './ruleTester.js';
 
-export const cases = run("no-innerhtml", rule, {
+export const cases = run('no-innerhtml', rule, {
   valid: [
     `let el = <div prop1 prop2={2}>Hello world!</div>`,
     `let el = <Box prop1 prop2={2}>Hello world!</Box>`,
@@ -13,30 +13,30 @@ export const cases = run("no-innerhtml", rule, {
     {
       code: `let el = <div prop1 prop2={2} innerHTML="<p>Hello</><p>world!</p>" />`,
       options: [{ allowStatic: false }],
-      errors: [{ messageId: "dangerous" }],
+      errors: [{ messageId: 'dangerous' }],
     },
     {
       code: `let el = <div innerHTML={"<p>Hello</p><p>world!</p>"} />`,
       options: [{ allowStatic: false }],
-      errors: [{ messageId: "dangerous" }],
+      errors: [{ messageId: 'dangerous' }],
     },
     {
       code: `let el = <div prop1 prop2={2} innerHTML={"<p>Hello</p>" + "<p>world!</p>"} />`,
       options: [{ allowStatic: false }],
-      errors: [{ messageId: "dangerous" }],
+      errors: [{ messageId: 'dangerous' }],
     },
     {
       code: `let el = <div prop1 prop2={2} innerHTML={Math.random()} />`,
-      errors: [{ messageId: "dangerous" }],
+      errors: [{ messageId: 'dangerous' }],
     },
     {
       code: `let el = <div prop1 prop2={2} innerHTML="Hello world!" />`,
       errors: [
         {
-          messageId: "notHtml",
+          messageId: 'notHtml',
           suggestions: [
             {
-              messageId: "useInnerText",
+              messageId: 'useInnerText',
               output: `let el = <div prop1 prop2={2} innerText="Hello world!" />`,
             },
           ],
@@ -51,7 +51,7 @@ export const cases = run("no-innerhtml", rule, {
           </div>
         );
       `,
-      errors: [{ messageId: "conflict" }],
+      errors: [{ messageId: 'conflict' }],
     },
     {
       code: `
@@ -62,7 +62,7 @@ export const cases = run("no-innerhtml", rule, {
           </div>
         );
       `,
-      errors: [{ messageId: "conflict" }],
+      errors: [{ messageId: 'conflict' }],
     },
     {
       code: `
@@ -72,7 +72,7 @@ export const cases = run("no-innerhtml", rule, {
           </div>
         );
       `,
-      errors: [{ messageId: "conflict" }],
+      errors: [{ messageId: 'conflict' }],
     },
     {
       code: `
@@ -82,20 +82,20 @@ export const cases = run("no-innerhtml", rule, {
           </div>
         );
       `,
-      errors: [{ messageId: "conflict" }],
+      errors: [{ messageId: 'conflict' }],
     },
     {
       code: `let el = <div dangerouslySetInnerHTML={{ __html: "<p>Hello</p><p>world!</p>" }} />`,
-      errors: [{ messageId: "dangerouslySetInnerHTML" }],
+      errors: [{ messageId: 'dangerouslySetInnerHTML' }],
       output: `let el = <div innerHTML={"<p>Hello</p><p>world!</p>"} />`,
     },
     {
       code: `let el = <div dangerouslySetInnerHTML={foo} />`,
-      errors: [{ messageId: "dangerouslySetInnerHTML" }],
+      errors: [{ messageId: 'dangerouslySetInnerHTML' }],
     },
     {
       code: `let el = <div dangerouslySetInnerHTML={{}} />`,
-      errors: [{ messageId: "dangerouslySetInnerHTML" }],
+      errors: [{ messageId: 'dangerouslySetInnerHTML' }],
     },
   ],
 });

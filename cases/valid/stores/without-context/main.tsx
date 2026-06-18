@@ -1,6 +1,6 @@
 // @ts-nocheck
-import { render } from "solid-js/web";
-import counter from "./counter";
+import { render } from 'solid-js/web';
+import counter from './counter';
 
 function Counter() {
   const { count, doubleCount, increment } = counter;
@@ -12,4 +12,4 @@ function Counter() {
   );
 }
 
-render(() => <Counter />, document.getElementById("app"));
+render(() => <Counter />, document.getElementById('app'));

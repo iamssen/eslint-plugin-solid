@@ -1,7 +1,7 @@
-import rule from "./jsx-no-duplicate-props.js";
-import { run } from "./ruleTester.js";
+import rule from './jsx-no-duplicate-props.js';
+import { run } from './ruleTester.js';
 
-export const cases = run("jsx-no-duplicate-props", rule, {
+export const cases = run('jsx-no-duplicate-props', rule, {
   valid: [
     `let el = <div a="a" b="b" />`,
     `let el = <div a="a" {...{ b: "b" }} />`,
@@ -15,35 +15,35 @@ export const cases = run("jsx-no-duplicate-props", rule, {
   invalid: [
     {
       code: `let el = <div a="a" a="aaaa" />`,
-      errors: [{ messageId: "noDuplicateProps" }],
+      errors: [{ messageId: 'noDuplicateProps' }],
     },
     {
       code: `let el = <div a="a" {...{a: "aaaa" }} />`,
-      errors: [{ messageId: "noDuplicateProps" }],
+      errors: [{ messageId: 'noDuplicateProps' }],
     },
     {
       code: `let el = <div {...{a: "aaaa" }} a="a" />`,
-      errors: [{ messageId: "noDuplicateProps" }],
+      errors: [{ messageId: 'noDuplicateProps' }],
     },
     {
       code: `let el = <div a="a" {...{ "a": "aaaa" }} />`,
-      errors: [{ messageId: "noDuplicateProps" }],
+      errors: [{ messageId: 'noDuplicateProps' }],
     },
     {
       code: `let el = <div class="blue" class="green" />`,
-      errors: [{ messageId: "noDuplicateClass" }],
+      errors: [{ messageId: 'noDuplicateClass' }],
     },
     {
       code: `let el = <div class="blue" {...{ class: "green" }} />`,
-      errors: [{ messageId: "noDuplicateClass" }],
+      errors: [{ messageId: 'noDuplicateClass' }],
     },
     {
       code: `let el = <div children={<div />}><div /></div>`,
       errors: [
         {
-          messageId: "noDuplicateChildren",
+          messageId: 'noDuplicateChildren',
           data: {
-            used: "`props.children`, JSX children",
+            used: '`props.children`, JSX children',
           },
         },
       ],
@@ -52,8 +52,8 @@ export const cases = run("jsx-no-duplicate-props", rule, {
       code: `let el = <div innerHTML="<p></p>" textContent="howdy!" />`,
       errors: [
         {
-          messageId: "noDuplicateChildren",
-          data: { used: "`props.innerHTML`, `props.textContent`" },
+          messageId: 'noDuplicateChildren',
+          data: { used: '`props.innerHTML`, `props.textContent`' },
         },
       ],
     },

@@ -1,7 +1,7 @@
-import rule from "./prefer-show.js";
-import { run } from "./ruleTester.js";
+import rule from './prefer-show.js';
+import { run } from './ruleTester.js';
 
-export const cases = run("prefer-show", rule, {
+export const cases = run('prefer-show', rule, {
   valid: [
     `function Component(props) {
       return <Show when={props.cond}>Content</Show>;
@@ -16,7 +16,7 @@ export const cases = run("prefer-show", rule, {
       function Component(props) {
         return <div>{props.cond && <span>Content</span>}</div>;
       }`,
-      errors: [{ messageId: "preferShowAnd" }],
+      errors: [{ messageId: 'preferShowAnd' }],
       output: `
       function Component(props) {
         return <div><Show when={props.cond}><span>Content</span></Show></div>;
@@ -27,7 +27,7 @@ export const cases = run("prefer-show", rule, {
       function Component(props) {
         return <>{props.cond && <span>Content</span>}</>;
       }`,
-      errors: [{ messageId: "preferShowAnd" }],
+      errors: [{ messageId: 'preferShowAnd' }],
       output: `
       function Component(props) {
         return <><Show when={props.cond}><span>Content</span></Show></>;
@@ -46,7 +46,7 @@ export const cases = run("prefer-show", rule, {
           </div>
         );
       }`,
-      errors: [{ messageId: "preferShowTernary" }],
+      errors: [{ messageId: 'preferShowTernary' }],
       output: `
       function Component(props) {
         return (
@@ -66,7 +66,7 @@ export const cases = run("prefer-show", rule, {
           </For>
         );
       }`,
-      errors: [{ messageId: "preferShowAnd" }],
+      errors: [{ messageId: 'preferShowAnd' }],
       output: `
       function Component(props) {
         return (
@@ -89,7 +89,7 @@ export const cases = run("prefer-show", rule, {
           </For>
         );
       }`,
-      errors: [{ messageId: "preferShowTernary" }],
+      errors: [{ messageId: 'preferShowTernary' }],
       output: `
       function Component(props) {
         return (

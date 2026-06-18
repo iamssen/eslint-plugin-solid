@@ -1,6 +1,6 @@
 // @ts-nocheck
-import { render } from "solid-js/web";
-import Nested from "./nested";
+import { render } from 'solid-js/web';
+import Nested from './nested';
 
 function App() {
   return (
@@ -11,4 +11,4 @@ function App() {
   );
 }
 
-render(() => <App />, document.getElementById("app"));
+render(() => <App />, document.getElementById('app'));

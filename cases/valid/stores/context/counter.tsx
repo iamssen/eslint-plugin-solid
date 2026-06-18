@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { createSignal, createContext, useContext } from "solid-js";
+import { createSignal, createContext, useContext } from 'solid-js';
 
 const CounterContext = createContext();
 
@@ -17,7 +17,11 @@ export function CounterProvider(props) {
         },
       },
     ];
-  return <CounterContext.Provider value={store}>{props.children}</CounterContext.Provider>;
+  return (
+    <CounterContext.Provider value={store}>
+      {props.children}
+    </CounterContext.Provider>
+  );
 }
 
 export function useCounter() {

@@ -1,62 +1,72 @@
-import { ESLintUtils, TSESTree as T } from "@typescript-eslint/utils";
-import { getScope, getSourceCode } from "../compat.js";
-import { appendImports, formatList, insertImports, isDOMElementName } from "../utils.js";
+import { ESLintUtils, TSESTree as T } from '@typescript-eslint/utils';
+import { getScope, getSourceCode } from '../compat.js';
+import {
+  appendImports,
+  formatList,
+  insertImports,
+  isDOMElementName,
+} from '../utils.js';
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 
 // Currently all of the control flow components are from 'solid-js'.
-const AUTO_COMPONENTS = ["Show", "For", "Index", "Switch", "Match"];
-const SOURCE_MODULE = "solid-js";
+const AUTO_COMPONENTS = ['Show', 'For', 'Index', 'Switch', 'Match'];
+const SOURCE_MODULE = 'solid-js';
 
 /*
  * This rule is adapted from eslint-plugin-react's jsx-no-undef rule under
  * the MIT license. Thank you for your work!
  */
-type MessageIds = "undefined" | "customDirectiveUndefined" | "autoImport";
+type MessageIds = 'undefined' | 'customDirectiveUndefined' | 'autoImport';
 type Options = [
   {
     allowGlobals?: boolean;
     autoImport?: boolean;
     typescriptEnabled?: boolean;
-  }?
+  }?,
 ];
 export default createRule<Options, MessageIds>({
   meta: {
-    type: "problem",
+    type: 'problem',
     docs: {
-      description: "Disallow references to undefined variables in JSX. Handles custom directives.",
-      url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/jsx-no-undef.md",
+      description:
+        'Disallow references to undefined variables in JSX. Handles custom directives.',
+      url: 'https://github.com/solidjs-community/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/jsx-no-undef.md',
     },
-    fixable: "code",
+    fixable: 'code',
     schema: [
       {
-        type: "object",
+        type: 'object',
         properties: {
           allowGlobals: {
-            type: "boolean",
+            type: 'boolean',
             description:
-              "When true, the rule will consider the global scope when checking for defined components.",
+              'When true, the rule will consider the global scope when checking for defined components.',
             // default: false,
           },
           autoImport: {
-            type: "boolean",
+            type: 'boolean',
             description:
               'Automatically import certain components from `"solid-js"` if they are undefined.',
             // default: true,
           },
           typescriptEnabled: {
-            type: "boolean",
-            description: "Adjusts behavior not to conflict with TypeScript's type checking.",
+            type: 'boolean',
+            description:
+              "Adjusts behavior not to conflict with TypeScript's type checking.",
             // default: false,
           },
         },
         additionalProperties: false,
       },
     ],
-    defaultOptions: [{allowGlobals: false, autoImport: true, typescriptEnabled: false}],
+    defaultOptions: [
+      { allowGlobals: false, autoImport: true, typescriptEnabled: false },
+    ],
     messages: {
       undefined: "'{{identifier}}' is not defined.",
-      customDirectiveUndefined: "Custom directive '{{identifier}}' is not defined.",
+      customDirectiveUndefined:
+        "Custom directive '{{identifier}}' is not defined.",
       autoImport: "{{imports}} should be imported from '{{source}}'.",
     },
   },
@@ -78,20 +88,25 @@ export default createRule<Options, MessageIds>({
       {
         isComponent,
         isCustomDirective,
-      }: { isComponent?: boolean; isCustomDirective?: boolean } = {}
+      }: { isComponent?: boolean; isCustomDirective?: boolean } = {},
     ) {
       let scope = getScope(context, node);
       const sourceCode = getSourceCode(context);
       const sourceType = sourceCode.ast.sourceType;
-      const scopeUpperBound = !allowGlobals && sourceType === "module" ? "module" : "global";
+      const scopeUpperBound =
+        !allowGlobals && sourceType === 'module' ? 'module' : 'global';
       const variables = [...scope.variables];
 
       // Ignore 'this' keyword (also maked as JSXIdentifier when used in JSX)
-      if (node.name === "this") {
+      if (node.name === 'this') {
         return;
       }
 
-      while (scope.type !== scopeUpperBound && scope.type !== "global" && scope.upper) {
+      while (
+        scope.type !== scopeUpperBound &&
+        scope.type !== 'global' &&
+        scope.upper
+      ) {
         scope = scope.upper;
         variables.push(...scope.variables);
       }
@@ -118,7 +133,7 @@ export default createRule<Options, MessageIds>({
       } else if (isCustomDirective) {
         context.report({
           node,
-          messageId: "customDirectiveUndefined",
+          messageId: 'customDirectiveUndefined',
           data: {
             identifier: node.name,
           },
@@ -126,7 +141,7 @@ export default createRule<Options, MessageIds>({
       } else if (!isTypeScriptEnabled) {
         context.report({
           node,
-          messageId: "undefined",
+          messageId: 'undefined',
           data: {
             identifier: node.name,
           },
@@ -135,19 +150,19 @@ export default createRule<Options, MessageIds>({
     }
 
     return {
-      JSXOpeningElement(node) {
+      'JSXOpeningElement'(node) {
         let n: T.Node | undefined;
         switch (node.name.type) {
-          case "JSXIdentifier":
+          case 'JSXIdentifier':
             if (!isDOMElementName(node.name.name)) {
               checkIdentifierInJSX(node.name, { isComponent: true });
             }
             break;
-          case "JSXMemberExpression":
+          case 'JSXMemberExpression':
             n = node.name;
             do {
               n = (n as any).object;
-            } while (n && n.type !== "JSXIdentifier");
+            } while (n && n.type !== 'JSXIdentifier');
             if (n) {
               checkIdentifierInJSX(n);
             }
@@ -156,50 +171,60 @@ export default createRule<Options, MessageIds>({
             break;
         }
       },
-      "JSXAttribute > JSXNamespacedName": (node: T.JSXNamespacedName) => {
+      'JSXAttribute > JSXNamespacedName': (node: T.JSXNamespacedName) => {
         // <Element use:X /> applies the `X` custom directive to the element, where `X` must be an identifier in scope.
         if (
-          node.namespace?.type === "JSXIdentifier" &&
-          node.namespace.name === "use" &&
-          node.name?.type === "JSXIdentifier"
+          node.namespace?.type === 'JSXIdentifier' &&
+          node.namespace.name === 'use' &&
+          node.name?.type === 'JSXIdentifier'
         ) {
           checkIdentifierInJSX(node.name, { isCustomDirective: true });
         }
       },
-      "Program:exit": (programNode: T.Program) => {
+      'Program:exit': (programNode: T.Program) => {
         // add in any auto import components used in the program
         const missingComponents = Array.from(missingComponentsSet.values());
         if (autoImport && missingComponents.length) {
           const importNode = programNode.body.find(
             (n) =>
-              n.type === "ImportDeclaration" &&
-              n.importKind !== "type" &&
-              n.source.type === "Literal" &&
-              n.source.value === SOURCE_MODULE
+              n.type === 'ImportDeclaration' &&
+              n.importKind !== 'type' &&
+              n.source.type === 'Literal' &&
+              n.source.value === SOURCE_MODULE,
           ) as T.ImportDeclaration | undefined;
           if (importNode) {
             context.report({
               node: importNode,
-              messageId: "autoImport",
+              messageId: 'autoImport',
               data: {
                 imports: formatList(missingComponents), // "Show, For, and Switch"
                 source: SOURCE_MODULE,
               },
               fix: (fixer) => {
-                return appendImports(fixer, getSourceCode(context), importNode, missingComponents);
+                return appendImports(
+                  fixer,
+                  getSourceCode(context),
+                  importNode,
+                  missingComponents,
+                );
               },
             });
           } else {
             context.report({
               node: programNode,
-              messageId: "autoImport",
+              messageId: 'autoImport',
               data: {
                 imports: formatList(missingComponents),
                 source: SOURCE_MODULE,
               },
               fix: (fixer) => {
                 // insert `import { missing, identifiers } from "solid-js"` at top of module
-                return insertImports(fixer, getSourceCode(context), "solid-js", missingComponents);
+                return insertImports(
+                  fixer,
+                  getSourceCode(context),
+                  'solid-js',
+                  missingComponents,
+                );
               },
             });
           }

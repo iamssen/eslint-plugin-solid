@@ -1,7 +1,7 @@
-import rule from "./event-handlers.js";
-import { run } from "./ruleTester.js";
+import rule from './event-handlers.js';
+import { run } from './ruleTester.js';
 
-export const cases = run("event-handlers", rule, {
+export const cases = run('event-handlers', rule, {
   valid: [
     `const onfoo = () => 42;
     let el = <div onClick={onfoo} />;`,
@@ -20,7 +20,10 @@ export const cases = run("event-handlers", rule, {
     `let el = <div onDblClick={() => {}} />;`,
     `const onClick = () => 42;
     let el = <div {...{ onClick }} />;`,
-    { code: `let el = <div onclick={onclick} />`, options: [{ ignoreCase: true }] },
+    {
+      code: `let el = <div onclick={onclick} />`,
+      options: [{ ignoreCase: true }],
+    },
     { code: `let el = <div only={only} />`, options: [{ ignoreCase: true }] },
   ],
   invalid: [
@@ -28,8 +31,8 @@ export const cases = run("event-handlers", rule, {
       code: `let el = <div only />`,
       errors: [
         {
-          messageId: "detected-attr", // has priority over "naming"/"capitalization"
-          data: { name: "only", staticValue: true },
+          messageId: 'detected-attr', // has priority over "naming"/"capitalization"
+          data: { name: 'only', staticValue: true },
         },
       ],
     },
@@ -37,16 +40,16 @@ export const cases = run("event-handlers", rule, {
       code: `let el = <div only={() => {}} />`,
       errors: [
         {
-          messageId: "naming",
+          messageId: 'naming',
           suggestions: [
             {
-              messageId: "make-handler",
-              data: { name: "only", handlerName: "onLy" },
+              messageId: 'make-handler',
+              data: { name: 'only', handlerName: 'onLy' },
               output: `let el = <div onLy={() => {}} />`,
             },
             {
-              messageId: "make-attr",
-              data: { name: "only", attrName: "attr:only" },
+              messageId: 'make-attr',
+              data: { name: 'only', attrName: 'attr:only' },
               output: `let el = <div attr:only={() => {}} />`,
             },
           ],
@@ -55,25 +58,25 @@ export const cases = run("event-handlers", rule, {
     },
     {
       code: `let el = <div onclick={() => {}} />`,
-      errors: [{ messageId: "capitalization" }],
+      errors: [{ messageId: 'capitalization' }],
       output: `let el = <div onClick={() => {}} />`,
     },
     {
       code: `let el = <div onClIcK={() => {}} />`,
-      errors: [{ messageId: "capitalization" }],
+      errors: [{ messageId: 'capitalization' }],
       output: `let el = <div onClick={() => {}} />`,
     },
     {
       code: `let el = <div oncLICK={() => {}} />`,
-      errors: [{ messageId: "capitalization" }],
+      errors: [{ messageId: 'capitalization' }],
       output: `let el = <div onClick={() => {}} />`,
     },
     {
       code: `let el = <div onLy />`,
       errors: [
         {
-          messageId: "detected-attr",
-          data: { name: "onLy", staticValue: true },
+          messageId: 'detected-attr',
+          data: { name: 'onLy', staticValue: true },
         },
       ],
     },
@@ -81,8 +84,8 @@ export const cases = run("event-handlers", rule, {
       code: `let el = <div onLy="string" />`,
       errors: [
         {
-          messageId: "detected-attr",
-          data: { name: "onLy", staticValue: "string" },
+          messageId: 'detected-attr',
+          data: { name: 'onLy', staticValue: 'string' },
         },
       ],
     },
@@ -90,8 +93,8 @@ export const cases = run("event-handlers", rule, {
       code: `let el = <div onLy={5} />`,
       errors: [
         {
-          messageId: "detected-attr",
-          data: { name: "onLy", staticValue: 5 },
+          messageId: 'detected-attr',
+          data: { name: 'onLy', staticValue: 5 },
         },
       ],
     },
@@ -99,8 +102,8 @@ export const cases = run("event-handlers", rule, {
       code: `let el = <div onLy={"string"} />`,
       errors: [
         {
-          messageId: "detected-attr",
-          data: { name: "onLy", staticValue: "string" },
+          messageId: 'detected-attr',
+          data: { name: 'onLy', staticValue: 'string' },
         },
       ],
     },
@@ -110,29 +113,38 @@ export const cases = run("event-handlers", rule, {
       let el = <div onLy={string} />`,
       errors: [
         {
-          messageId: "detected-attr",
-          data: { name: "onLy", staticValue: "string" },
+          messageId: 'detected-attr',
+          data: { name: 'onLy', staticValue: 'string' },
         },
       ],
     },
     {
       code: `let el = <div onDoubleClick={() => {}} />;`,
       errors: [
-        { messageId: "nonstandard", data: { name: "onDoubleClick", fixedName: "onDblClick" } },
+        {
+          messageId: 'nonstandard',
+          data: { name: 'onDoubleClick', fixedName: 'onDblClick' },
+        },
       ],
       output: `let el = <div onDblClick={() => {}} />;`,
     },
     {
       code: `let el = <div ondoubleclick={() => {}} />;`,
       errors: [
-        { messageId: "nonstandard", data: { name: "ondoubleclick", fixedName: "onDblClick" } },
+        {
+          messageId: 'nonstandard',
+          data: { name: 'ondoubleclick', fixedName: 'onDblClick' },
+        },
       ],
       output: `let el = <div onDblClick={() => {}} />;`,
     },
     {
       code: `let el = <div ondblclick={() => {}} />;`,
       errors: [
-        { messageId: "capitalization", data: { name: "ondblclick", fixedName: "onDblClick" } },
+        {
+          messageId: 'capitalization',
+          data: { name: 'ondblclick', fixedName: 'onDblClick' },
+        },
       ],
       output: `let el = <div onDblClick={() => {}} />;`,
     },
@@ -140,7 +152,7 @@ export const cases = run("event-handlers", rule, {
       code: `const handleClick = () => 42;
       let el = <div {...{ onClick: handleClick, foo }} />;`,
       options: [{ warnOnSpread: true }],
-      errors: [{ messageId: "spread-handler", data: { name: "onClick" } }],
+      errors: [{ messageId: 'spread-handler', data: { name: 'onClick' } }],
       output: `const handleClick = () => 42;
       let el = <div {...{  foo }} onClick={handleClick} />;`,
     },
@@ -148,7 +160,7 @@ export const cases = run("event-handlers", rule, {
       code: `const handleClick = () => 42;
       let el = <div {...{ foo, onClick: handleClick, }} />;`,
       options: [{ warnOnSpread: true }],
-      errors: [{ messageId: "spread-handler", data: { name: "onClick" } }],
+      errors: [{ messageId: 'spread-handler', data: { name: 'onClick' } }],
       output: `const handleClick = () => 42;
       let el = <div {...{ foo,  }} onClick={handleClick} />;`,
     },
@@ -156,7 +168,7 @@ export const cases = run("event-handlers", rule, {
       code: `const handleClick = () => 42;
       let el = <div {...{ onClick: handleClick }} />;`,
       options: [{ warnOnSpread: true }],
-      errors: [{ messageId: "spread-handler", data: { name: "onClick" } }],
+      errors: [{ messageId: 'spread-handler', data: { name: 'onClick' } }],
       output: `const handleClick = () => 42;
       let el = <div  onClick={handleClick} />;`,
     },

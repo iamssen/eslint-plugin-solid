@@ -1,5 +1,5 @@
-import { TSESTree as T, ESLintUtils } from "@typescript-eslint/utils";
-import { markVariableAsUsed } from "../compat.js";
+import { TSESTree as T, ESLintUtils } from '@typescript-eslint/utils';
+import { markVariableAsUsed } from '../compat.js';
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 
@@ -11,11 +11,11 @@ const createRule = ESLintUtils.RuleCreator.withoutDocs;
 
 export default createRule({
   meta: {
-    type: "problem",
+    type: 'problem',
     docs: {
       // eslint-disable-next-line eslint-plugin/require-meta-docs-description
-      description: "Prevent variables used in JSX from being marked as unused.",
-      url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/jsx-uses-vars.md",
+      description: 'Prevent variables used in JSX from being marked as unused.',
+      url: 'https://github.com/solidjs-community/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/jsx-uses-vars.md',
     },
     schema: [],
     // eslint-disable-next-line eslint-plugin/prefer-message-ids
@@ -24,31 +24,31 @@ export default createRule({
   defaultOptions: [],
   create(context) {
     return {
-      JSXOpeningElement(node) {
+      'JSXOpeningElement'(node) {
         let parent: T.JSXTagNameExpression;
         switch (node.name.type) {
-          case "JSXNamespacedName": // <Foo:Bar>
+          case 'JSXNamespacedName': // <Foo:Bar>
             return;
-          case "JSXIdentifier": // <Foo>
+          case 'JSXIdentifier': // <Foo>
             markVariableAsUsed(context, node.name.name, node.name);
             break;
-          case "JSXMemberExpression": // <Foo...Bar>
+          case 'JSXMemberExpression': // <Foo...Bar>
             parent = node.name.object;
-            while (parent?.type === "JSXMemberExpression") {
+            while (parent?.type === 'JSXMemberExpression') {
               parent = parent.object;
             }
-            if (parent.type === "JSXIdentifier") {
+            if (parent.type === 'JSXIdentifier') {
               markVariableAsUsed(context, parent.name, parent);
             }
             break;
         }
       },
-      "JSXAttribute > JSXNamespacedName": (node: T.JSXNamespacedName) => {
+      'JSXAttribute > JSXNamespacedName': (node: T.JSXNamespacedName) => {
         // <Element use:X /> applies the `X` custom directive to the element, where `X` must be an identifier in scope.
         if (
-          node.namespace?.type === "JSXIdentifier" &&
-          node.namespace.name === "use" &&
-          node.name?.type === "JSXIdentifier"
+          node.namespace?.type === 'JSXIdentifier' &&
+          node.namespace.name === 'use' &&
+          node.name?.type === 'JSXIdentifier'
         ) {
           markVariableAsUsed(context, node.name.name, node.name);
         }

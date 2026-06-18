@@ -1,10 +1,10 @@
 // @ts-nocheck
-import { render } from "solid-js/web";
-import { For } from "solid-js";
+import { render } from 'solid-js/web';
+import { For } from 'solid-js';
 
-import useRedux from "./useRedux";
-import reduxStore from "./store";
-import actions from "./actions";
+import useRedux from './useRedux';
+import reduxStore from './store';
+import actions from './actions';
 
 const App = () => {
   const [store, { addTodo, toggleTodo }] = useRedux(reduxStore, actions);
@@ -17,7 +17,7 @@ const App = () => {
           onClick={() => {
             if (!input.value.trim()) return;
             addTodo(input.value);
-            input.value = "";
+            input.value = '';
           }}
         >
           Add Todo
@@ -26,11 +26,19 @@ const App = () => {
       <For each={store.todos}>
         {(todo) => {
           const { id, text } = todo;
-          console.log("Create", text);
+          console.log('Create', text);
           return (
             <div>
-              <input type="checkbox" checked={todo.completed} onChange={[toggleTodo, id]} />
-              <span style={{ "text-decoration": todo.completed ? "line-through" : "none" }}>
+              <input
+                type="checkbox"
+                checked={todo.completed}
+                onChange={[toggleTodo, id]}
+              />
+              <span
+                style={{
+                  'text-decoration': todo.completed ? 'line-through' : 'none',
+                }}
+              >
                 {text}
               </span>
             </div>
@@ -41,4 +49,4 @@ const App = () => {
   );
 };
 
-render(App, document.getElementById("app"));
+render(App, document.getElementById('app'));

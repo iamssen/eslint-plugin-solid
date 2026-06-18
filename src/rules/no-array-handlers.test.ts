@@ -1,7 +1,7 @@
-import rule from "./no-array-handlers.js";
-import { run, tsOnly } from "./ruleTester.js";
+import rule from './no-array-handlers.js';
+import { run, tsOnly } from './ruleTester.js';
 
-export const cases = run("no-array-handlers", rule, {
+export const cases = run('no-array-handlers', rule, {
   valid: [
     `let el = <button style={{background: 'red'}} onClick={() => 9001} />`,
     `const handler = () => 1+1;
@@ -27,40 +27,40 @@ export const cases = run("no-array-handlers", rule, {
   invalid: [
     {
       code: `let el = <button onClick={[(n) => console.log(n), 'str']} />`,
-      errors: [{ messageId: "noArrayHandlers" }],
+      errors: [{ messageId: 'noArrayHandlers' }],
     },
     {
       code: `let el = <button onClick={[(k: string) => k.toUpperCase(), 'hello']} />`,
-      errors: [{ messageId: "noArrayHandlers" }],
+      errors: [{ messageId: 'noArrayHandlers' }],
       [tsOnly]: true,
     },
     {
       code: `let el = <div onMouseOver={[1,2,3]} />`,
-      errors: [{ messageId: "noArrayHandlers" }],
+      errors: [{ messageId: 'noArrayHandlers' }],
     },
     {
       code: `let el = <div on:click={[handler, i()]} />`,
-      errors: [{ messageId: "noArrayHandlers" }],
+      errors: [{ messageId: 'noArrayHandlers' }],
     },
     {
       code: `let el = <button type="button" onclick={[handler, i() + 2]} class="btn" />`,
-      errors: [{ messageId: "noArrayHandlers" }],
+      errors: [{ messageId: 'noArrayHandlers' }],
     },
     {
       code: `let handler = [(x) => x*2, 54];
       let el = <button style={{background: 'pink'}} onclick={handler} />`,
-      errors: [{ messageId: "noArrayHandlers" }],
+      errors: [{ messageId: 'noArrayHandlers' }],
     },
     {
       code: `const thing = (props) => <div onclick={[props.callback, props.id]}><button type="button" onclick={handler} class="btn" /></div>`,
-      errors: [{ messageId: "noArrayHandlers" }],
+      errors: [{ messageId: 'noArrayHandlers' }],
     },
     {
       code: `function Component() {
       const arr = [(n: number) => n*n, 2];
       return <div onClick={arr} />;
     }`,
-      errors: [{ messageId: "noArrayHandlers" }],
+      errors: [{ messageId: 'noArrayHandlers' }],
       [tsOnly]: true,
     },
   ],

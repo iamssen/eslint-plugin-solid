@@ -1,26 +1,32 @@
-import { TSESTree as T, ESLintUtils } from "@typescript-eslint/utils";
-import { isFunctionNode, trackImports, isPropsByName, trace } from "../utils.js";
+import { TSESTree as T, ESLintUtils } from '@typescript-eslint/utils';
+import {
+  isFunctionNode,
+  trackImports,
+  isPropsByName,
+  trace,
+} from '../utils.js';
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 
 export default createRule({
   meta: {
-    type: "problem",
+    type: 'problem',
     docs: {
       description:
         "Disallow usage of APIs that use ES6 Proxies, only to target environments that don't support them.",
-      url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/no-proxy-apis.md",
+      url: 'https://github.com/solidjs-community/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/no-proxy-apis.md',
     },
     schema: [],
     messages: {
-      noStore: "Solid Store APIs use Proxies, which are incompatible with your target environment.",
+      noStore:
+        'Solid Store APIs use Proxies, which are incompatible with your target environment.',
       spreadCall:
-        "Using a function call in JSX spread makes Solid use Proxies, which are incompatible with your target environment.",
+        'Using a function call in JSX spread makes Solid use Proxies, which are incompatible with your target environment.',
       spreadMember:
-        "Using a property access in JSX spread makes Solid use Proxies, which are incompatible with your target environment.",
-      proxyLiteral: "Proxies are incompatible with your target environment.",
+        'Using a property access in JSX spread makes Solid use Proxies, which are incompatible with your target environment.',
+      proxyLiteral: 'Proxies are incompatible with your target environment.',
       mergeProps:
-        "If you pass a function to `mergeProps`, it will create a Proxy, which are incompatible with your target environment.",
+        'If you pass a function to `mergeProps`, it will create a Proxy, which are incompatible with your target environment.',
     },
   },
   defaultOptions: [],
@@ -28,59 +34,60 @@ export default createRule({
     const { matchImport, handleImportDeclaration } = trackImports();
 
     return {
-      ImportDeclaration(node) {
+      'ImportDeclaration'(node) {
         handleImportDeclaration(node); // track import aliases
 
         const source = node.source.value;
-        if (source === "solid-js/store") {
+        if (source === 'solid-js/store') {
           context.report({
             node,
-            messageId: "noStore",
+            messageId: 'noStore',
           });
         }
       },
-      "JSXSpreadAttribute MemberExpression"(node: T.MemberExpression) {
-        context.report({ node, messageId: "spreadMember" });
+      'JSXSpreadAttribute MemberExpression'(node: T.MemberExpression) {
+        context.report({ node, messageId: 'spreadMember' });
       },
-      "JSXSpreadAttribute CallExpression"(node: T.CallExpression) {
-        context.report({ node, messageId: "spreadCall" });
+      'JSXSpreadAttribute CallExpression'(node: T.CallExpression) {
+        context.report({ node, messageId: 'spreadCall' });
       },
-      CallExpression(node) {
-        if (node.callee.type === "Identifier") {
-          if (matchImport("mergeProps", node.callee.name)) {
+      'CallExpression'(node) {
+        if (node.callee.type === 'Identifier') {
+          if (matchImport('mergeProps', node.callee.name)) {
             node.arguments
               .filter((arg) => {
-                if (arg.type === "SpreadElement") return true;
+                if (arg.type === 'SpreadElement') return true;
                 const traced = trace(arg, context);
                 return (
-                  (traced.type === "Identifier" && !isPropsByName(traced.name)) ||
+                  (traced.type === 'Identifier' &&
+                    !isPropsByName(traced.name)) ||
                   isFunctionNode(traced)
                 );
               })
               .forEach((badArg) => {
                 context.report({
                   node: badArg,
-                  messageId: "mergeProps",
+                  messageId: 'mergeProps',
                 });
               });
           }
-        } else if (node.callee.type === "MemberExpression") {
+        } else if (node.callee.type === 'MemberExpression') {
           if (
-            node.callee.object.type === "Identifier" &&
-            node.callee.object.name === "Proxy" &&
-            node.callee.property.type === "Identifier" &&
-            node.callee.property.name === "revocable"
+            node.callee.object.type === 'Identifier' &&
+            node.callee.object.name === 'Proxy' &&
+            node.callee.property.type === 'Identifier' &&
+            node.callee.property.name === 'revocable'
           ) {
             context.report({
               node,
-              messageId: "proxyLiteral",
+              messageId: 'proxyLiteral',
             });
           }
         }
       },
-      NewExpression(node) {
-        if (node.callee.type === "Identifier" && node.callee.name === "Proxy") {
-          context.report({ node, messageId: "proxyLiteral" });
+      'NewExpression'(node) {
+        if (node.callee.type === 'Identifier' && node.callee.name === 'Proxy') {
+          context.report({ node, messageId: 'proxyLiteral' });
         }
       },
     };

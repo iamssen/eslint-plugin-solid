@@ -1,5 +1,5 @@
-import { createSignal, onCleanup } from "solid-js";
-import { render } from "solid-js/web";
+import { createSignal, onCleanup } from 'solid-js';
+import { render } from 'solid-js/web';
 
 const CountingComponent = () => {
   const [count, setCount] = createSignal(0);
@@ -10,4 +10,4 @@ const CountingComponent = () => {
   return <div>Count value is {count()}</div>;
 };
 
-render(() => <CountingComponent />, document.getElementById("app"));
+render(() => <CountingComponent />, document.getElementById('app'));

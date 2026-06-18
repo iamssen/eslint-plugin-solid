@@ -1,7 +1,7 @@
 // @ts-nocheck
-import { For } from "solid-js";
-import { render } from "solid-js/web";
-import { createStore, produce } from "solid-js/store";
+import { For } from 'solid-js';
+import { render } from 'solid-js/web';
+import { createStore, produce } from 'solid-js/store';
 
 const App = () => {
   let input;
@@ -9,17 +9,17 @@ const App = () => {
   const [store, setStore] = createStore({ todos: [] });
   const addTodo = (text) => {
     setStore(
-      "todos",
+      'todos',
       produce((todos) => {
         todos.push({ id: ++todoId, text, completed: false });
-      })
+      }),
     );
   };
   const toggleTodo = (id) => {
     setStore(
-      "todos",
+      'todos',
       (todo) => todo.id === id,
-      produce((todo) => (todo.completed = !todo.completed))
+      produce((todo) => (todo.completed = !todo.completed)),
     );
   };
 
@@ -31,7 +31,7 @@ const App = () => {
           onClick={() => {
             if (!input.value.trim()) return;
             addTodo(input.value);
-            input.value = "";
+            input.value = '';
           }}
         >
           Add Todo
@@ -43,8 +43,16 @@ const App = () => {
           console.log(`Creating ${text}`);
           return (
             <div>
-              <input type="checkbox" checked={todo.completed} onChange={[toggleTodo, id]} />
-              <span style={{ "text-decoration": todo.completed ? "line-through" : "none" }}>
+              <input
+                type="checkbox"
+                checked={todo.completed}
+                onChange={[toggleTodo, id]}
+              />
+              <span
+                style={{
+                  'text-decoration': todo.completed ? 'line-through' : 'none',
+                }}
+              >
                 {text}
               </span>
             </div>
@@ -55,4 +63,4 @@ const App = () => {
   );
 };
 
-render(App, document.getElementById("app"));
+render(App, document.getElementById('app'));

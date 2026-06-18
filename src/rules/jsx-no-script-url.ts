@@ -1,5 +1,5 @@
-import { ESLintUtils, ASTUtils } from "@typescript-eslint/utils";
-import { getScope } from "../compat.js";
+import { ESLintUtils, ASTUtils } from '@typescript-eslint/utils';
+import { getScope } from '../compat.js';
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 const { getStaticValue }: { getStaticValue: any } = ASTUtils;
@@ -21,29 +21,36 @@ const isJavaScriptProtocol =
  */
 export default createRule({
   meta: {
-    type: "problem",
+    type: 'problem',
     docs: {
-      description: "Disallow javascript: URLs.",
-      url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/jsx-no-script-url.md",
+      description: 'Disallow javascript: URLs.',
+      url: 'https://github.com/solidjs-community/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/jsx-no-script-url.md',
     },
     schema: [],
     messages: {
-      noJSURL: "For security, don't use javascript: URLs. Use event handlers instead if you can.",
+      noJSURL:
+        "For security, don't use javascript: URLs. Use event handlers instead if you can.",
     },
   },
   defaultOptions: [],
   create(context) {
     return {
       JSXAttribute(node) {
-        if (node.name.type === "JSXIdentifier" && node.value) {
+        if (node.name.type === 'JSXIdentifier' && node.value) {
           const link: { value: unknown } | null = getStaticValue(
-            node.value.type === "JSXExpressionContainer" ? node.value.expression : node.value,
-            getScope(context, node)
+            node.value.type === 'JSXExpressionContainer'
+              ? node.value.expression
+              : node.value,
+            getScope(context, node),
           );
-          if (link && typeof link.value === "string" && isJavaScriptProtocol.test(link.value)) {
+          if (
+            link &&
+            typeof link.value === 'string' &&
+            isJavaScriptProtocol.test(link.value)
+          ) {
             context.report({
               node: node.value,
-              messageId: "noJSURL",
+              messageId: 'noJSURL',
             });
           }
         }

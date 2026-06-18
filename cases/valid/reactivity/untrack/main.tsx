@@ -1,6 +1,6 @@
 // @ts-nocheck
-import { render } from "solid-js/web";
-import { createSignal, createEffect, untrack } from "solid-js";
+import { render } from 'solid-js/web';
+import { createSignal, createEffect, untrack } from 'solid-js';
 
 const App = () => {
   const [a, setA] = createSignal(1);
@@ -18,4 +18,4 @@ const App = () => {
   );
 };
 
-render(App, document.getElementById("app"));
+render(App, document.getElementById('app'));

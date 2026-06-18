@@ -1,8 +1,8 @@
 // @ts-nocheck
-import { render } from "solid-js/web";
-import { createSignal } from "solid-js";
+import { render } from 'solid-js/web';
+import { createSignal } from 'solid-js';
 
-import Greeting from "./greeting";
+import Greeting from './greeting';
 
 function App() {
   const [name, setName] = createSignal();
@@ -12,9 +12,9 @@ function App() {
       <Greeting greeting="Hello" />
       <Greeting name="Jeremy" />
       <Greeting name={name()} />
-      <button onClick={() => setName("Jarod")}>Set Name</button>
+      <button onClick={() => setName('Jarod')}>Set Name</button>
     </>
   );
 }
 
-render(() => <App />, document.getElementById("app"));
+render(() => <App />, document.getElementById('app'));

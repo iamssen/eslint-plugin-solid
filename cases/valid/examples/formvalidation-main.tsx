@@ -1,10 +1,10 @@
 // @ts-nocheck
-import { render } from "solid-js/web";
-import { createStore } from "solid-js/store";
-import { useForm } from "./validation";
-import "./styles.css";
+import { render } from 'solid-js/web';
+import { createStore } from 'solid-js/store';
+import { useForm } from './validation';
+import './styles.css';
 
-const EMAILS = ["johnsmith@outlook.com", "mary@gmail.com", "djacobs@move.org"];
+const EMAILS = ['johnsmith@outlook.com', 'mary@gmail.com', 'djacobs@move.org'];
 
 function fetchUserName(name) {
   return new Promise((resolve) => {
@@ -12,23 +12,25 @@ function fetchUserName(name) {
   });
 }
 
-const ErrorMessage = (props) => <span class="error-message">{props.error}</span>;
+const ErrorMessage = (props) => (
+  <span class="error-message">{props.error}</span>
+);
 
 const App = () => {
   const { validate, formSubmit, errors } = useForm({
-    errorClass: "error-input",
+    errorClass: 'error-input',
   });
   const [fields, setFields] = createStore();
   const fn = (form) => {
     form.submit();
-    console.log("Done");
+    console.log('Done');
   };
   const userNameExists = async ({ value }) => {
     const exists = await fetchUserName(value);
     return exists && `${value} is already being used`;
   };
   const matchesPassword = ({ value }) =>
-    value === fields.password ? false : "Passwords must Match";
+    value === fields.password ? false : 'Passwords must Match';
 
   return (
     <form use:formSubmit={fn}>
@@ -50,7 +52,7 @@ const App = () => {
           placeholder="Password"
           required=""
           minlength="8"
-          onInput={(e) => setFields("password", e.target.value)}
+          onInput={(e) => setFields('password', e.target.value)}
           use:validate
         />
         {errors.password && <ErrorMessage error={errors.password} />}
@@ -63,7 +65,9 @@ const App = () => {
           required=""
           use:validate={[matchesPassword]}
         />
-        {errors.confirmpassword && <ErrorMessage error={errors.confirmpassword} />}
+        {errors.confirmpassword && (
+          <ErrorMessage error={errors.confirmpassword} />
+        )}
       </div>
 
       <button type="submit">Submit</button>
@@ -71,4 +75,4 @@ const App = () => {
   );
 };
 
-render(App, document.getElementById("app"));
+render(App, document.getElementById('app'));

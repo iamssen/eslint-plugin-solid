@@ -1,8 +1,8 @@
 // @ts-nocheck
-import { mergeProps } from "solid-js";
+import { mergeProps } from 'solid-js';
 
 export default function Greeting(props) {
-  const merged = mergeProps({ greeting: "Hi", name: "John" }, props);
+  const merged = mergeProps({ greeting: 'Hi', name: 'John' }, props);
 
   return (
     <h3>

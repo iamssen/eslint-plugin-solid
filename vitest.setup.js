@@ -1,7 +1,7 @@
-import { vi } from "vitest";
+import { vi } from 'vitest';
 
 // Don't bother checking for imports for every test
-vi.mock("./src/utils", async (importOriginal) => {
+vi.mock('./src/utils', async (importOriginal) => {
   return {
     ...(await importOriginal()),
     trackImports: () => {

@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { useCounter } from "./counter";
+import { useCounter } from './counter';
 
 export default function Nested() {
   const [count, { increment, decrement }] = useCounter();

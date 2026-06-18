@@ -1,26 +1,28 @@
-import { TSESLint, ESLintUtils } from "@typescript-eslint/utils";
-import { isDOMElementName, jsxGetProp, jsxHasProp } from "../utils.js";
+import { TSESLint, ESLintUtils } from '@typescript-eslint/utils';
+import { isDOMElementName, jsxGetProp, jsxHasProp } from '../utils.js';
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 
 const reactSpecificProps = [
-  { from: "className", to: "class" },
-  { from: "htmlFor", to: "for" },
+  { from: 'className', to: 'class' },
+  { from: 'htmlFor', to: 'for' },
 ];
 
 export default createRule({
   meta: {
-    type: "problem",
+    type: 'problem',
     docs: {
       description:
-        "Disallow usage of React-specific `className`/`htmlFor` props, which were deprecated in v1.4.0.",
-      url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/no-react-specific-props.md",
+        'Disallow usage of React-specific `className`/`htmlFor` props, which were deprecated in v1.4.0.',
+      url: 'https://github.com/solidjs-community/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/no-react-specific-props.md',
     },
-    fixable: "code",
+    fixable: 'code',
     schema: [],
     messages: {
-      prefer: "Prefer the `{{ to }}` prop over the deprecated `{{ from }}` prop.",
-      noUselessKey: "Elements in a <For> or <Index> list do not need a key prop.",
+      prefer:
+        'Prefer the `{{ to }}` prop over the deprecated `{{ from }}` prop.',
+      noUselessKey:
+        'Elements in a <For> or <Index> list do not need a key prop.',
     },
   },
   defaultOptions: [],
@@ -32,24 +34,28 @@ export default createRule({
           if (classNameAttribute) {
             // only auto-fix if there is no class prop defined
             const fix = !jsxHasProp(node.attributes, to)
-              ? (fixer: TSESLint.RuleFixer) => fixer.replaceText(classNameAttribute.name, to)
+              ? (fixer: TSESLint.RuleFixer) =>
+                  fixer.replaceText(classNameAttribute.name, to)
               : undefined;
 
             context.report({
               node: classNameAttribute,
-              messageId: "prefer",
+              messageId: 'prefer',
               data: { from, to },
               fix,
             });
           }
         }
-        if (node.name.type === "JSXIdentifier" && isDOMElementName(node.name.name)) {
-          const keyProp = jsxGetProp(node.attributes, "key");
+        if (
+          node.name.type === 'JSXIdentifier' &&
+          isDOMElementName(node.name.name)
+        ) {
+          const keyProp = jsxGetProp(node.attributes, 'key');
           if (keyProp) {
             // no DOM element has a 'key' prop, so we can assert that this is a holdover from React.
             context.report({
               node: keyProp,
-              messageId: "noUselessKey",
+              messageId: 'noUselessKey',
               fix: (fixer) => fixer.remove(keyProp),
             });
           }

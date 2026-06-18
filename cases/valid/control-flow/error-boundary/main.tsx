@@ -1,9 +1,9 @@
 // @ts-nocheck
-import { render } from "solid-js/web";
-import { ErrorBoundary } from "solid-js";
+import { render } from 'solid-js/web';
+import { ErrorBoundary } from 'solid-js';
 
 const Broken = () => {
-  throw new Error("Oh No");
+  throw new Error('Oh No');
   return <>Never Getting Here</>;
 };
 
@@ -19,4 +19,4 @@ function App() {
   );
 }
 
-render(() => <App />, document.getElementById("app"));
+render(() => <App />, document.getElementById('app'));

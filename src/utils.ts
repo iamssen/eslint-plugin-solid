@@ -1,15 +1,16 @@
-import { TSESTree as T, TSESLint } from "@typescript-eslint/utils";
-import { type CompatContext, findVariable } from "./compat.js";
+import { TSESTree as T, TSESLint } from '@typescript-eslint/utils';
+import { type CompatContext, findVariable } from './compat.js';
 
 const domElementRegex = /^[a-z]/;
-export const isDOMElementName = (name: string): boolean => domElementRegex.test(name);
+export const isDOMElementName = (name: string): boolean =>
+  domElementRegex.test(name);
 
 const propsRegex = /[pP]rops/;
 export const isPropsByName = (name: string): boolean => propsRegex.test(name);
 
 export const formatList = (strings: Array<string>): string => {
   if (strings.length === 0) {
-    return "";
+    return '';
   } else if (strings.length === 1) {
     return `'${strings[0]}'`;
   } else if (strings.length === 2) {
@@ -19,11 +20,14 @@ export const formatList = (strings: Array<string>): string => {
     return `${strings
       .slice(0, last)
       .map((s) => `'${s}'`)
-      .join(", ")}, and '${strings[last]}'`;
+      .join(', ')}, and '${strings[last]}'`;
   }
 };
 
-export const find = (node: T.Node, predicate: (node: T.Node) => boolean): T.Node | null => {
+export const find = (
+  node: T.Node,
+  predicate: (node: T.Node) => boolean,
+): T.Node | null => {
   let n: T.Node | undefined = node;
   while (n) {
     const result = predicate(n);
@@ -36,16 +40,22 @@ export const find = (node: T.Node, predicate: (node: T.Node) => boolean): T.Node
 };
 export function findParent<Guard extends T.Node>(
   node: T.Node,
-  predicate: (node: T.Node) => node is Guard
+  predicate: (node: T.Node) => node is Guard,
 ): Guard | null;
-export function findParent(node: T.Node, predicate: (node: T.Node) => boolean): T.Node | null;
-export function findParent(node: T.Node, predicate: (node: T.Node) => boolean): T.Node | null {
+export function findParent(
+  node: T.Node,
+  predicate: (node: T.Node) => boolean,
+): T.Node | null;
+export function findParent(
+  node: T.Node,
+  predicate: (node: T.Node) => boolean,
+): T.Node | null {
   return node.parent ? find(node.parent, predicate) : null;
 }
 
 // Try to resolve a variable to its definition
 export function trace(node: T.Node, context: CompatContext): T.Node {
-  if (node.type === "Identifier") {
+  if (node.type === 'Identifier') {
     const variable = findVariable(context, node);
     if (!variable) return node;
 
@@ -53,15 +63,15 @@ export function trace(node: T.Node, context: CompatContext): T.Node {
 
     // def is `undefined` for Identifier `undefined`
     switch (def?.type) {
-      case "FunctionName":
-      case "ClassName":
-      case "ImportBinding":
+      case 'FunctionName':
+      case 'ClassName':
+      case 'ImportBinding':
         return def.node;
-      case "Variable":
+      case 'Variable':
         if (
-          ((def.node.parent as T.VariableDeclaration).kind === "const" ||
+          ((def.node.parent as T.VariableDeclaration).kind === 'const' ||
             variable.references.every((ref) => ref.init || ref.isReadOnly())) &&
-          def.node.id.type === "Identifier" &&
+          def.node.id.type === 'Identifier' &&
           def.node.init
         ) {
           return trace(def.node.init, context);
@@ -74,9 +84,9 @@ export function trace(node: T.Node, context: CompatContext): T.Node {
 /** Get the relevant node when wrapped by a node that doesn't change the behavior */
 export function ignoreTransparentWrappers(node: T.Node, up = false): T.Node {
   if (
-    node.type === "TSAsExpression" ||
-    node.type === "TSNonNullExpression" ||
-    node.type === "TSSatisfiesExpression"
+    node.type === 'TSAsExpression' ||
+    node.type === 'TSNonNullExpression' ||
+    node.type === 'TSSatisfiesExpression'
   ) {
     const next = up ? node.parent : node.expression;
     if (next) {
@@ -86,30 +96,43 @@ export function ignoreTransparentWrappers(node: T.Node, up = false): T.Node {
   return node;
 }
 
-export type FunctionNode = T.FunctionExpression | T.ArrowFunctionExpression | T.FunctionDeclaration;
-const FUNCTION_TYPES = ["FunctionExpression", "ArrowFunctionExpression", "FunctionDeclaration"];
-export const isFunctionNode = (node: T.Node | null | undefined): node is FunctionNode =>
-  !!node && FUNCTION_TYPES.includes(node.type);
+export type FunctionNode =
+  | T.FunctionExpression
+  | T.ArrowFunctionExpression
+  | T.FunctionDeclaration;
+const FUNCTION_TYPES = [
+  'FunctionExpression',
+  'ArrowFunctionExpression',
+  'FunctionDeclaration',
+];
+export const isFunctionNode = (
+  node: T.Node | null | undefined,
+): node is FunctionNode => !!node && FUNCTION_TYPES.includes(node.type);
 
 export type ProgramOrFunctionNode = FunctionNode | T.Program;
-const PROGRAM_OR_FUNCTION_TYPES = ["Program"].concat(FUNCTION_TYPES);
+const PROGRAM_OR_FUNCTION_TYPES = ['Program'].concat(FUNCTION_TYPES);
 export const isProgramOrFunctionNode = (
-  node: T.Node | null | undefined
-): node is ProgramOrFunctionNode => !!node && PROGRAM_OR_FUNCTION_TYPES.includes(node.type);
+  node: T.Node | null | undefined,
+): node is ProgramOrFunctionNode =>
+  !!node && PROGRAM_OR_FUNCTION_TYPES.includes(node.type);
 
 export const isJSXElementOrFragment = (
-  node: T.Node | null | undefined
+  node: T.Node | null | undefined,
 ): node is T.JSXElement | T.JSXFragment =>
-  node?.type === "JSXElement" || node?.type === "JSXFragment";
+  node?.type === 'JSXElement' || node?.type === 'JSXFragment';
 
 export const getFunctionName = (node: FunctionNode): string | null => {
   if (
-    (node.type === "FunctionDeclaration" || node.type === "FunctionExpression") &&
+    (node.type === 'FunctionDeclaration' ||
+      node.type === 'FunctionExpression') &&
     node.id != null
   ) {
     return node.id.name;
   }
-  if (node.parent?.type === "VariableDeclarator" && node.parent.id.type === "Identifier") {
+  if (
+    node.parent?.type === 'VariableDeclarator' &&
+    node.parent.id.type === 'Identifier'
+  ) {
     return node.parent.id.name;
   }
   return null;
@@ -118,7 +141,7 @@ export const getFunctionName = (node: FunctionNode): string | null => {
 export function findInScope(
   node: T.Node,
   scope: ProgramOrFunctionNode,
-  predicate: (node: T.Node) => boolean
+  predicate: (node: T.Node) => boolean,
 ): T.Node | null {
   const found = find(node, (node) => node === scope || predicate(node));
   return found === scope && !predicate(node) ? null : found;
@@ -130,7 +153,7 @@ export function findInScope(
 // the same line as `node` (starts).
 export const getCommentBefore = (
   node: T.Node,
-  sourceCode: TSESLint.SourceCode
+  sourceCode: TSESLint.SourceCode,
 ): T.Comment | undefined =>
   sourceCode
     .getCommentsBefore(node)
@@ -140,7 +163,7 @@ export const getCommentBefore = (
 // (ends).
 export const getCommentAfter = (
   node: T.Node,
-  sourceCode: TSESLint.SourceCode
+  sourceCode: TSESLint.SourceCode,
 ): T.Comment | undefined =>
   sourceCode
     .getCommentsAfter(node)
@@ -151,9 +174,9 @@ export const trackImports = (fromModule = /^solid-js(?:\/?|\b)/) => {
   const handleImportDeclaration = (node: T.ImportDeclaration) => {
     if (fromModule.test(node.source.value)) {
       for (const specifier of node.specifiers) {
-        if (specifier.type === "ImportSpecifier") {
+        if (specifier.type === 'ImportSpecifier') {
           const importedName =
-            specifier.imported.type === "Identifier"
+            specifier.imported.type === 'Identifier'
               ? specifier.imported.name
               : specifier.imported.value;
           importMap.set(importedName, specifier.local.name);
@@ -161,7 +184,10 @@ export const trackImports = (fromModule = /^solid-js(?:\/?|\b)/) => {
       }
     }
   };
-  const matchImport = (imports: string | Array<string>, str: string): string | undefined => {
+  const matchImport = (
+    imports: string | Array<string>,
+    str: string,
+  ): string | undefined => {
     const importArr = Array.isArray(imports) ? imports : [imports];
     return importArr.find((i) => importMap.get(i) === str);
   };
@@ -172,26 +198,32 @@ export function appendImports(
   fixer: TSESLint.RuleFixer,
   sourceCode: TSESLint.SourceCode,
   importNode: T.ImportDeclaration,
-  identifiers: Array<string>
+  identifiers: Array<string>,
 ): TSESLint.RuleFix | null {
-  const identifiersString = identifiers.join(", ");
+  const identifiersString = identifiers.join(', ');
   const reversedSpecifiers = importNode.specifiers.slice().reverse();
-  const lastSpecifier = reversedSpecifiers.find((s) => s.type === "ImportSpecifier");
+  const lastSpecifier = reversedSpecifiers.find(
+    (s) => s.type === 'ImportSpecifier',
+  );
   if (lastSpecifier) {
     // import A, { B } from 'source' => import A, { B, C, D } from 'source'
     // import { B } from 'source' => import { B, C, D } from 'source'
     return fixer.insertTextAfter(lastSpecifier, `, ${identifiersString}`);
   }
   const otherSpecifier = importNode.specifiers.find(
-    (s) => s.type === "ImportDefaultSpecifier" || s.type === "ImportNamespaceSpecifier"
+    (s) =>
+      s.type === 'ImportDefaultSpecifier' ||
+      s.type === 'ImportNamespaceSpecifier',
   );
   if (otherSpecifier) {
     // import A from 'source' => import A, { B, C, D } from 'source'
     return fixer.insertTextAfter(otherSpecifier, `, { ${identifiersString} }`);
   }
   if (importNode.specifiers.length === 0) {
-    const [importToken, maybeBrace] = sourceCode.getFirstTokens(importNode, { count: 2 });
-    if (maybeBrace?.value === "{") {
+    const [importToken, maybeBrace] = sourceCode.getFirstTokens(importNode, {
+      count: 2,
+    });
+    if (maybeBrace?.value === '{') {
       // import {} from 'source' => import { B, C, D } from 'source'
       return fixer.insertTextAfter(maybeBrace, ` ${identifiersString} `);
     } else {
@@ -209,22 +241,27 @@ export function insertImports(
   source: string,
   identifiers: Array<string>,
   aboveImport?: T.ImportDeclaration,
-  isType = false
+  isType = false,
 ): TSESLint.RuleFix {
-  const identifiersString = identifiers.join(", ");
+  const identifiersString = identifiers.join(', ');
   const programNode: T.Program = sourceCode.ast;
 
   // insert `import { missing, identifiers } from "source"` above given node or at top of module
-  const firstImport = aboveImport ?? programNode.body.find((n) => n.type === "ImportDeclaration");
+  const firstImport =
+    aboveImport ?? programNode.body.find((n) => n.type === 'ImportDeclaration');
   if (firstImport) {
     return fixer.insertTextBeforeRange(
       (getCommentBefore(firstImport, sourceCode) ?? firstImport).range,
-      `import ${isType ? "type " : ""}{ ${identifiersString} } from "${source}";\n`
+      `import ${
+        isType ? 'type ' : ''
+      }{ ${identifiersString} } from "${source}";\n`,
     );
   }
   return fixer.insertTextBeforeRange(
     [0, 0],
-    `import ${isType ? "type " : ""}{ ${identifiersString} } from "${source}";\n`
+    `import ${
+      isType ? 'type ' : ''
+    }{ ${identifiersString} } from "${source}";\n`,
   );
 }
 
@@ -232,43 +269,46 @@ export function removeSpecifier(
   fixer: TSESLint.RuleFixer,
   sourceCode: TSESLint.SourceCode,
   specifier: T.ImportSpecifier,
-  pure = true
+  pure = true,
 ) {
   const declaration = specifier.parent as T.ImportDeclaration;
   if (declaration.specifiers.length === 1 && pure) {
     return fixer.remove(declaration);
   }
   const maybeComma = sourceCode.getTokenAfter(specifier);
-  if (maybeComma?.value === ",") {
+  if (maybeComma?.value === ',') {
     return fixer.removeRange([specifier.range[0], maybeComma.range[1]]);
   }
   return fixer.remove(specifier);
 }
 
 export function jsxPropName(prop: T.JSXAttribute) {
-  if (prop.name.type === "JSXNamespacedName") {
+  if (prop.name.type === 'JSXNamespacedName') {
     return `${prop.name.namespace.name}:${prop.name.name.name}`;
   }
 
   return prop.name.name;
 }
 
-type Props = T.JSXOpeningElement["attributes"];
+type Props = T.JSXOpeningElement['attributes'];
 
 /** Iterate through both attributes and spread object props, yielding the name and the node. */
 export function* jsxGetAllProps(props: Props): Generator<[string, T.Node]> {
   for (const attr of props) {
-    if (attr.type === "JSXSpreadAttribute" && attr.argument.type === "ObjectExpression") {
+    if (
+      attr.type === 'JSXSpreadAttribute' &&
+      attr.argument.type === 'ObjectExpression'
+    ) {
       for (const property of attr.argument.properties) {
-        if (property.type === "Property") {
-          if (property.key.type === "Identifier") {
+        if (property.type === 'Property') {
+          if (property.key.type === 'Identifier') {
             yield [property.key.name, property.key];
-          } else if (property.key.type === "Literal") {
+          } else if (property.key.type === 'Literal') {
             yield [String(property.key.value), property.key];
           }
         }
       }
-    } else if (attr.type === "JSXAttribute") {
+    } else if (attr.type === 'JSXAttribute') {
       yield [jsxPropName(attr), attr.name];
     }
   }
@@ -285,6 +325,8 @@ export function jsxHasProp(props: Props, prop: string) {
 /** Get a JSXAttribute, excluding spread props. */
 export function jsxGetProp(props: Props, prop: string) {
   return props.find(
-    (attribute) => attribute.type !== "JSXSpreadAttribute" && prop === jsxPropName(attribute)
+    (attribute) =>
+      attribute.type !== 'JSXSpreadAttribute' &&
+      prop === jsxPropName(attribute),
   ) as T.JSXAttribute | undefined;
 }

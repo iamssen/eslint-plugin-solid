@@ -1,9 +1,9 @@
 // @ts-nocheck
-import { render } from "solid-js/web";
-import { Suspense } from "solid-js";
+import { render } from 'solid-js/web';
+import { Suspense } from 'solid-js';
 
-import fetchProfileData from "./mock-api";
-import ProfilePage from "./profile";
+import fetchProfileData from './mock-api';
+import ProfilePage from './profile';
 
 const App = () => {
   const { user, posts, trivia } = fetchProfileData();
@@ -14,4 +14,4 @@ const App = () => {
   );
 };
 
-render(App, document.getElementById("app"));
+render(App, document.getElementById('app'));

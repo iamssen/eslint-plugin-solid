@@ -1,7 +1,7 @@
-import rule from "./no-destructure.js";
-import { run, tsOnly } from "./ruleTester.js";
+import rule from './no-destructure.js';
+import { run, tsOnly } from './ruleTester.js';
 
-export const cases = run("no-destructure", rule, {
+export const cases = run('no-destructure', rule, {
   valid: [
     `let Component = props => <div />`,
     `let Component = (props) => <div />`,
@@ -43,43 +43,43 @@ export const cases = run("no-destructure", rule, {
   invalid: [
     {
       code: `let Component = ({}) => <div />`,
-      errors: [{ messageId: "noDestructure" }],
+      errors: [{ messageId: 'noDestructure' }],
       output: `let Component = (props) => <div />`,
     },
     {
       code: `let Component = ({ a }) => <div a={a} />`,
-      errors: [{ messageId: "noDestructure" }],
+      errors: [{ messageId: 'noDestructure' }],
       output: `let Component = (props) => <div a={props.a} />`,
     },
     {
       code: `let Component = ({ a }) => (<div a={a} />)`,
-      errors: [{ messageId: "noDestructure" }],
+      errors: [{ messageId: 'noDestructure' }],
       output: `let Component = (props) => (<div a={props.a} />)`,
     },
     {
       code: `let Component = ({ a: A }) => <div a={A} />`,
-      errors: [{ messageId: "noDestructure" }],
+      errors: [{ messageId: 'noDestructure' }],
       output: `let Component = (props) => <div a={props.a} />`,
     },
 
     {
       code: `let Component = ({ 'a': A }) => <div a={A} />`,
-      errors: [{ messageId: "noDestructure" }],
+      errors: [{ messageId: 'noDestructure' }],
       output: `let Component = (props) => <div a={props['a']} />`,
     },
     {
       code: `let Component = ({ ['a' + '']: a }) => <div a={a} />`,
-      errors: [{ messageId: "noDestructure" }],
+      errors: [{ messageId: 'noDestructure' }],
       output: `let Component = (props) => <div a={props['a' + '']} />`,
     },
     {
       code: `let Component = ({ ['a' + '']: a, b }) => <div a={a} b={b} />`,
-      errors: [{ messageId: "noDestructure" }],
+      errors: [{ messageId: 'noDestructure' }],
       output: `let Component = (props) => <div a={props['a' + '']} b={props.b} />`,
     },
     {
       code: `let Component = ({ a = 5 }) => <div a={a} />`,
-      errors: [{ messageId: "noDestructure" }],
+      errors: [{ messageId: 'noDestructure' }],
       output: `let Component = (_props) => {
   const props = mergeProps({ a: 5 }, _props);
   return (<div a={props.a} />);
@@ -87,7 +87,7 @@ export const cases = run("no-destructure", rule, {
     },
     {
       code: `let Component = ({ a = 5 }) => (<div a={a} />)`,
-      errors: [{ messageId: "noDestructure" }],
+      errors: [{ messageId: 'noDestructure' }],
       output: `let Component = (_props) => {
   const props = mergeProps({ a: 5 }, _props);
   return (<div a={props.a} />);
@@ -95,7 +95,7 @@ export const cases = run("no-destructure", rule, {
     },
     {
       code: `let Component = ({ a: A = 5 }) => <div a={A} />`,
-      errors: [{ messageId: "noDestructure" }],
+      errors: [{ messageId: 'noDestructure' }],
       output: `let Component = (_props) => {
   const props = mergeProps({ a: 5 }, _props);
   return (<div a={props.a} />);
@@ -103,7 +103,7 @@ export const cases = run("no-destructure", rule, {
     },
     {
       code: `let Component = ({ 'a': A = 5 }) => <div a={A} />`,
-      errors: [{ messageId: "noDestructure" }],
+      errors: [{ messageId: 'noDestructure' }],
       output: `let Component = (_props) => {
   const props = mergeProps({ 'a': 5 }, _props);
   return (<div a={props['a']} />);
@@ -111,7 +111,7 @@ export const cases = run("no-destructure", rule, {
     },
     {
       code: `let Component = ({ ['a' + '']: a = 5 }) => <div a={a} />`,
-      errors: [{ messageId: "noDestructure" }],
+      errors: [{ messageId: 'noDestructure' }],
       output: `let Component = (_props) => {
   const props = mergeProps({ ['a' + '']: 5 }, _props);
   return (<div a={props['a' + '']} />);
@@ -119,7 +119,7 @@ export const cases = run("no-destructure", rule, {
     },
     {
       code: `let Component = ({ ['a' + '']: a = 5, b = 10, c }) => <div a={a} b={b} c={c} />`,
-      errors: [{ messageId: "noDestructure" }],
+      errors: [{ messageId: 'noDestructure' }],
       output: `let Component = (_props) => {
   const props = mergeProps({ ['a' + '']: 5, b: 10 }, _props);
   return (<div a={props['a' + '']} b={props.b} c={props.c} />);
@@ -129,7 +129,7 @@ export const cases = run("no-destructure", rule, {
       code: `let Component = ({ a = 5 }) => { 
         return <div a={a} />; 
       }`,
-      errors: [{ messageId: "noDestructure" }],
+      errors: [{ messageId: 'noDestructure' }],
       output: `let Component = (_props) => { 
           const props = mergeProps({ a: 5 }, _props);
 return <div a={props.a} />; 
@@ -141,7 +141,7 @@ return <div a={props.a} />;
         statements();
         return <div a={a} />; 
       }`,
-      errors: [{ messageId: "noDestructure" }],
+      errors: [{ messageId: 'noDestructure' }],
       output: `let Component = (_props) => { 
           const props = mergeProps({ a: 5 }, _props);
 various();
@@ -151,7 +151,7 @@ various();
     },
     {
       code: `let Component = ({ ...rest }) => <div a={rest.a} />`,
-      errors: [{ messageId: "noDestructure" }],
+      errors: [{ messageId: 'noDestructure' }],
       output: `let Component = (_props) => {
   const [props, rest] = splitProps(_props, []);
   return (<div a={rest.a} />);
@@ -159,7 +159,7 @@ various();
     },
     {
       code: `let Component = ({ a, ...rest }) => <div a={a} />`,
-      errors: [{ messageId: "noDestructure" }],
+      errors: [{ messageId: 'noDestructure' }],
       output: `let Component = (_props) => {
   const [props, rest] = splitProps(_props, ["a"]);
   return (<div a={props.a} />);
@@ -167,7 +167,7 @@ various();
     },
     {
       code: `let Component = ({ a, ...rest }) => (<div a={a} />)`,
-      errors: [{ messageId: "noDestructure" }],
+      errors: [{ messageId: 'noDestructure' }],
       output: `let Component = (_props) => {
   const [props, rest] = splitProps(_props, ["a"]);
   return (<div a={props.a} />);
@@ -175,7 +175,7 @@ various();
     },
     {
       code: `let Component = ({ a, ...other }) => <div a={a} />`,
-      errors: [{ messageId: "noDestructure" }],
+      errors: [{ messageId: 'noDestructure' }],
       output: `let Component = (_props) => {
   const [props, other] = splitProps(_props, ["a"]);
   return (<div a={props.a} />);
@@ -183,7 +183,7 @@ various();
     },
     {
       code: `let Component = ({ a, ...rest }) => <div a={a} b={rest.b} />`,
-      errors: [{ messageId: "noDestructure" }],
+      errors: [{ messageId: 'noDestructure' }],
       output: `let Component = (_props) => {
   const [props, rest] = splitProps(_props, ["a"]);
   return (<div a={props.a} b={rest.b} />);
@@ -191,7 +191,7 @@ various();
     },
     {
       code: `let Component = ({ a: A, ...rest }) => <div a={A} />`,
-      errors: [{ messageId: "noDestructure" }],
+      errors: [{ messageId: 'noDestructure' }],
       output: `let Component = (_props) => {
   const [props, rest] = splitProps(_props, ["a"]);
   return (<div a={props.a} />);
@@ -199,7 +199,7 @@ various();
     },
     {
       code: `let Component = ({ 'a': A, ...rest }) => <div a={A} />`,
-      errors: [{ messageId: "noDestructure" }],
+      errors: [{ messageId: 'noDestructure' }],
       output: `let Component = (_props) => {
   const [props, rest] = splitProps(_props, ['a']);
   return (<div a={props['a']} />);
@@ -207,7 +207,7 @@ various();
     },
     {
       code: `let Component = ({ ['a' + '']: A, ...rest }) => <div a={A} />`,
-      errors: [{ messageId: "noDestructure" }],
+      errors: [{ messageId: 'noDestructure' }],
       output: `let Component = (_props) => {
   const [props, rest] = splitProps(_props, ['a' + '']);
   return (<div a={props['a' + '']} />);
@@ -215,7 +215,7 @@ various();
     },
     {
       code: `let Component = ({ ['a' + '']: A, ...rest }) => <div a={A} b={rest.b} />`,
-      errors: [{ messageId: "noDestructure" }],
+      errors: [{ messageId: 'noDestructure' }],
       output: `let Component = (_props) => {
   const [props, rest] = splitProps(_props, ['a' + '']);
   return (<div a={props['a' + '']} b={rest.b} />);
@@ -225,28 +225,28 @@ various();
       code: `let Component = ({ a = 5, ...rest }) => { 
         return <div a={a} b={rest.b} />; 
       }`,
-      errors: [{ messageId: "noDestructure" }],
+      errors: [{ messageId: 'noDestructure' }],
       output: `let Component = (_props) => { 
           const [props, rest] = splitProps(mergeProps({ a: 5 }, _props), ["a"]);return <div a={props.a} b={rest.b} />; 
       }`,
     },
     {
       code: `let Component = ({ a = 5, ...rest }) => (<div a={a} b={rest.b} />)`,
-      errors: [{ messageId: "noDestructure" }],
+      errors: [{ messageId: 'noDestructure' }],
       output: `let Component = (_props) => {
   const [props, rest] = splitProps(mergeProps({ a: 5 }, _props), ["a"]);  return (<div a={props.a} b={rest.b} />);
 }`,
     },
     {
       code: `let Component = ({ ['a' + '']: A = 5, ...rest }) => <div a={A} b={rest.b} />`,
-      errors: [{ messageId: "noDestructure" }],
+      errors: [{ messageId: 'noDestructure' }],
       output: `let Component = (_props) => {
   const [props, rest] = splitProps(mergeProps({ ['a' + '']: 5 }, _props), ['a' + '']);  return (<div a={props['a' + '']} b={rest.b} />);
 }`,
     },
     {
       code: `let Component = ({ prop1, prop2 }: Props) => <div p1={prop1} p2={prop2} />;`,
-      errors: [{ messageId: "noDestructure" }],
+      errors: [{ messageId: 'noDestructure' }],
       output: `let Component = (props: Props) => <div p1={props.prop1} p2={props.prop2} />;`,
       [tsOnly]: true,
     },

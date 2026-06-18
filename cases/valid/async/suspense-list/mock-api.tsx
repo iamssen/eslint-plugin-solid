@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { createResource } from "solid-js";
+import { createResource } from 'solid-js';
 
 export default function fetchProfileData() {
   const [user] = createResource(fetchUser);
@@ -9,12 +9,12 @@ export default function fetchProfileData() {
 }
 
 function fetchUser() {
-  console.log("fetch user...");
+  console.log('fetch user...');
   return new Promise((resolve) => {
     setTimeout(() => {
-      console.log("fetched user");
+      console.log('fetched user');
       resolve({
-        name: "Ringo Starr",
+        name: 'Ringo Starr',
       });
     }, 500);
   });
@@ -23,7 +23,7 @@ function fetchUser() {
 const ringoPosts = [
   {
     id: 0,
-    text: "I get by with a little help from my friends",
+    text: 'I get by with a little help from my friends',
   },
   {
     id: 1,
@@ -31,26 +31,26 @@ const ringoPosts = [
   },
   {
     id: 2,
-    text: "You got that sand all over your feet",
+    text: 'You got that sand all over your feet',
   },
 ];
 
 function fetchPosts() {
   const ringoPostsAtTheTime = ringoPosts;
-  console.log("fetch posts...");
+  console.log('fetch posts...');
   return new Promise((resolve) => {
     setTimeout(() => {
-      console.log("fetched posts");
+      console.log('fetched posts');
       resolve(ringoPostsAtTheTime);
     }, 3000 * Math.random());
   });
 }
 
 function fetchTrivia() {
-  console.log("fetch trivia...");
+  console.log('fetch trivia...');
   return new Promise((resolve) => {
     setTimeout(() => {
-      console.log("fetched trivia");
+      console.log('fetched trivia');
       resolve([
         {
           id: 1,
@@ -58,11 +58,11 @@ function fetchTrivia() {
         },
         {
           id: 2,
-          text: "Plays the drums left-handed with a right-handed drum set.",
+          text: 'Plays the drums left-handed with a right-handed drum set.',
         },
         {
           id: 3,
-          text: "Nominated for one Daytime Emmy Award, but did not win",
+          text: 'Nominated for one Daytime Emmy Award, but did not win',
         },
       ]);
     }, 3000 * Math.random());

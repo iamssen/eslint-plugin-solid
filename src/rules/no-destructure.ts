@@ -1,17 +1,22 @@
-import { TSESTree as T, TSESLint, ESLintUtils, ASTUtils } from "@typescript-eslint/utils";
-import type { FunctionNode } from "../utils.js";
-import { getSourceCode } from "../compat.js";
+import {
+  TSESTree as T,
+  TSESLint,
+  ESLintUtils,
+  ASTUtils,
+} from '@typescript-eslint/utils';
+import type { FunctionNode } from '../utils.js';
+import { getSourceCode } from '../compat.js';
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 const { getStringIfConstant } = ASTUtils;
 
 const getName = (node: T.Node): string | null => {
   switch (node.type) {
-    case "Literal":
-      return typeof node.value === "string" ? node.value : null;
-    case "Identifier":
+    case 'Literal':
+      return typeof node.value === 'string' ? node.value : null;
+    case 'Identifier':
       return node.name;
-    case "AssignmentPattern":
+    case 'AssignmentPattern':
       return getName(node.left);
     default:
       return getStringIfConstant(node);
@@ -33,7 +38,8 @@ const getPropertyInfo = (prop: T.Property): PropertyInfo | null => {
       real: prop.key,
       var: valueName,
       computed: prop.computed,
-      init: prop.value.type === "AssignmentPattern" ? prop.value.right : undefined,
+      init:
+        prop.value.type === 'AssignmentPattern' ? prop.value.right : undefined,
     };
   } else {
     return null;
@@ -42,13 +48,13 @@ const getPropertyInfo = (prop: T.Property): PropertyInfo | null => {
 
 export default createRule({
   meta: {
-    type: "problem",
+    type: 'problem',
     docs: {
       description:
-        "Disallow destructuring props. In Solid, props must be used with property accesses (`props.foo`) to preserve reactivity. This rule only tracks destructuring in the parameter list.",
-      url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/no-destructure.md",
+        'Disallow destructuring props. In Solid, props must be used with property accesses (`props.foo`) to preserve reactivity. This rule only tracks destructuring in the parameter list.',
+      url: 'https://github.com/solidjs-community/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/no-destructure.md',
     },
-    fixable: "code",
+    fixable: 'code',
     schema: [],
     messages: {
       noDestructure:
@@ -70,16 +76,16 @@ export default createRule({
       if (node.params.length === 1) {
         const props = node.params[0];
         if (
-          props.type === "ObjectPattern" &&
+          props.type === 'ObjectPattern' &&
           currentFunction().hasJSX &&
-          node.parent?.type !== "JSXExpressionContainer" // "render props" aren't components
+          node.parent?.type !== 'JSXExpressionContainer' // "render props" aren't components
         ) {
           // Props are destructured in the function params, not the body. We actually don't
           // need to handle the case where props are destructured in the body, because that
           // will be a violation of "solid/reactivity".
           context.report({
             node: props,
-            messageId: "noDestructure",
+            messageId: 'noDestructure',
             fix: (fixer) => fixDestructure(node, props, fixer),
           });
         }
@@ -92,16 +98,16 @@ export default createRule({
     function* fixDestructure(
       func: FunctionNode,
       props: T.ObjectPattern,
-      fixer: TSESLint.RuleFixer
+      fixer: TSESLint.RuleFixer,
     ): Generator<TSESLint.RuleFix> {
-      const propsName = "props";
+      const propsName = 'props';
       const properties = props.properties;
 
       const propertyInfo: Array<PropertyInfo> = [];
       let rest: T.RestElement | null = null;
 
       for (const property of properties) {
-        if (property.type === "RestElement") {
+        if (property.type === 'RestElement') {
           rest = property;
         } else {
           const info = getPropertyInfo(property);
@@ -115,7 +121,7 @@ export default createRule({
       const hasDefaults = propertyInfo.some((info) => info.init);
 
       // Replace destructured props with a `props` identifier (`_props` in case of rest params/defaults)
-      const origProps = !(hasDefaults || rest) ? propsName : "_" + propsName;
+      const origProps = !(hasDefaults || rest) ? propsName : '_' + propsName;
       if (props.typeAnnotation) {
         // in `{ prop1, prop2 }: Props`, leave `: Props` alone
         const range = [props.range[0], props.typeAnnotation.range[0]] as const;
@@ -131,25 +137,25 @@ export default createRule({
           .filter((info) => info.init)
           .map(
             (info) =>
-              `${info.computed ? "[" : ""}${sourceCode.getText(info.real)}${
-                info.computed ? "]" : ""
-              }: ${sourceCode.getText(info.init)}`
+              `${info.computed ? '[' : ''}${sourceCode.getText(info.real)}${
+                info.computed ? ']' : ''
+              }: ${sourceCode.getText(info.init)}`,
           )
-          .join(", ");
+          .join(', ');
       const splitPropsArray = () =>
         `[${propertyInfo
           .map((info) =>
-            info.real.type === "Identifier"
+            info.real.type === 'Identifier'
               ? JSON.stringify(info.real.name)
-              : sourceCode.getText(info.real)
+              : sourceCode.getText(info.real),
           )
-          .join(", ")}]`;
+          .join(', ')}]`;
 
-      let lineToInsert = "";
+      let lineToInsert = '';
       if (hasDefaults && rest) {
         // Insert a line that assigns _props
         lineToInsert = `  const [${propsName}, ${
-          (rest.argument.type === "Identifier" && rest.argument.name) || "rest"
+          (rest.argument.type === 'Identifier' && rest.argument.name) || 'rest'
         }] = splitProps(mergeProps({ ${defaultsObjectString()} }, ${origProps}), ${splitPropsArray()});`;
       } else if (hasDefaults) {
         // Insert a line that assigns _props merged with defaults to props
@@ -157,13 +163,13 @@ export default createRule({
       } else if (rest) {
         // Insert a line that keeps named props and extracts the rest into a new reactive rest object
         lineToInsert = `  const [${propsName}, ${
-          (rest.argument.type === "Identifier" && rest.argument.name) || "rest"
+          (rest.argument.type === 'Identifier' && rest.argument.name) || 'rest'
         }] = splitProps(${origProps}, ${splitPropsArray()});\n`;
       }
 
       if (lineToInsert) {
         const body = func.body;
-        if (body.type === "BlockStatement") {
+        if (body.type === 'BlockStatement') {
           if (body.body.length > 0) {
             // Inject lines handling defaults/rest params before the first statement in the block.
             yield fixer.insertTextBefore(body.body[0], lineToInsert);
@@ -173,11 +179,11 @@ export default createRule({
           // The function is an arrow function that implicitly returns an expression, possibly with wrapping parentheses.
           // These must be removed to convert the function body to a block statement for code injection.
           const maybeOpenParen = sourceCode.getTokenBefore(body);
-          if (maybeOpenParen?.value === "(") {
+          if (maybeOpenParen?.value === '(') {
             yield fixer.remove(maybeOpenParen);
           }
           const maybeCloseParen = sourceCode.getTokenAfter(body);
-          if (maybeCloseParen?.value === ")") {
+          if (maybeCloseParen?.value === ')') {
             yield fixer.remove(maybeCloseParen);
           }
 
@@ -191,17 +197,20 @@ export default createRule({
       if (scope) {
         // iterate through destructured variables, associated with real node
         for (const [info, variable] of propertyInfo.map(
-          (info) => [info, scope.set.get(info.var)] as const
+          (info) => [info, scope.set.get(info.var)] as const,
         )) {
           if (variable) {
             // replace all usages of the variable with props accesses
             for (const reference of variable.references) {
               if (reference.isReadOnly()) {
                 const access =
-                  info.real.type === "Identifier" && !info.computed
+                  info.real.type === 'Identifier' && !info.computed
                     ? `.${info.real.name}`
                     : `[${sourceCode.getText(info.real)}]`;
-                yield fixer.replaceText(reference.identifier, `${propsName}${access}`);
+                yield fixer.replaceText(
+                  reference.identifier,
+                  `${propsName}${access}`,
+                );
               }
             }
           }
@@ -210,18 +219,18 @@ export default createRule({
     }
 
     return {
-      FunctionDeclaration: onFunctionEnter,
-      FunctionExpression: onFunctionEnter,
-      ArrowFunctionExpression: onFunctionEnter,
-      "FunctionDeclaration:exit": onFunctionExit,
-      "FunctionExpression:exit": onFunctionExit,
-      "ArrowFunctionExpression:exit": onFunctionExit,
-      JSXElement() {
+      'FunctionDeclaration': onFunctionEnter,
+      'FunctionExpression': onFunctionEnter,
+      'ArrowFunctionExpression': onFunctionEnter,
+      'FunctionDeclaration:exit': onFunctionExit,
+      'FunctionExpression:exit': onFunctionExit,
+      'ArrowFunctionExpression:exit': onFunctionExit,
+      'JSXElement'() {
         if (functionStack.length) {
           currentFunction().hasJSX = true;
         }
       },
-      JSXFragment() {
+      'JSXFragment'() {
         if (functionStack.length) {
           currentFunction().hasJSX = true;
         }

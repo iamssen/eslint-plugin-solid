@@ -1,33 +1,33 @@
-import { ESLintUtils, TSESTree as T } from "@typescript-eslint/utils";
-import { isDOMElementName } from "../utils.js";
+import { ESLintUtils, TSESTree as T } from '@typescript-eslint/utils';
+import { isDOMElementName } from '../utils.js';
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 
-const knownNamespaces = ["on", "oncapture", "use", "prop", "attr", "bool"];
-const styleNamespaces = ["style", "class"];
-const otherNamespaces = ["xmlns", "xlink"];
+const knownNamespaces = ['on', 'oncapture', 'use', 'prop', 'attr', 'bool'];
+const styleNamespaces = ['style', 'class'];
+const otherNamespaces = ['xmlns', 'xlink'];
 
-type MessageIds = "unknown" | "style" | "component" | "component-suggest";
+type MessageIds = 'unknown' | 'style' | 'component' | 'component-suggest';
 type Options = [{ allowedNamespaces: Array<string> }?];
 
 export default createRule<Options, MessageIds>({
   meta: {
-    type: "problem",
+    type: 'problem',
     docs: {
       description:
         "Enforce using only Solid-specific namespaced attribute names (i.e. `'on:'` in `<div on:click={...} />`).",
-      url: "https://github.com/solidjs-community/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/no-unknown-namespaces.md",
+      url: 'https://github.com/solidjs-community/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/no-unknown-namespaces.md',
     },
     hasSuggestions: true,
     schema: [
       {
-        type: "object",
+        type: 'object',
         properties: {
           allowedNamespaces: {
-            description: "an array of additional namespace names to allow",
-            type: "array",
+            description: 'an array of additional namespace names to allow',
+            type: 'array',
             items: {
-              type: "string",
+              type: 'string',
             },
             // default: [],
             minItems: 1,
@@ -37,34 +37,34 @@ export default createRule<Options, MessageIds>({
         additionalProperties: false,
       },
     ],
-    defaultOptions: [{allowedNamespaces: []}],
+    defaultOptions: [{ allowedNamespaces: [] }],
     messages: {
-      unknown: `'{{namespace}}:' is not one of Solid's special prefixes for JSX attributes (${knownNamespaces
+      'unknown': `'{{namespace}}:' is not one of Solid's special prefixes for JSX attributes (${knownNamespaces
         .map((n) => `'${n}:'`)
-        .join(", ")}).`,
-      style:
+        .join(', ')}).`,
+      'style':
         "Using the '{{namespace}}:' special prefix is potentially confusing, prefer the '{{namespace}}' prop instead.",
-      component: "Namespaced props have no effect on components.",
-      "component-suggest": "Replace {{namespace}}:{{name}} with {{name}}.",
+      'component': 'Namespaced props have no effect on components.',
+      'component-suggest': 'Replace {{namespace}}:{{name}} with {{name}}.',
     },
   },
   defaultOptions: [],
   create(context) {
     const explicitlyAllowedNamespaces = context.options?.[0]?.allowedNamespaces;
     return {
-      "JSXAttribute > JSXNamespacedName": (node: T.JSXNamespacedName) => {
+      'JSXAttribute > JSXNamespacedName': (node: T.JSXNamespacedName) => {
         const openingElement = node.parent!.parent as T.JSXOpeningElement;
         if (
-          openingElement.name.type === "JSXIdentifier" &&
+          openingElement.name.type === 'JSXIdentifier' &&
           !isDOMElementName(openingElement.name.name)
         ) {
           // no namespaces on Solid component elements
           context.report({
             node,
-            messageId: "component",
+            messageId: 'component',
             suggest: [
               {
-                messageId: "component-suggest",
+                messageId: 'component-suggest',
                 data: { namespace: node.namespace.name, name: node.name.name },
                 fix: (fixer) => fixer.replaceText(node, node.name.name),
               },
@@ -84,13 +84,13 @@ export default createRule<Options, MessageIds>({
           if (styleNamespaces.includes(namespace)) {
             context.report({
               node,
-              messageId: "style",
+              messageId: 'style',
               data: { namespace },
             });
           } else {
             context.report({
               node,
-              messageId: "unknown",
+              messageId: 'unknown',
               data: { namespace },
             });
           }

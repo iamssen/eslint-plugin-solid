@@ -1,6 +1,6 @@
 // @ts-nocheck
-import { render } from "solid-js/web";
-import { createSignal, createMemo } from "solid-js";
+import { render } from 'solid-js/web';
+import { createSignal, createMemo } from 'solid-js';
 
 function fibonacci(num) {
   if (num <= 1) return 1;
@@ -49,4 +49,4 @@ function Counter() {
   );
 }
 
-render(() => <Counter />, document.getElementById("app"));
+render(() => <Counter />, document.getElementById('app'));

@@ -1,6 +1,6 @@
 // @ts-nocheck
-import { render } from "solid-js/web";
-import { createSignal, onCleanup } from "solid-js";
+import { render } from 'solid-js/web';
+import { createSignal, onCleanup } from 'solid-js';
 
 function Counter() {
   const [count, setCount] = createSignal(0);
@@ -11,4 +11,4 @@ function Counter() {
   return <div>Count: {count()}</div>;
 }
 
-render(() => <Counter />, document.getElementById("app"));
+render(() => <Counter />, document.getElementById('app'));

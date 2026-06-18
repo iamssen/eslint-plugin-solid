@@ -1,8 +1,8 @@
 // @ts-nocheck
-import { render } from "solid-js/web";
-import { lazy } from "solid-js";
+import { render } from 'solid-js/web';
+import { lazy } from 'solid-js';
 
-const Greeting = lazy(() => import("./greeting"));
+const Greeting = lazy(() => import('./greeting'));
 
 function App() {
   return (
@@ -13,4 +13,4 @@ function App() {
   );
 }
 
-render(() => <App />, document.getElementById("app"));
+render(() => <App />, document.getElementById('app'));

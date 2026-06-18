@@ -1,1 +1,1 @@
-declare module "kebab-case";
+declare module 'kebab-case';

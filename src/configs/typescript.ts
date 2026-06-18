@@ -1,7 +1,7 @@
-import type { TSESLint } from "@typescript-eslint/utils";
-import { Linter } from "eslint";
+import type { TSESLint } from '@typescript-eslint/utils';
+import { Linter } from 'eslint';
 
-import recommended from "./recommended.js";
+import recommended from './recommended.js';
 
 const typescript = {
   // no files; either apply to all files, or let users spread in this config
@@ -12,9 +12,12 @@ const typescript = {
   // this rather than cause potential conflicts
   rules: {
     ...recommended.rules,
-    "@ssen/solid/jsx-no-undef": [2, { typescriptEnabled: true }] satisfies Linter.RuleEntry,
+    '@ssen/solid/jsx-no-undef': [
+      2,
+      { typescriptEnabled: true },
+    ] satisfies Linter.RuleEntry,
     // namespaces taken care of by TS
-    "@ssen/solid/no-unknown-namespaces": 0,
+    '@ssen/solid/no-unknown-namespaces': 0,
   },
 } satisfies TSESLint.FlatConfig.Config;
 

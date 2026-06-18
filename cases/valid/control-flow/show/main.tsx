@@ -1,6 +1,6 @@
 // @ts-nocheck
-import { render } from "solid-js/web";
-import { createSignal, Show } from "solid-js";
+import { render } from 'solid-js/web';
+import { createSignal, Show } from 'solid-js';
 
 function App() {
   const [loggedIn, setLoggedIn] = createSignal(false);
@@ -13,4 +13,4 @@ function App() {
   );
 }
 
-render(() => <App />, document.getElementById("app"));
+render(() => <App />, document.getElementById('app'));

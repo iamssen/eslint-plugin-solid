@@ -1,7 +1,7 @@
 // @ts-nocheck
-import { render } from "solid-js/web";
-import Nested from "./nested";
-import { CounterProvider } from "./counter";
+import { render } from 'solid-js/web';
+import Nested from './nested';
+import { CounterProvider } from './counter';
 
 function App() {
   return (
@@ -18,5 +18,5 @@ render(
       <App />
     </CounterProvider>
   ),
-  document.getElementById("app")
+  document.getElementById('app'),
 );

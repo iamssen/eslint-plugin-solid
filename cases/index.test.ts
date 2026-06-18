@@ -1,15 +1,17 @@
-import { test, expect } from "vitest";
+import { test, expect } from 'vitest';
 
-import path from "path";
-import { ESLint as FlatESLint } from "eslint";
-import { ESLint as LegacyESLint } from "eslint-v8";
-import { fileURLToPath } from "node:url";
+import path from 'path';
+import { ESLint as FlatESLint } from 'eslint';
+import { ESLint as LegacyESLint } from 'eslint-v8';
+import { fileURLToPath } from 'node:url';
 
 const cwd = path.dirname(fileURLToPath(import.meta.url));
-const validDir = path.join(cwd, "valid");
-const jsxUndefPath = path.join(cwd, "invalid", "jsx-undef.jsx");
+const validDir = path.join(cwd, 'valid');
+const jsxUndefPath = path.join(cwd, 'invalid', 'jsx-undef.jsx');
 
-const checkResult = (result: LegacyESLint.LintResult | FlatESLint.LintResult) => {
+const checkResult = (
+  result: LegacyESLint.LintResult | FlatESLint.LintResult,
+) => {
   if (result.filePath.startsWith(validDir)) {
     expect(result.messages).toEqual([]);
     expect(result.errorCount).toBe(0);
@@ -17,7 +19,11 @@ const checkResult = (result: LegacyESLint.LintResult | FlatESLint.LintResult) =>
     expect(result.usedDeprecatedRules).toEqual([]);
   } else {
     if (result.messages.length === 0) {
-      console.log('NO MESSAGES FOR INVALID FILE:', result.filePath, result.messages);
+      console.log(
+        'NO MESSAGES FOR INVALID FILE:',
+        result.filePath,
+        result.messages,
+      );
     }
     expect(result.messages).not.toEqual([]);
     expect(result.warningCount + result.errorCount).toBeGreaterThan(0);
@@ -25,57 +31,73 @@ const checkResult = (result: LegacyESLint.LintResult | FlatESLint.LintResult) =>
 
     if (result.filePath === jsxUndefPath) {
       // test for one specific error message
-      expect(result.messages.some((message) => /'Component' is not defined/.test(message.message)));
+      expect(
+        result.messages.some((message) =>
+          /'Component' is not defined/.test(message.message),
+        ),
+      );
     }
   }
 };
 
-import * as plugin from "../dist/index.js";
+import * as plugin from '../dist/index.js';
 
-test.concurrent("fixture (legacy)", async () => {
+test.concurrent('fixture (legacy)', async () => {
   const eslint = new LegacyESLint({
     cwd,
     plugins: {
-      "@ssen/solid": plugin as any
+      '@ssen/solid': plugin as any,
     },
     baseConfig: {
       root: true,
-      parser: "@typescript-eslint/parser",
+      parser: '@typescript-eslint/parser',
       env: { browser: true },
-      plugins: ["@ssen/solid"],
-      extends: "plugin:@ssen/solid/recommended",
+      plugins: ['@ssen/solid'],
+      extends: 'plugin:@ssen/solid/recommended',
     },
     useEslintrc: false,
   });
-  const results = await eslint.lintFiles("{valid,invalid}/**/*.{js,jsx,ts,tsx}");
+  const results = await eslint.lintFiles(
+    '{valid,invalid}/**/*.{js,jsx,ts,tsx}',
+  );
 
   results.forEach(checkResult);
 
-  expect(results.filter((result) => result.filePath === jsxUndefPath).length).toBe(1);
+  expect(
+    results.filter((result) => result.filePath === jsxUndefPath).length,
+  ).toBe(1);
 });
 
 test.concurrent('fixture (.configs["flat/recommended"])', async () => {
   const eslint = new FlatESLint({
     cwd,
-    overrideConfigFile: "./eslint.config.prefixed.js",
+    overrideConfigFile: './eslint.config.prefixed.js',
   } as any);
-  const results = await eslint.lintFiles("{valid,invalid}/**/*.{js,jsx,ts,tsx}");
+  const results = await eslint.lintFiles(
+    '{valid,invalid}/**/*.{js,jsx,ts,tsx}',
+  );
 
   results.forEach(checkResult);
 
-  expect(results.filter((result) => result.filePath === jsxUndefPath).length).toBe(1);
+  expect(
+    results.filter((result) => result.filePath === jsxUndefPath).length,
+  ).toBe(1);
 });
 
-test.concurrent("fixture (/configs/recommended)", async () => {
+test.concurrent('fixture (/configs/recommended)', async () => {
   const eslint = new FlatESLint({
     cwd,
-    overrideConfigFile: "./eslint.config.js",
+    overrideConfigFile: './eslint.config.js',
     // ignorePatterns: ["eslint.*"],
   } as any);
 
-  const results = await eslint.lintFiles("{valid,invalid}/**/*.{js,jsx,ts,tsx}");
+  const results = await eslint.lintFiles(
+    '{valid,invalid}/**/*.{js,jsx,ts,tsx}',
+  );
 
   results.forEach(checkResult);
 
-  expect(results.filter((result) => result.filePath === jsxUndefPath).length).toBe(1);
+  expect(
+    results.filter((result) => result.filePath === jsxUndefPath).length,
+  ).toBe(1);
 });

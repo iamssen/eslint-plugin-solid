@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { For, Suspense, SuspenseList } from "solid-js";
+import { For, Suspense, SuspenseList } from 'solid-js';
 
 const ProfileDetails = (props) => <h1>{props.user?.name}</h1>;
 

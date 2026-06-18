@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { render, Portal } from "solid-js/web";
+import { render, Portal } from 'solid-js/web';
 
 function App() {
   return (
@@ -15,4 +15,4 @@ function App() {
   );
 }
 
-render(() => <App />, document.getElementById("app"));
+render(() => <App />, document.getElementById('app'));

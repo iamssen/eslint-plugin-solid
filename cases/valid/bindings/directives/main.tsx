@@ -1,14 +1,17 @@
 // @ts-nocheck
-import { render } from "solid-js/web";
-import { createSignal, Show } from "solid-js";
-import clickOutside from "./click-outside";
-import "./style.css";
+import { render } from 'solid-js/web';
+import { createSignal, Show } from 'solid-js';
+import clickOutside from './click-outside';
+import './style.css';
 
 function App() {
   const [show, setShow] = createSignal(false);
 
   return (
-    <Show when={show()} fallback={<button onClick={() => setShow(true)}>Open Modal</button>}>
+    <Show
+      when={show()}
+      fallback={<button onClick={() => setShow(true)}>Open Modal</button>}
+    >
       <div class="modal" use:clickOutside={() => setShow(false)}>
         Some Modal
       </div>
@@ -16,4 +19,4 @@ function App() {
   );
 }
 
-render(() => <App />, document.getElementById("app"));
+render(() => <App />, document.getElementById('app'));

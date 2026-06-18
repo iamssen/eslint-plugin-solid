@@ -1,11 +1,11 @@
 // @ts-check
 
-import tseslint from "typescript-eslint";
-import globals from "globals";
-import recommendedConfig from "../dist/configs/recommended.js";
+import tseslint from 'typescript-eslint';
+import globals from 'globals';
+import recommendedConfig from '../dist/configs/recommended.js';
 
 export default tseslint.config({
-  files: ["{valid,invalid}/**/*.{js,jsx,ts,tsx}"],
+  files: ['{valid,invalid}/**/*.{js,jsx,ts,tsx}'],
   ...recommendedConfig,
   languageOptions: {
     globals: globals.browser,

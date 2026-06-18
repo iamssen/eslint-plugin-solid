@@ -1,18 +1,18 @@
 // @ts-nocheck
-import { render } from "solid-js/web";
-import { createSignal } from "solid-js";
+import { render } from 'solid-js/web';
+import { createSignal } from 'solid-js';
 
-import Greeting from "./greeting";
+import Greeting from './greeting';
 
 function App() {
-  const [name, setName] = createSignal("Jakob");
+  const [name, setName] = createSignal('Jakob');
 
   return (
     <>
-      <Greeting greeting="Yo" name={name()} style={{ color: "teal" }} />
-      <button onClick={() => setName("Jarod")}>Set Name</button>
+      <Greeting greeting="Yo" name={name()} style={{ color: 'teal' }} />
+      <button onClick={() => setName('Jarod')}>Set Name</button>
     </>
   );
 }
 
-render(() => <App />, document.getElementById("app"));
+render(() => <App />, document.getElementById('app'));

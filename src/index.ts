@@ -1,10 +1,10 @@
-import { plugin } from "./plugin.js";
-import recommendedConfig from "./configs/recommended.js";
-import typescriptConfig from "./configs/typescript.js";
+import { plugin } from './plugin.js';
+import recommendedConfig from './configs/recommended.js';
+import typescriptConfig from './configs/typescript.js';
 
 export const configs = {
-  recommended: {
-    plugins: ["@ssen/solid"],
+  'recommended': {
+    plugins: ['@ssen/solid'],
     env: {
       browser: true,
       es6: true,
@@ -12,19 +12,19 @@ export const configs = {
     parserOptions: recommendedConfig.languageOptions.parserOptions,
     rules: recommendedConfig.rules,
   },
-  typescript: {
-    plugins: ["@ssen/solid"],
+  'typescript': {
+    plugins: ['@ssen/solid'],
     env: {
       browser: true,
       es6: true,
     },
     parserOptions: {
-      sourceType: "module",
+      sourceType: 'module',
     },
     rules: typescriptConfig.rules,
   },
-  "flat/recommended": recommendedConfig,
-  "flat/typescript": typescriptConfig,
+  'flat/recommended': recommendedConfig,
+  'flat/typescript': typescriptConfig,
 };
 export const rules = plugin.rules;
 
