@@ -120,18 +120,19 @@ export default createRule<Options, MessageIds>({
             type: "boolean",
             description:
               "if true, don't warn on ambiguously named event handlers like `onclick` or `onchange`",
-            default: false,
+            // default: false,
           },
           warnOnSpread: {
             type: "boolean",
             description:
               "if true, warn when spreading event handlers onto JSX. Enable for Solid < v1.6.",
-            default: false,
+            // default: false,
           },
         },
         additionalProperties: false,
       },
     ],
+    defaultOptions: [{ignoreCase: false, warnOnSpread: false}],
     messages: {
       "detected-attr":
         'The {{name}} prop is named as an event handler (starts with "on"), but Solid knows its value ({{staticValue}}) is a string or number, so it will be treated as an attribute. If this is intentional, name this prop attr:{{name}}.',

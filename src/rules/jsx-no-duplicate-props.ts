@@ -1,4 +1,4 @@
-import { TSESTree as T, ESLintUtils } from "@typescript-eslint/utils";
+import { ESLintUtils, TSESTree as T } from "@typescript-eslint/utils";
 import { jsxGetAllProps } from "../utils.js";
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
@@ -25,12 +25,13 @@ export default createRule<Options, MessageIds>({
           ignoreCase: {
             type: "boolean",
             description: "Consider two prop names differing only by case to be the same.",
-            default: false,
+            // default: false,
           },
         },
         additionalProperties: false,
       },
     ],
+    defaultOptions: [{ignoreCase: false}],
     messages: {
       noDuplicateProps: "Duplicate props are not allowed.",
       noDuplicateClass:

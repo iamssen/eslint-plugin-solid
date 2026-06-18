@@ -41,6 +41,7 @@
   "scripts": {
     "type-check": "tsc --noEmit",
     "build": "tsup",
+    "lint": "eslint .",
     "test": "vitest --run",
     "test:all": "PARSER=all vitest --run",
     "test:babel": "PARSER=babel vitest --run",

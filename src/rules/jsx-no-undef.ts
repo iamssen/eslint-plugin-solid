@@ -1,6 +1,6 @@
-import { TSESTree as T, ESLintUtils } from "@typescript-eslint/utils";
-import { isDOMElementName, formatList, appendImports, insertImports } from "../utils.js";
+import { ESLintUtils, TSESTree as T } from "@typescript-eslint/utils";
 import { getScope, getSourceCode } from "../compat.js";
+import { appendImports, formatList, insertImports, isDOMElementName } from "../utils.js";
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 
@@ -36,23 +36,24 @@ export default createRule<Options, MessageIds>({
             type: "boolean",
             description:
               "When true, the rule will consider the global scope when checking for defined components.",
-            default: false,
+            // default: false,
           },
           autoImport: {
             type: "boolean",
             description:
               'Automatically import certain components from `"solid-js"` if they are undefined.',
-            default: true,
+            // default: true,
           },
           typescriptEnabled: {
             type: "boolean",
             description: "Adjusts behavior not to conflict with TypeScript's type checking.",
-            default: false,
+            // default: false,
           },
         },
         additionalProperties: false,
       },
     ],
+    defaultOptions: [{allowGlobals: false, autoImport: true, typescriptEnabled: false}],
     messages: {
       undefined: "'{{identifier}}' is not defined.",
       customDirectiveUndefined: "Custom directive '{{identifier}}' is not defined.",

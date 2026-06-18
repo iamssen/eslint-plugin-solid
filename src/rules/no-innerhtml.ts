@@ -1,4 +1,4 @@
-import { ESLintUtils, ASTUtils } from "@typescript-eslint/utils";
+import { ASTUtils, ESLintUtils } from "@typescript-eslint/utils";
 import isHtml from "is-html";
 import { jsxPropName } from "../utils.js";
 
@@ -26,12 +26,13 @@ export default createRule<Options, MessageIds>({
             description:
               "if the innerHTML value is guaranteed to be a static HTML string (i.e. no user input), allow it",
             type: "boolean",
-            default: true,
+            // default: true,
           },
         },
         additionalProperties: false,
       },
     ],
+    defaultOptions: [{allowStatic: true}],
     messages: {
       dangerous:
         "The innerHTML attribute is dangerous; passing unsanitized input can lead to security vulnerabilities.",

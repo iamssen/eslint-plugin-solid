@@ -23,7 +23,7 @@ export default createRule<Options, MessageIds>({
           classnames: {
             type: "array",
             description: "An array of names to treat as `classnames` functions",
-            default: ["cn", "clsx", "classnames"],
+            // default: ["cn", "clsx", "classnames"],
             items: {
               type: "string",
             },
@@ -34,6 +34,7 @@ export default createRule<Options, MessageIds>({
         additionalProperties: false,
       },
     ],
+    defaultOptions: [{classnames: ["cn", "clsx", "classnames"]}],
     messages: {
       preferClasslist:
         "The classlist prop should be used instead of {{ classnames }} to efficiently set classes based on an object.",

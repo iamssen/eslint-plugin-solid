@@ -1,6 +1,6 @@
-import { TSESTree as T, ESLintUtils } from "@typescript-eslint/utils";
-import { isDOMElementName } from "../utils.js";
+import { ESLintUtils, TSESTree as T } from "@typescript-eslint/utils";
 import { getSourceCode } from "../compat.js";
+import { isDOMElementName } from "../utils.js";
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 
@@ -55,18 +55,19 @@ export default createRule<Options, MessageIds>({
             type: "string",
             description: "which Solid components should be self-closing when possible",
             enum: ["all", "none"],
-            default: "all",
+            // default: "all",
           },
           html: {
             type: "string",
             description: "which native elements should be self-closing when possible",
             enum: ["all", "void", "none"],
-            default: "all",
+            // default: "all",
           },
         },
         additionalProperties: false,
       },
     ],
+    defaultOptions: [{component: 'all', html: 'all'}],
     messages: {
       selfClose: "Empty components are self-closing.",
       dontSelfClose: "This element should not be self-closing.",

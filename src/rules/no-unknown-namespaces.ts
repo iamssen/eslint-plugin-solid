@@ -29,7 +29,7 @@ export default createRule<Options, MessageIds>({
             items: {
               type: "string",
             },
-            default: [],
+            // default: [],
             minItems: 1,
             uniqueItems: true,
           },
@@ -37,6 +37,7 @@ export default createRule<Options, MessageIds>({
         additionalProperties: false,
       },
     ],
+    defaultOptions: [{allowedNamespaces: []}],
     messages: {
       unknown: `'{{namespace}}:' is not one of Solid's special prefixes for JSX attributes (${knownNamespaces
         .map((n) => `'${n}:'`)

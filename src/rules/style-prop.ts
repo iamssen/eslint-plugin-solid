@@ -1,9 +1,9 @@
-import { TSESTree as T, ESLintUtils, ASTUtils } from "@typescript-eslint/utils";
+import { ASTUtils, ESLintUtils, TSESTree as T } from "@typescript-eslint/utils";
 import kebabCase from "kebab-case";
 import { all as allCssProperties } from "known-css-properties";
 import parse from "style-to-object";
-import { jsxPropName } from "../utils.js";
 import { getScope } from "../compat.js";
+import { jsxPropName } from "../utils.js";
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 const { getPropertyName, getStaticValue } = ASTUtils;
@@ -29,7 +29,7 @@ export default createRule<Options, MessageIds>({
         properties: {
           styleProps: {
             description: "an array of prop names to treat as a CSS style object",
-            default: ["style"],
+            // default: ["style"],
             type: "array",
             items: {
               type: "string",
@@ -41,12 +41,13 @@ export default createRule<Options, MessageIds>({
             description:
               "if allowString is set to true, this rule will not convert a style string literal into a style object (not recommended for performance)",
             type: "boolean",
-            default: false,
+            // default: false,
           },
         },
         additionalProperties: false,
       },
     ],
+    defaultOptions: [{allowString: false, styleProps: ['style']}],
     messages: {
       kebabStyleProp: "Use {{ kebabName }} instead of {{ name }}.",
       invalidStyleProp: "{{ name }} is not a valid CSS property.",

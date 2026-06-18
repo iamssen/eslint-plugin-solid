@@ -3,24 +3,24 @@
  * @link https://github.com/solidjs-community/eslint-plugin-solid/blob/main/docs/reactivity.md
  */
 
-import { TSESTree as T, TSESLint, ESLintUtils, ASTUtils } from "@typescript-eslint/utils";
+import { ASTUtils, ESLintUtils, TSESTree as T, TSESLint } from "@typescript-eslint/utils";
 import { traverse } from "estraverse";
+import { findVariable, getSourceCode, type CompatContext } from "../compat.js";
 import {
-  findParent,
   findInScope,
-  isPropsByName,
-  type FunctionNode,
-  isFunctionNode,
-  type ProgramOrFunctionNode,
-  isProgramOrFunctionNode,
-  trackImports,
-  isDOMElementName,
-  ignoreTransparentWrappers,
+  findParent,
   getFunctionName,
+  ignoreTransparentWrappers,
+  isDOMElementName,
+  isFunctionNode,
   isJSXElementOrFragment,
+  isProgramOrFunctionNode,
+  isPropsByName,
   trace,
+  trackImports,
+  type FunctionNode,
+  type ProgramOrFunctionNode,
 } from "../utils.js";
-import { findVariable, type CompatContext, getSourceCode } from "../compat.js";
 
 const { getFunctionHeadLocation } = ASTUtils;
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
@@ -250,12 +250,13 @@ export default createRule<Options, MessageIds>({
             items: {
               type: "string",
             },
-            default: [],
+            // default: [],
           },
         },
         additionalProperties: false,
       },
     ],
+    defaultOptions: [{customReactiveFunctions: []}],
     messages: {
       noWrite: "The reactive variable '{{name}}' should not be reassigned or altered directly.",
       untrackedReactive:
