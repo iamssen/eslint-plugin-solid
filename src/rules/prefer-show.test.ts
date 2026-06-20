@@ -1,40 +1,58 @@
 import rule from './prefer-show.js';
-import { run } from './ruleTester.js';
+import { testValid, testInvalid } from './ruleTester.js';
+import { describe, test } from 'vitest';
 
-export const cases = run('prefer-show', rule, {
-  valid: [
-    `function Component(props) {
+describe('prefer-show', () => {
+  describe('valid', () => {
+    test('valid case 1', () => {
+      testValid(
+        'prefer-show',
+        rule,
+        `function Component(props) {
       return <Show when={props.cond}>Content</Show>;
     }`,
-    `function Component(props) {
+      );
+    });
+    test('valid case 2', () => {
+      testValid(
+        'prefer-show',
+        rule,
+        `function Component(props) {
       return <Show when={props.cond} fallback="Fallback">Content</Show>;
     }`,
-  ],
-  invalid: [
-    {
-      code: `
+      );
+    });
+  });
+  describe('invalid', () => {
+    test('invalid case 1', () => {
+      testInvalid('prefer-show', rule, {
+        code: `
       function Component(props) {
         return <div>{props.cond && <span>Content</span>}</div>;
       }`,
-      errors: [{ messageId: 'preferShowAnd' }],
-      output: `
+        errors: [{ messageId: 'preferShowAnd' }],
+        output: `
       function Component(props) {
         return <div><Show when={props.cond}><span>Content</span></Show></div>;
       }`,
-    },
-    {
-      code: `
+      });
+    });
+    test('invalid case 2', () => {
+      testInvalid('prefer-show', rule, {
+        code: `
       function Component(props) {
         return <>{props.cond && <span>Content</span>}</>;
       }`,
-      errors: [{ messageId: 'preferShowAnd' }],
-      output: `
+        errors: [{ messageId: 'preferShowAnd' }],
+        output: `
       function Component(props) {
         return <><Show when={props.cond}><span>Content</span></Show></>;
       }`,
-    },
-    {
-      code: `
+      });
+    });
+    test('invalid case 3', () => {
+      testInvalid('prefer-show', rule, {
+        code: `
       function Component(props) {
         return (
           <div>
@@ -46,8 +64,8 @@ export const cases = run('prefer-show', rule, {
           </div>
         );
       }`,
-      errors: [{ messageId: 'preferShowTernary' }],
-      output: `
+        errors: [{ messageId: 'preferShowTernary' }],
+        output: `
       function Component(props) {
         return (
           <div>
@@ -55,10 +73,12 @@ export const cases = run('prefer-show', rule, {
           </div>
         );
       }`,
-    },
-    // Check that it also works with control flow function children
-    {
-      code: `
+      });
+    });
+    describe(`Check that it also works with control flow function children`, () => {
+      test('invalid case 4', () => {
+        testInvalid('prefer-show', rule, {
+          code: `
       function Component(props) {
         return (
           <For each={props.someList}>
@@ -66,8 +86,8 @@ export const cases = run('prefer-show', rule, {
           </For>
         );
       }`,
-      errors: [{ messageId: 'preferShowAnd' }],
-      output: `
+          errors: [{ messageId: 'preferShowAnd' }],
+          output: `
       function Component(props) {
         return (
           <For each={props.someList}>
@@ -75,9 +95,11 @@ export const cases = run('prefer-show', rule, {
           </For>
         );
       }`,
-    },
-    {
-      code: `
+        });
+      });
+      test('invalid case 5', () => {
+        testInvalid('prefer-show', rule, {
+          code: `
       function Component(props) {
         return (
           <For each={props.someList}>
@@ -89,8 +111,8 @@ export const cases = run('prefer-show', rule, {
           </For>
         );
       }`,
-      errors: [{ messageId: 'preferShowTernary' }],
-      output: `
+          errors: [{ messageId: 'preferShowTernary' }],
+          output: `
       function Component(props) {
         return (
           <For each={props.someList}>
@@ -98,6 +120,8 @@ export const cases = run('prefer-show', rule, {
           </For>
         );
       }`,
-    },
-  ],
+        });
+      });
+    });
+  });
 });
