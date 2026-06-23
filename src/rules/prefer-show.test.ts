@@ -2,21 +2,20 @@ import rule from './prefer-show.js';
 import { testValid, testInvalid } from './ruleTester.js';
 import { describe, test } from 'vitest';
 
+const valid = testValid('prefer-show', rule);
+const invalid = testInvalid('prefer-show', rule);
+
 describe('prefer-show', () => {
   describe('valid', () => {
     test('valid case 1', () => {
-      testValid(
-        'prefer-show',
-        rule,
+      valid(
         `function Component(props) {
       return <Show when={props.cond}>Content</Show>;
     }`,
       );
     });
     test('valid case 2', () => {
-      testValid(
-        'prefer-show',
-        rule,
+      valid(
         `function Component(props) {
       return <Show when={props.cond} fallback="Fallback">Content</Show>;
     }`,
@@ -25,7 +24,7 @@ describe('prefer-show', () => {
   });
   describe('invalid', () => {
     test('invalid case 1', () => {
-      testInvalid('prefer-show', rule, {
+      invalid({
         code: `
       function Component(props) {
         return <div>{props.cond && <span>Content</span>}</div>;
@@ -38,7 +37,7 @@ describe('prefer-show', () => {
       });
     });
     test('invalid case 2', () => {
-      testInvalid('prefer-show', rule, {
+      invalid({
         code: `
       function Component(props) {
         return <>{props.cond && <span>Content</span>}</>;
@@ -51,7 +50,7 @@ describe('prefer-show', () => {
       });
     });
     test('invalid case 3', () => {
-      testInvalid('prefer-show', rule, {
+      invalid({
         code: `
       function Component(props) {
         return (
@@ -77,7 +76,7 @@ describe('prefer-show', () => {
     });
     describe(`Check that it also works with control flow function children`, () => {
       test('invalid case 4', () => {
-        testInvalid('prefer-show', rule, {
+        invalid({
           code: `
       function Component(props) {
         return (
@@ -98,7 +97,7 @@ describe('prefer-show', () => {
         });
       });
       test('invalid case 5', () => {
-        testInvalid('prefer-show', rule, {
+        invalid({
           code: `
       function Component(props) {
         return (

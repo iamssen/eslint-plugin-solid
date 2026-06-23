@@ -2,21 +2,20 @@ import { describe, test } from 'vitest';
 import rule from './components-return-once.js';
 import { testInvalid, testValid } from './ruleTester.js';
 
+const valid = testValid('components-return-once', rule);
+const invalid = testInvalid('components-return-once', rule);
+
 describe('components-return-once', () => {
   describe('valid', () => {
     test('valid case 1', () => {
-      testValid(
-        'components-return-once',
-        rule,
+      valid(
         `function Component() {
       return <div />;
     }`,
       );
     });
     test('valid case 2', () => {
-      testValid(
-        'components-return-once',
-        rule,
+      valid(
         `function someFunc() {
       if (condition) {
         return 5;
@@ -26,9 +25,7 @@ describe('components-return-once', () => {
       );
     });
     test('valid case 3', () => {
-      testValid(
-        'components-return-once',
-        rule,
+      valid(
         `function notAComponent() {
       if (condition) {
         return <div />;
@@ -38,9 +35,7 @@ describe('components-return-once', () => {
       );
     });
     test('valid case 4', () => {
-      testValid(
-        'components-return-once',
-        rule,
+      valid(
         `callback(() => {
       if (condition) {
         return <div />;
@@ -50,9 +45,7 @@ describe('components-return-once', () => {
       );
     });
     test('valid case 5', () => {
-      testValid(
-        'components-return-once',
-        rule,
+      valid(
         `function Component() {
       const renderContent = () => {
         if (false) return <></>;
@@ -63,9 +56,7 @@ describe('components-return-once', () => {
       );
     });
     test('valid case 6', () => {
-      testValid(
-        'components-return-once',
-        rule,
+      valid(
         `function Component() {
       function renderContent() {
         if (false) return <></>;
@@ -76,9 +67,7 @@ describe('components-return-once', () => {
       );
     });
     test('valid case 7', () => {
-      testValid(
-        'components-return-once',
-        rule,
+      valid(
         `function Component() {
       const renderContent = () => {
         const renderContentInner = () => {
@@ -93,9 +82,7 @@ describe('components-return-once', () => {
       );
     });
     test('valid case 8', () => {
-      testValid(
-        'components-return-once',
-        rule,
+      valid(
         `function Component() {
       return <>{hoisted()}</>;
       function hoisted() {
@@ -105,9 +92,7 @@ describe('components-return-once', () => {
       );
     });
     test('valid case 9', () => {
-      testValid(
-        'components-return-once',
-        rule,
+      valid(
         `function Component() {
       return <></>;
       const hoisted = 'hoisted';
@@ -115,9 +100,7 @@ describe('components-return-once', () => {
       );
     });
     test('valid case 10', () => {
-      testValid(
-        'components-return-once',
-        rule,
+      valid(
         `function Component() {
       return <></>;
       class Hoisted {}
@@ -128,7 +111,7 @@ describe('components-return-once', () => {
   describe('invalid', () => {
     describe(`Early returns`, () => {
       test('invalid case 1', () => {
-        testInvalid('components-return-once', rule, {
+        invalid({
           code: `function Component() {
         if (condition) {
           return <div />;
@@ -139,7 +122,7 @@ describe('components-return-once', () => {
         });
       });
       test('invalid case 2', () => {
-        testInvalid('components-return-once', rule, {
+        invalid({
           code: `const Component = () => {
         if (condition) {
           return <div />;
@@ -150,7 +133,7 @@ describe('components-return-once', () => {
         });
       });
       test('invalid case 3', () => {
-        testInvalid('components-return-once', rule, {
+        invalid({
           code: `const Component = () => {
         if (condition) {
           return <div />;
@@ -164,7 +147,7 @@ describe('components-return-once', () => {
     });
     describe(`Balanced ternaries`, () => {
       test('invalid case 4', () => {
-        testInvalid('components-return-once', rule, {
+        invalid({
           code: `function Component() {
   return Math.random() > 0.5 ? <div>Big!</div> : <div>Small!</div>;
 }`,
@@ -175,7 +158,7 @@ describe('components-return-once', () => {
         });
       });
       test('invalid case 5', () => {
-        testInvalid('components-return-once', rule, {
+        invalid({
           code: `function Component() {
   return Math.random() > 0.5 ? <div>Big!</div> : "Small!";
 }`,
@@ -188,7 +171,7 @@ describe('components-return-once', () => {
     });
     describe(`Ternaries with clear fallback`, () => {
       test('invalid case 6', () => {
-        testInvalid('components-return-once', rule, {
+        invalid({
           code: `function Component() {
   return Math.random() > 0.5 ? (
     <div>
@@ -209,7 +192,7 @@ describe('components-return-once', () => {
     });
     describe(`Switch/Match`, () => {
       test('invalid case 7', () => {
-        testInvalid('components-return-once', rule, {
+        invalid({
           code: `function Component(props) {
   return props.cond1 ? (
     <div>Condition 1</div>
@@ -231,7 +214,7 @@ describe('components-return-once', () => {
     });
     describe(`Logical`, () => {
       test('invalid case 8', () => {
-        testInvalid('components-return-once', rule, {
+        invalid({
           code: `function Component(props) {
   return !!props.cond && <div>Conditional</div>;
 }`,
@@ -242,7 +225,7 @@ describe('components-return-once', () => {
         });
       });
       test('invalid case 9', () => {
-        testInvalid('components-return-once', rule, {
+        invalid({
           code: `function Component(props) {
   return props.primary || <div>{props.secondaryText}</div>;
 }`,
@@ -252,7 +235,7 @@ describe('components-return-once', () => {
     });
     describe(`HOCs`, () => {
       test('invalid case 10', () => {
-        testInvalid('components-return-once', rule, {
+        invalid({
           code: `HOC(() => {
         if (condition) {
           return <div />;

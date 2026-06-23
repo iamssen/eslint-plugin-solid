@@ -193,17 +193,23 @@ function runWithParsers(
 export function testValid(
   name: string,
   rule: ESLintUtils.RuleModule<string, readonly unknown[]>,
-  testCase: ValidTestCase<unknown[]> | string,
-  isTsOnly: boolean = false,
 ) {
-  runWithParsers(name, rule, { valid: [testCase], invalid: [] }, isTsOnly);
+  return function (
+    testCase: ValidTestCase<unknown[]> | string,
+    isTsOnly: boolean = false,
+  ) {
+    runWithParsers(name, rule, { valid: [testCase], invalid: [] }, isTsOnly);
+  };
 }
 
 export function testInvalid(
   name: string,
   rule: ESLintUtils.RuleModule<string, readonly unknown[]>,
-  testCase: InvalidTestCase<string, unknown[]>,
-  isTsOnly: boolean = false,
 ) {
-  runWithParsers(name, rule, { valid: [], invalid: [testCase] }, isTsOnly);
+  return function (
+    testCase: InvalidTestCase<string, unknown[]>,
+    isTsOnly: boolean = false,
+  ) {
+    runWithParsers(name, rule, { valid: [], invalid: [testCase] }, isTsOnly);
+  };
 }

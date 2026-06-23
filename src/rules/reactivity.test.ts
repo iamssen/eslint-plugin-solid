@@ -2,12 +2,13 @@ import rule from './reactivity.js';
 import { testValid, testInvalid } from './ruleTester.js';
 import { describe, test } from 'vitest';
 
+const valid = testValid('reactivity', rule);
+const invalid = testInvalid('reactivity', rule);
+
 describe('reactivity', () => {
   describe('valid', () => {
     test('valid case 1', () => {
-      testValid(
-        'reactivity',
-        rule,
+      valid(
         `function MyComponent(props) {
       return <div>Hello {props.name}</div>;
     }
@@ -15,27 +16,21 @@ describe('reactivity', () => {
       );
     });
     test('valid case 2', () => {
-      testValid(
-        'reactivity',
-        rule,
+      valid(
         `const [first, setFirst] = createSignal("JSON");
     const [last, setLast] = createSignal("Bourne");
     createEffect(() => console.log(\`\${first()} \${last()}\`));`,
       );
     });
     test('valid case 3', () => {
-      testValid(
-        'reactivity',
-        rule,
+      valid(
         `let Component = props => {
       return <div>{props.value || "default"}</div>;
     };`,
       );
     });
     test('valid case 4', () => {
-      testValid(
-        'reactivity',
-        rule,
+      valid(
         `let Component = props => {
       const value = () => props.value || "default";
       return <div>{value()}</div>;
@@ -43,9 +38,7 @@ describe('reactivity', () => {
       );
     });
     test('valid case 5', () => {
-      testValid(
-        'reactivity',
-        rule,
+      valid(
         `let Component = props => {
       const value = createMemo(() => props.value || "default");
       return <div>{value()}</div>;
@@ -53,9 +46,7 @@ describe('reactivity', () => {
       );
     });
     test('valid case 6', () => {
-      testValid(
-        'reactivity',
-        rule,
+      valid(
         `let Component = _props => {
       const props = mergeProps({ value: "default" }, _props);
       return <div>{props.value}</div>;
@@ -63,9 +54,7 @@ describe('reactivity', () => {
       );
     });
     test('valid case 7', () => {
-      testValid(
-        'reactivity',
-        rule,
+      valid(
         `let Component = _props => {
       const [foo, bar, baz] = splitProps(_props, ["foo"], ["bar"]);
       return <div>{foo.foo} {bar.bar} {baz.baz}</div>;
@@ -73,9 +62,7 @@ describe('reactivity', () => {
       );
     });
     test('valid case 8', () => {
-      testValid(
-        'reactivity',
-        rule,
+      valid(
         `let Component = () => {
       const [a, setA] = createSignal(1);
       const [b, setB] = createSignal(1);
@@ -86,9 +73,7 @@ describe('reactivity', () => {
       );
     });
     test('valid case 9', () => {
-      testValid(
-        'reactivity',
-        rule,
+      valid(
         `function Component(props) {
       const [value, setValue] = createSignal();
       return <div class={props.class}>{value()}</div>;
@@ -96,9 +81,7 @@ describe('reactivity', () => {
       );
     });
     test('valid case 10', () => {
-      testValid(
-        'reactivity',
-        rule,
+      valid(
         `function Component(props) {
       const [value, setValue] = createSignal();
       createEffect(() => console.log(value()));
@@ -107,44 +90,34 @@ describe('reactivity', () => {
       );
     });
     test('valid case 11', () => {
-      testValid(
-        'reactivity',
-        rule,
+      valid(
         `const [value, setValue] = createSignal();
     on(value, () => console.log('hello'));`,
       );
     });
     test('valid case 12', () => {
-      testValid(
-        'reactivity',
-        rule,
+      valid(
         `const [value, setValue] = createSignal();
     on([value], () => console.log('hello'));`,
       );
     });
     describe(`spreading props`, () => {
       test('valid case 13', () => {
-        testValid(
-          'reactivity',
-          rule,
+        valid(
           `function Component(props) {
       return <div {...props} />;
     }`,
         );
       });
       test('valid case 14', () => {
-        testValid(
-          'reactivity',
-          rule,
+        valid(
           `function Component(props) {
       return <div {...props.nestedProps} />;
     }`,
         );
       });
       test('valid case 15', () => {
-        testValid(
-          'reactivity',
-          rule,
+        valid(
           `function Component() {
       const [signal, setSignal] = createSignal({});
       return <div {...signal()} />;
@@ -154,9 +127,7 @@ describe('reactivity', () => {
     });
     describe(`Derived signals`, () => {
       test('valid case 16', () => {
-        testValid(
-          'reactivity',
-          rule,
+        valid(
           `let c = () => {
       const [signal] = createSignal();
       const d = () => {
@@ -169,34 +140,26 @@ describe('reactivity', () => {
         );
       });
       test('valid case 17', () => {
-        testValid(
-          'reactivity',
-          rule,
+        valid(
           `const [signal] = createSignal();
     createEffect(() => console.log(signal()));`,
         );
       });
       test('valid case 18', () => {
-        testValid(
-          'reactivity',
-          rule,
+        valid(
           `const [signal] = createSignal();
     const memo = createMemo(() => signal());`,
         );
       });
       test('valid case 19', () => {
-        testValid(
-          'reactivity',
-          rule,
+        valid(
           `const el = <button onClick={() => toggleShow(!show())}>
       {show() ? "Hide" : "Show"}
     </button>`,
         );
       });
       test('valid case 20', () => {
-        testValid(
-          'reactivity',
-          rule,
+        valid(
           `const [count] = createSignal();
     createEffect(() => {
       (() => count())()
@@ -204,17 +167,13 @@ describe('reactivity', () => {
         );
       });
       test('valid case 21', () => {
-        testValid(
-          'reactivity',
-          rule,
+        valid(
           `const [count] = createSignal();
     const el = <div>{(() => count())()}</div>`,
         );
       });
       test('valid case 22', () => {
-        testValid(
-          'reactivity',
-          rule,
+        valid(
           `const [count, setCount] = createSignal();
     const el = <button type="button" onClick={() => setCount(count() + 1)}>Increment</button>;`,
         );
@@ -222,14 +181,12 @@ describe('reactivity', () => {
     });
     describe(`Parse top level JSX`, () => {
       test('valid case 23', () => {
-        testValid('reactivity', rule, `const el = <div />`);
+        valid(`const el = <div />`);
       });
     });
     describe(`getOwner/runWithOwner`, () => {
       test('valid case 24', () => {
-        testValid(
-          'reactivity',
-          rule,
+        valid(
           `const [signal] = createSignal();
     createEffect(() => {
       const owner = getOwner();
@@ -238,9 +195,7 @@ describe('reactivity', () => {
         );
       });
       test('valid case 25', () => {
-        testValid(
-          'reactivity',
-          rule,
+        valid(
           `const [signal] = createSignal();
     createEffect(() => {
       runWithOwner(undefined, () => console.log(signal()));
@@ -250,9 +205,7 @@ describe('reactivity', () => {
     });
     describe(`Sync callbacks`, () => {
       test('valid case 26', () => {
-        testValid(
-          'reactivity',
-          rule,
+        valid(
           `const [signal] = createSignal();
     createEffect(() => {
       [1, 2].forEach(() => console.log(signal()));
@@ -260,9 +213,7 @@ describe('reactivity', () => {
         );
       });
       test('valid case 27', () => {
-        testValid(
-          'reactivity',
-          rule,
+        valid(
           `function Component(props) {
       createEffect(() => {
         [1, 2].forEach(() => console.log(props.foo));
@@ -272,9 +223,7 @@ describe('reactivity', () => {
         );
       });
       test('valid case 28', () => {
-        testValid(
-          'reactivity',
-          rule,
+        valid(
           `function Component(bleargh /* doesn't match props regex */) {
       createEffect(() => {
         [1, 2].forEach(() => console.log(bleargh.foo));
@@ -286,9 +235,7 @@ describe('reactivity', () => {
     });
     describe(`Timers`, () => {
       test('valid case 29', () => {
-        testValid(
-          'reactivity',
-          rule,
+        valid(
           `const [signal] = createSignal(5);
     setTimeout(() => console.log(signal()), 500);
     setInterval(() => console.log(signal()), 600);
@@ -300,9 +247,7 @@ describe('reactivity', () => {
     });
     describe(`Observers from Standard Web APIs`, () => {
       test('valid case 30', () => {
-        testValid(
-          'reactivity',
-          rule,
+        valid(
           `const [signal] = createSignal(5);
     new IntersectionObserver(() => console.log(signal()));
     new MutationObserver(() => console.log(signal()));
@@ -314,9 +259,7 @@ describe('reactivity', () => {
     });
     describe(`Async tracking scope exceptions`, () => {
       test('valid case 31', () => {
-        testValid(
-          'reactivity',
-          rule,
+        valid(
           `const [photos, setPhotos] = createSignal([]);
     onMount(async () => {
       const res = await fetch("https://jsonplaceholder.typicode.com/photos?_limit=20");
@@ -325,9 +268,7 @@ describe('reactivity', () => {
         );
       });
       test('valid case 32', () => {
-        testValid(
-          'reactivity',
-          rule,
+        valid(
           `const [a, setA] = createSignal(1);
     const [b] = createSignal(2);
     on(b, async () => { await delay(1000); setA(a() + 1) });`,
@@ -336,9 +277,7 @@ describe('reactivity', () => {
     });
     describe(`Custom hooks`, () => {
       test('valid case 33', () => {
-        testValid(
-          'reactivity',
-          rule,
+        valid(
           `const Component = (props) => {
       const localRef = () => props.ref;
       const composedRef1 = useComposedRefs(localRef);
@@ -348,45 +287,35 @@ describe('reactivity', () => {
         );
       });
       test('valid case 34', () => {
-        testValid(
-          'reactivity',
-          rule,
+        valid(
           `function createFoo(v) {}
     const [bar, setBar] = createSignal();
     createFoo({ onBar: () => bar() });`,
         );
       });
       test('valid case 35', () => {
-        testValid(
-          'reactivity',
-          rule,
+        valid(
           `function createFoo(v) {}
     const [bar, setBar] = createSignal();
     createFoo({ onBar() { bar() } });`,
         );
       });
       test('valid case 36', () => {
-        testValid(
-          'reactivity',
-          rule,
+        valid(
           `function createFoo(v) {}
     const [bar, setBar] = createSignal();
     createFoo(bar);`,
         );
       });
       test('valid case 37', () => {
-        testValid(
-          'reactivity',
-          rule,
+        valid(
           `function createFoo(v) {}
     const [bar, setBar] = createSignal();
     createFoo([bar]);`,
         );
       });
       test('valid case 38', () => {
-        testValid(
-          'reactivity',
-          rule,
+        valid(
           `function createFoo(v) {}
       const [bar, setBar] = createSignal();
       createFoo({ onBar: () => bar() } as object);`,
@@ -394,23 +323,19 @@ describe('reactivity', () => {
         );
       });
       test('valid case 39', () => {
-        testValid(
-          'reactivity',
-          rule,
+        valid(
           `const [bar, setBar] = createSignal();
     X.createFoo(() => bar());`,
         );
       });
       test('valid case 40', () => {
-        testValid(
-          'reactivity',
-          rule,
+        valid(
           `const [bar, setBar] = createSignal();
     X . Y\n. createFoo(() => bar());`,
         );
       });
       test('valid case 41', () => {
-        testValid('reactivity', rule, {
+        valid({
           code: `function customQuery(v) {}
       const [signal, setSignal] = createSignal();
       customQuery(() => signal());`,
@@ -420,9 +345,7 @@ describe('reactivity', () => {
     });
     describe(`Event listeners`, () => {
       test('valid case 42', () => {
-        testValid(
-          'reactivity',
-          rule,
+        valid(
           `const [signal, setSignal] = createSignal(1);
     const element = document.getElementById("id");
     element.addEventListener("click", () => {
@@ -431,9 +354,7 @@ describe('reactivity', () => {
         );
       });
       test('valid case 43', () => {
-        testValid(
-          'reactivity',
-          rule,
+        valid(
           `const [signal, setSignal] = createSignal(1);
     const element = document.getElementById("id");
     element.onclick = () => {
@@ -442,9 +363,7 @@ describe('reactivity', () => {
         );
       });
       test('valid case 44', () => {
-        testValid(
-          'reactivity',
-          rule,
+        valid(
           `function Component() {
       const [signal, setSignal] = createSignal(1);
       return <div onClick={() => console.log(signal())} />;
@@ -452,9 +371,7 @@ describe('reactivity', () => {
         );
       });
       test('valid case 45', () => {
-        testValid(
-          'reactivity',
-          rule,
+        valid(
           `function Component() {
       const [signal, setSignal] = createSignal(1);
       const handler = () => console.log(signal());
@@ -463,9 +380,7 @@ describe('reactivity', () => {
         );
       });
       test('valid case 46', () => {
-        testValid(
-          'reactivity',
-          rule,
+        valid(
           `function Component() {
       const [signal, setSignal] = createSignal(1);
       return <div onClick={signal} />;
@@ -473,9 +388,7 @@ describe('reactivity', () => {
         );
       });
       test('valid case 47', () => {
-        testValid(
-          'reactivity',
-          rule,
+        valid(
           `function Component() {
       const [signal, setSignal] = createSignal(1);
       return <div on:click={() => console.log(signal())} />;
@@ -483,9 +396,7 @@ describe('reactivity', () => {
         );
       });
       test('valid case 48', () => {
-        testValid(
-          'reactivity',
-          rule,
+        valid(
           `function Component(props) {
       return <div onClick={e => props.onClick(e)} />;
     }`,
@@ -494,18 +405,14 @@ describe('reactivity', () => {
     });
     describe(`event listeners are reactive on components`, () => {
       test('valid case 49', () => {
-        testValid(
-          'reactivity',
-          rule,
+        valid(
           `const Parent = props => {
       return <Child onClick={props.onClick} />;
     }`,
         );
       });
       test('valid case 50', () => {
-        testValid(
-          'reactivity',
-          rule,
+        valid(
           `const Parent = props => {
       return <Child onClick={e => props.onClick(e)} />;
     }`,
@@ -514,9 +421,7 @@ describe('reactivity', () => {
     });
     describe(`Pass reactive variables as-is into provider value prop`, () => {
       test('valid case 51', () => {
-        testValid(
-          'reactivity',
-          rule,
+        valid(
           `const Component = props => {
       const [signal] = createSignal();
       return <SomeContext.Provider value={signal}>{props.children}</SomeContext.Provider>;
@@ -526,9 +431,7 @@ describe('reactivity', () => {
     });
     describe(`Don't warn on using props.initial* or props.default* for initialization`, () => {
       test('valid case 52', () => {
-        testValid(
-          'reactivity',
-          rule,
+        valid(
           `function Component(props) {
       const [count, setCount] = useSignal(props.initialCount);
       return <div>{count()}</div>;
@@ -536,9 +439,7 @@ describe('reactivity', () => {
         );
       });
       test('valid case 53', () => {
-        testValid(
-          'reactivity',
-          rule,
+        valid(
           `function Component(props) {
       const [count, setCount] = useSignal(props.defaultCount);
       return <div>{count()}</div>;
@@ -548,9 +449,7 @@ describe('reactivity', () => {
     });
     describe(`Store getters`, () => {
       test('valid case 54', () => {
-        testValid(
-          'reactivity',
-          rule,
+        valid(
           `const [state, setState] = createStore({
       firstName: 'Will',
       lastName: 'Smith',
@@ -563,9 +462,7 @@ describe('reactivity', () => {
     });
     describe(`untrack()`, () => {
       test('valid case 55', () => {
-        testValid(
-          'reactivity',
-          rule,
+        valid(
           `const [signal] = createSignal(5);
     untrack(() => {
       console.log(signal());
@@ -575,9 +472,7 @@ describe('reactivity', () => {
     });
     describe(`has JSX, but lowercase function and not named props => don't treat first parameter as props`, () => {
       test('valid case 56', () => {
-        testValid(
-          'reactivity',
-          rule,
+        valid(
           `function notAComponent(something) {
       console.log(something.a);
       return <div />;
@@ -587,28 +482,18 @@ describe('reactivity', () => {
     });
     describe(`function expression inside tagged template literal expression is tracked scope`, () => {
       test('valid case 57', () => {
-        testValid('reactivity', rule, 'css`color: ${props => props.color}`;');
+        valid('css`color: ${props => props.color}`;');
       });
       test('valid case 58', () => {
-        testValid(
-          'reactivity',
-          rule,
-          'html`<div>${props => props.name}</div>`;',
-        );
+        valid('html`<div>${props => props.name}</div>`;');
       });
       test('valid case 59', () => {
-        testValid(
-          'reactivity',
-          rule,
-          'styled.css`color: ${props => props.color};`',
-        );
+        valid('styled.css`color: ${props => props.color};`');
       });
     });
     describe(`refs`, () => {
       test('valid case 60', () => {
-        testValid(
-          'reactivity',
-          rule,
+        valid(
           `function Component() {
       let canvas;
       return <canvas ref={canvas} />;
@@ -616,9 +501,7 @@ describe('reactivity', () => {
         );
       });
       test('valid case 61', () => {
-        testValid(
-          'reactivity',
-          rule,
+        valid(
           `function Component() {
       let canvas;
       return (
@@ -630,9 +513,7 @@ describe('reactivity', () => {
         );
       });
       test('valid case 62', () => {
-        testValid(
-          'reactivity',
-          rule,
+        valid(
           `function Component() {
       const [index] = createSignal(0);
       let canvas;
@@ -646,9 +527,7 @@ describe('reactivity', () => {
         );
       });
       test('valid case 63', () => {
-        testValid(
-          'reactivity',
-          rule,
+        valid(
           `function Component() {
       const [canvas, setCanvas] = createSignal();
       return <canvas ref={c => setCanvas(c)} />;
@@ -658,9 +537,7 @@ describe('reactivity', () => {
     });
     describe(`mapArray()`, () => {
       test('valid case 64', () => {
-        testValid(
-          'reactivity',
-          rule,
+        valid(
           `function createCustomStore() {
       const [store, updateStore] = createStore({});
 
@@ -673,9 +550,7 @@ describe('reactivity', () => {
         );
       });
       test('valid case 65', () => {
-        testValid(
-          'reactivity',
-          rule,
+        valid(
           `function createCustomStore() {
       const [store, updateStore] = createStore({});
 
@@ -690,49 +565,30 @@ describe('reactivity', () => {
     });
     describe(`type casting`, () => {
       test('valid case 66', () => {
-        testValid(
-          'reactivity',
-          rule,
-          `const m = createMemo(() => 5) as Accessor<number>;`,
-          true,
-        );
+        valid(`const m = createMemo(() => 5) as Accessor<number>;`, true);
       });
       test('valid case 67', () => {
-        testValid('reactivity', rule, `const m = createMemo(() => 5)!;`, true);
+        valid(`const m = createMemo(() => 5)!;`, true);
       });
       test('valid case 68', () => {
-        testValid(
-          'reactivity',
-          rule,
-          `const m = createMemo(() => 5)! as Accessor<number>;`,
-          true,
-        );
+        valid(`const m = createMemo(() => 5)! as Accessor<number>;`, true);
       });
       test('valid case 69', () => {
-        testValid(
-          'reactivity',
-          rule,
+        valid(
           `const m = createMemo(() => 5) satisfies Accessor<number>;`,
           true,
         );
       });
       test('valid case 70', () => {
-        testValid(
-          'reactivity',
-          rule,
-          `const [s] = createSignal('a' as string)`,
-          true,
-        );
+        valid(`const [s] = createSignal('a' as string)`, true);
       });
       test('valid case 71', () => {
-        testValid('reactivity', rule, `createFoo('a' as string)`, true);
+        valid(`createFoo('a' as string)`, true);
       });
     });
     describe(`functions in JSXExpressionContainers`, () => {
       test('valid case 72', () => {
-        testValid(
-          'reactivity',
-          rule,
+        valid(
           `function Component(props) {
       return (
         <div>{() => {
@@ -746,9 +602,7 @@ describe('reactivity', () => {
     });
     describe(`passing function instead of signal`, () => {
       test('valid case 73', () => {
-        testValid(
-          'reactivity',
-          rule,
+        valid(
           `const [signal, setSignal] = createSignal();
     let el = <Child foo={() => signal()}></Child>`,
         );
@@ -756,18 +610,14 @@ describe('reactivity', () => {
     });
     describe(`static* prefix for props`, () => {
       test('valid case 74', () => {
-        testValid(
-          'reactivity',
-          rule,
+        valid(
           `function Component(props) {
       const value = props.staticValue;
     }`,
         );
       });
       test('valid case 75', () => {
-        testValid(
-          'reactivity',
-          rule,
+        valid(
           `function Component() {
       const staticValue = () => props.value;
       const value = staticValue();
@@ -777,9 +627,7 @@ describe('reactivity', () => {
     });
     describe(`observable`, () => {
       test('valid case 76', () => {
-        testValid(
-          'reactivity',
-          rule,
+        valid(
           `function Component(props) {
       const count$ = observable(() => props.count);
       return <div />;
@@ -787,9 +635,7 @@ describe('reactivity', () => {
         );
       });
       test('valid case 77', () => {
-        testValid(
-          'reactivity',
-          rule,
+        valid(
           `const [signal, setSignal] = createSignal(0);
     const value$ = observable(signal);`,
         );
@@ -797,9 +643,7 @@ describe('reactivity', () => {
     });
     describe(`use: functions`, () => {
       test('valid case 78', () => {
-        testValid(
-          'reactivity',
-          rule,
+        valid(
           `let someHook;
     function Component(props) {
       return <div use:someHook={() => props.count} />;
@@ -809,9 +653,7 @@ describe('reactivity', () => {
     });
     describe(`f*cking insane edge case with multiple functions taking props as sync callbacks (#110)`, () => {
       test('valid case 79', () => {
-        testValid(
-          'reactivity',
-          rule,
+        valid(
           `function formObjectDispatch(formObject, action) {
       const { field } = action.payload;
       formObject.findIndex((props) => props.field === field);
@@ -824,7 +666,7 @@ describe('reactivity', () => {
   describe('invalid', () => {
     describe(`Untracked signals`, () => {
       test('invalid case 1', () => {
-        testInvalid('reactivity', rule, {
+        invalid({
           code: `
       const Component = () => {
         const [signal] = createSignal(5);
@@ -835,7 +677,7 @@ describe('reactivity', () => {
         });
       });
       test('invalid case 2', () => {
-        testInvalid('reactivity', rule, {
+        invalid({
           code: `
       const Component = () => {
         const [signal] = createSignal(5);
@@ -848,7 +690,7 @@ describe('reactivity', () => {
     });
     describe(`Untracked property access`, () => {
       test('invalid case 3', () => {
-        testInvalid('reactivity', rule, {
+        invalid({
           code: `
       const Component = props => {
         const value = props.value;
@@ -858,7 +700,7 @@ describe('reactivity', () => {
         });
       });
       test('invalid case 4', () => {
-        testInvalid('reactivity', rule, {
+        invalid({
           code: `
       const Component = props => {
         const { value: valueProp } = props;
@@ -876,7 +718,7 @@ describe('reactivity', () => {
         });
       });
       test('invalid case 5', () => {
-        testInvalid('reactivity', rule, {
+        invalid({
           code: `
       const Component = props => {
         const valueProp = props.value;
@@ -892,7 +734,7 @@ describe('reactivity', () => {
         });
       });
       test('invalid case 6', () => {
-        testInvalid('reactivity', rule, {
+        invalid({
           code: `
       const Component = props => {
         const [value] = createSignal(props.value);
@@ -903,7 +745,7 @@ describe('reactivity', () => {
     });
     describe(`mark \`props\` as props by name before we've determined if Component is a component in :exit`, () => {
       test('invalid case 7', () => {
-        testInvalid('reactivity', rule, {
+        invalid({
           code: `
       const Component = props => {
         const derived = () => props.value;
@@ -921,7 +763,7 @@ describe('reactivity', () => {
     });
     describe(`treat first parameter of uppercase function with JSX as a props`, () => {
       test('invalid case 8', () => {
-        testInvalid('reactivity', rule, {
+        invalid({
           code: `
       function Component(something) {
         console.log(something.a);
@@ -933,7 +775,7 @@ describe('reactivity', () => {
     });
     describe(`Derived signals`, () => {
       test('invalid case 9', () => {
-        testInvalid('reactivity', rule, {
+        invalid({
           code: `
       const Component = () => {
         const [signal] = createSignal();
@@ -951,7 +793,7 @@ describe('reactivity', () => {
         });
       });
       test('invalid case 10', () => {
-        testInvalid('reactivity', rule, {
+        invalid({
           code: `
       const Component = () => {
         const [signal] = createSignal();
@@ -969,7 +811,7 @@ describe('reactivity', () => {
         });
       });
       test('invalid case 11', () => {
-        testInvalid('reactivity', rule, {
+        invalid({
           code: `
       const Component = () => {
         const [signal] = createSignal();
@@ -990,7 +832,7 @@ describe('reactivity', () => {
         });
       });
       test('invalid case 12', () => {
-        testInvalid('reactivity', rule, {
+        invalid({
           code: `
       const Component = () => {
         const [signal1] = createSignal();
@@ -1012,7 +854,7 @@ describe('reactivity', () => {
         });
       });
       test('invalid case 13', () => {
-        testInvalid('reactivity', rule, {
+        invalid({
           code: `
       const Component = () => {
         const [signal] = createSignal();
@@ -1035,7 +877,7 @@ describe('reactivity', () => {
     });
     describe(`Unused reactives`, () => {
       test('invalid case 14', () => {
-        testInvalid('reactivity', rule, {
+        invalid({
           code: `
       const Component = () => {
         createSignal();
@@ -1049,7 +891,7 @@ describe('reactivity', () => {
         });
       });
       test('invalid case 15', () => {
-        testInvalid('reactivity', rule, {
+        invalid({
           code: `
       const Component = () => {
         const [, setSignal] = createSignal();
@@ -1063,7 +905,7 @@ describe('reactivity', () => {
         });
       });
       test('invalid case 16', () => {
-        testInvalid('reactivity', rule, {
+        invalid({
           code: `
       const Component = () => {
         createMemo(() => 5);
@@ -1078,7 +920,7 @@ describe('reactivity', () => {
     });
     describe(`Uncalled signals`, () => {
       test('invalid case 17', () => {
-        testInvalid('reactivity', rule, {
+        invalid({
           code: `
       const Component = () => {
         const [signal] = createSignal();
@@ -1094,7 +936,7 @@ describe('reactivity', () => {
         });
       });
       test('invalid case 18', () => {
-        testInvalid('reactivity', rule, {
+        invalid({
           code: `
       const Component = () => {
         const memo = createMemo(() => 5);
@@ -1110,7 +952,7 @@ describe('reactivity', () => {
         });
       });
       test('invalid case 19', () => {
-        testInvalid('reactivity', rule, {
+        invalid({
           code: `
       const Component = () => {
         const [signal] = createSignal();
@@ -1126,7 +968,7 @@ describe('reactivity', () => {
         });
       });
       test('invalid case 20', () => {
-        testInvalid('reactivity', rule, {
+        invalid({
           code: `
       const Component = () => {
         const [signal] = createSignal("world");
@@ -1142,7 +984,7 @@ describe('reactivity', () => {
         });
       });
       test('invalid case 21', () => {
-        testInvalid('reactivity', rule, {
+        invalid({
           code: `
       const Component = () => {
         const [signal] = createSignal("world");
@@ -1158,7 +1000,7 @@ describe('reactivity', () => {
         });
       });
       test('invalid case 22', () => {
-        testInvalid('reactivity', rule, {
+        invalid({
           code: `
       const Component = () => {
         const [signal] = createSignal(5);
@@ -1174,7 +1016,7 @@ describe('reactivity', () => {
         });
       });
       test('invalid case 23', () => {
-        testInvalid('reactivity', rule, {
+        invalid({
           code: `
       const Component = (props) => {
         const [signal] = createSignal(5);
@@ -1192,7 +1034,7 @@ describe('reactivity', () => {
     });
     describe(`event listeners are not rebound on native elements`, () => {
       test('invalid case 24', () => {
-        testInvalid('reactivity', rule, {
+        invalid({
           code: `
       const Component = props => {
         return <div onClick={props.onClick} />;
@@ -1207,7 +1049,7 @@ describe('reactivity', () => {
         });
       });
       test('invalid case 25', () => {
-        testInvalid('reactivity', rule, {
+        invalid({
           code: `
       const Component = props => {
         createEffect(props.theEffect);
@@ -1224,7 +1066,7 @@ describe('reactivity', () => {
     });
     describe(`provider value passed as-is`, () => {
       test('invalid case 26', () => {
-        testInvalid('reactivity', rule, {
+        invalid({
           code: `
       const Component = props => {
         return <SomeContext.Provider value={props.value}>{props.children}</SomeContext.Provider>;
@@ -1235,7 +1077,7 @@ describe('reactivity', () => {
         });
       });
       test('invalid case 27', () => {
-        testInvalid('reactivity', rule, {
+        invalid({
           code: `
       const Component = props => {
         return <SomeProvider value={props.value}>{props.children}</SomeProvider>;
@@ -1246,7 +1088,7 @@ describe('reactivity', () => {
         });
       });
       test('invalid case 28', () => {
-        testInvalid('reactivity', rule, {
+        invalid({
           code: `
       const Component = props => {
         const [signal] = createSignal();
@@ -1260,7 +1102,7 @@ describe('reactivity', () => {
     });
     describe(`getOwner/runWithOwner`, () => {
       test('invalid case 29', () => {
-        testInvalid('reactivity', rule, {
+        invalid({
           code: `
       const owner = getOwner();
       const [signal] = createSignal();
@@ -1269,7 +1111,7 @@ describe('reactivity', () => {
         });
       });
       test('invalid case 30', () => {
-        testInvalid('reactivity', rule, {
+        invalid({
           code: `
       function Component() {
         const owner = getOwner();
@@ -1282,7 +1124,7 @@ describe('reactivity', () => {
     });
     describe(`Async tracking scopes`, () => {
       test('invalid case 31', () => {
-        testInvalid('reactivity', rule, {
+        invalid({
           code: `
       const [count, setCount] = createSignal(0);
       createEffect(async () => {
@@ -1293,7 +1135,7 @@ describe('reactivity', () => {
         });
       });
       test('invalid case 32', () => {
-        testInvalid('reactivity', rule, {
+        invalid({
           code: `
       const [photos, setPhotos] = createSignal([]);
       createEffect(async () => {
@@ -1306,7 +1148,7 @@ describe('reactivity', () => {
     });
     describe(`non-function expression inside tagged template literal expression is not tracked scope`, () => {
       test('invalid case 33', () => {
-        testInvalid('reactivity', rule, {
+        invalid({
           code: `
       const [signal] = createSignal("red");
       css\`color: \${signal}\`;`,
@@ -1314,7 +1156,7 @@ describe('reactivity', () => {
         });
       });
       test('invalid case 34', () => {
-        testInvalid('reactivity', rule, {
+        invalid({
           code: `
       const [signal] = createSignal("red");
       const f = () => signal();
@@ -1325,7 +1167,7 @@ describe('reactivity', () => {
     });
     describe(`mapArray`, () => {
       test('invalid case 35', () => {
-        testInvalid('reactivity', rule, {
+        invalid({
           code: `
       function createCustomStore() {
         const [store, updateStore] = createStore({});
@@ -1338,7 +1180,7 @@ describe('reactivity', () => {
         });
       });
       test('invalid case 36', () => {
-        testInvalid('reactivity', rule, {
+        invalid({
           code: `
       const [array] = createSignal([]);
       const result = mapArray(array, (item, i) => {
@@ -1348,7 +1190,7 @@ describe('reactivity', () => {
         });
       });
       test('invalid case 37', () => {
-        testInvalid('reactivity', rule, {
+        invalid({
           code: `
       const [array] = createSignal([]);
       const result = indexArray(array, (item) => {
@@ -1360,7 +1202,7 @@ describe('reactivity', () => {
     });
     describe(`static* prefix for props`, () => {
       test('invalid case 38', () => {
-        testInvalid('reactivity', rule, {
+        invalid({
           code: `
       const [signal] = createSignal();
       let el = <Component staticProp={signal()} />;`,
@@ -1370,7 +1212,7 @@ describe('reactivity', () => {
     });
     describe(`custom hooks`, () => {
       test('invalid case 39', () => {
-        testInvalid('reactivity', rule, {
+        invalid({
           code: `
       const [signal] = createSignal(0);
       useExample(signal())`,
@@ -1378,7 +1220,7 @@ describe('reactivity', () => {
         });
       });
       test('invalid case 40', () => {
-        testInvalid('reactivity', rule, {
+        invalid({
           code: `
       const [signal] = createSignal(0);
       useExample([signal()])`,
@@ -1386,7 +1228,7 @@ describe('reactivity', () => {
         });
       });
       test('invalid case 41', () => {
-        testInvalid('reactivity', rule, {
+        invalid({
           code: `
       const [signal] = createSignal(0);
       useExample({ value: signal() })`,
@@ -1394,7 +1236,7 @@ describe('reactivity', () => {
         });
       });
       test('invalid case 42', () => {
-        testInvalid('reactivity', rule, {
+        invalid({
           code: `
       const [signal] = createSignal(0);
       useExample((() => signal())())`,

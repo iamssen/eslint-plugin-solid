@@ -2,40 +2,25 @@ import rule from './imports.js';
 import { testValid, testInvalid } from './ruleTester.js';
 import { describe, test } from 'vitest';
 
+const valid = testValid('imports', rule);
+const invalid = testInvalid('imports', rule);
+
 describe('imports', () => {
   describe('valid', () => {
     test('valid case 1', () => {
-      testValid(
-        'imports',
-        rule,
-        `import { createSignal, mergeProps as merge } from "solid-js";`,
-      );
+      valid(`import { createSignal, mergeProps as merge } from "solid-js";`);
     });
     test('valid case 2', () => {
-      testValid(
-        'imports',
-        rule,
-        `import { createSignal, mergeProps as merge } from 'solid-js';`,
-      );
+      valid(`import { createSignal, mergeProps as merge } from 'solid-js';`);
     });
     test('valid case 3', () => {
-      testValid(
-        'imports',
-        rule,
-        `import { render, hydrate } from "solid-js/web";`,
-      );
+      valid(`import { render, hydrate } from "solid-js/web";`);
     });
     test('valid case 4', () => {
-      testValid(
-        'imports',
-        rule,
-        `import { createStore, produce } from "solid-js/store";`,
-      );
+      valid(`import { createStore, produce } from "solid-js/store";`);
     });
     test('valid case 5', () => {
-      testValid(
-        'imports',
-        rule,
+      valid(
         `import { createSignal } from "solid-js";
     import { render } from "solid-js/web";
     import { something } from "somewhere/else";
@@ -43,16 +28,10 @@ describe('imports', () => {
       );
     });
     test('valid case 6', () => {
-      testValid(
-        'imports',
-        rule,
-        `import * as Solid from "solid-js"; Solid.render();`,
-      );
+      valid(`import * as Solid from "solid-js"; Solid.render();`);
     });
     test('valid case 7', () => {
-      testValid(
-        'imports',
-        rule,
+      valid(
         `import type { Component, JSX } from "solid-js";
 import type { Store } from "solid-js/store";`,
         true,
@@ -61,7 +40,7 @@ import type { Store } from "solid-js/store";`,
   });
   describe('invalid', () => {
     test('invalid case 1', () => {
-      testInvalid('imports', rule, {
+      invalid({
         code: `import { createEffect } from "solid-js/web";`,
         errors: [
           {
@@ -74,7 +53,7 @@ import type { Store } from "solid-js/store";`,
       });
     });
     test('invalid case 2', () => {
-      testInvalid('imports', rule, {
+      invalid({
         code: `import { createEffect } from "solid-js/web";
 import { createSignal } from "solid-js";`,
         errors: [
@@ -88,9 +67,7 @@ import { createSignal, createEffect } from "solid-js";`,
       });
     });
     test('invalid case 3', () => {
-      testInvalid(
-        'imports',
-        rule,
+      invalid(
         {
           code: `import type { Component } from "solid-js/store";
 import { createSignal } from "solid-js";
@@ -109,7 +86,7 @@ console.log('hi');`,
       );
     });
     test('invalid case 4', () => {
-      testInvalid('imports', rule, {
+      invalid({
         code: `import { createSignal } from "solid-js/web";
 import "solid-js";`,
         errors: [
@@ -123,7 +100,7 @@ import { createSignal } from "solid-js";`,
       });
     });
     test('invalid case 5', () => {
-      testInvalid('imports', rule, {
+      invalid({
         code: `import { createSignal } from "solid-js/web";
 import {} from "solid-js";`,
         errors: [
@@ -138,7 +115,7 @@ import { createSignal } from "solid-js";`,
     });
     describe(`Two-part fix, output here is first pass...`, () => {
       test('invalid case 6', () => {
-        testInvalid('imports', rule, {
+        invalid({
           code: `import { createEffect } from "solid-js/web";
 import { render } from "solid-js";`,
           errors: [
@@ -158,7 +135,7 @@ import { render, createEffect } from "solid-js";`,
     });
     describe(`...and output here is second pass`, () => {
       test('invalid case 7', () => {
-        testInvalid('imports', rule, {
+        invalid({
           code: `
 import { render, createEffect } from "solid-js";`,
           errors: [

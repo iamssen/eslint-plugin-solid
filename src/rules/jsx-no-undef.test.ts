@@ -4,26 +4,29 @@ import { describe, test } from 'vitest';
 
 // The bulk of the testing of this rule is done in eslint-plugin-react,
 // so we just test the custom directives part of it here.
+const valid = testValid('jsx-no-undef', rule);
+const invalid = testInvalid('jsx-no-undef', rule);
+
 describe('jsx-no-undef', () => {
   describe('valid', () => {
     test('valid case 1', () => {
-      testValid('jsx-no-undef', rule, `let X; let el = <div use:X={{}} />;`);
+      valid(`let X; let el = <div use:X={{}} />;`);
     });
     test('valid case 2', () => {
-      testValid('jsx-no-undef', rule, `(X => <div use:X={{}} />)()`);
+      valid(`(X => <div use:X={{}} />)()`);
     });
     test('valid case 3', () => {
-      testValid('jsx-no-undef', rule, `let X; let el = <div use:X />`);
+      valid(`let X; let el = <div use:X />`);
     });
     test('valid case 4', () => {
-      testValid('jsx-no-undef', rule, `let X, el = <div use:X />`);
+      valid(`let X, el = <div use:X />`);
     });
     test('valid case 5', () => {
-      testValid('jsx-no-undef', rule, `let Component, X = <Component use:X />`);
+      valid(`let Component, X = <Component use:X />`);
     });
     describe(`},`, () => {
       test('valid case 6', () => {
-        testValid('jsx-no-undef', rule, {
+        valid({
           code: `let el = <Component />`,
           options: [{ typescriptEnabled: true }],
         });
@@ -32,14 +35,14 @@ describe('jsx-no-undef', () => {
   });
   describe('invalid', () => {
     test('invalid case 1', () => {
-      testInvalid('jsx-no-undef', rule, {
+      invalid({
         code: `let el = <Component />;`,
         errors: [{ messageId: 'undefined', data: { identifier: 'Component' } }],
       });
     });
     describe(`custom directives`, () => {
       test('invalid case 2', () => {
-        testInvalid('jsx-no-undef', rule, {
+        invalid({
           code: `let el = <div use:X />;`,
           errors: [
             {
@@ -50,7 +53,7 @@ describe('jsx-no-undef', () => {
         });
       });
       test('invalid case 3', () => {
-        testInvalid('jsx-no-undef', rule, {
+        invalid({
           code: `let el = <div use:X />;`,
           options: [{ typescriptEnabled: true }],
           errors: [
@@ -62,7 +65,7 @@ describe('jsx-no-undef', () => {
         });
       });
       test('invalid case 4', () => {
-        testInvalid('jsx-no-undef', rule, {
+        invalid({
           code: `let el = <div use:X={{}} />;`,
           errors: [
             {
@@ -75,7 +78,7 @@ describe('jsx-no-undef', () => {
     });
     describe(`},`, () => {
       test('invalid case 5', () => {
-        testInvalid('jsx-no-undef', rule, {
+        invalid({
           code: `let el = <div use:X />;`,
           options: [{ allowGlobals: true }],
           errors: [
@@ -89,7 +92,7 @@ describe('jsx-no-undef', () => {
     });
     describe(`auto imports`, () => {
       test('invalid case 6', () => {
-        testInvalid('jsx-no-undef', rule, {
+        invalid({
           code: `let el = <For each={items}>{item => item.name}</For>`,
           errors: [
             {
@@ -101,7 +104,7 @@ describe('jsx-no-undef', () => {
         });
       });
       test('invalid case 7', () => {
-        testInvalid('jsx-no-undef', rule, {
+        invalid({
           code: `let el = <Show when={item}>{item => item.name}</Show>`,
           errors: [
             {
@@ -113,7 +116,7 @@ describe('jsx-no-undef', () => {
         });
       });
       test('invalid case 8', () => {
-        testInvalid('jsx-no-undef', rule, {
+        invalid({
           code: `
 render(
   <Switch fallback={<div>Not Found</div>}>
@@ -136,7 +139,7 @@ render(
         });
       });
       test('invalid case 9', () => {
-        testInvalid('jsx-no-undef', rule, {
+        invalid({
           code: `
 import X from "x";
 let el = <For each={items}>{item => item.name}</For>`,
@@ -152,7 +155,7 @@ let el = <For each={items}>{item => item.name}</For>`,
         });
       });
       test('invalid case 10', () => {
-        testInvalid('jsx-no-undef', rule, {
+        invalid({
           code: `
 import { Show } from "solid-js";
 let el = <For each={items}>{item => item.name}</For>`,
@@ -168,7 +171,7 @@ let el = <For each={items}>{item => item.name}</For>`,
         });
       });
       test('invalid case 11', () => {
-        testInvalid('jsx-no-undef', rule, {
+        invalid({
           code: `
 import { For, Switch } from "solid-js";
 render(
@@ -192,7 +195,7 @@ render(
         });
       });
       test('invalid case 12', () => {
-        testInvalid('jsx-no-undef', rule, {
+        invalid({
           code: `
 import X from "x";
 import { Show } from "solid-js";
@@ -210,7 +213,7 @@ let el = <For each={items}>{item => item.name}</For>`,
         });
       });
       test('invalid case 13', () => {
-        testInvalid('jsx-no-undef', rule, {
+        invalid({
           code: `
 import X from "x";
 import Solid from "solid-js";
@@ -228,7 +231,7 @@ let el = <For each={items}>{item => item.name}</For>`,
         });
       });
       test('invalid case 14', () => {
-        testInvalid('jsx-no-undef', rule, {
+        invalid({
           code: `
 import X from "x";
 import "solid-js";
@@ -246,7 +249,7 @@ let el = <For each={items}>{item => item.name}</For>`,
         });
       });
       test('invalid case 15', () => {
-        testInvalid('jsx-no-undef', rule, {
+        invalid({
           code: `
 // attached comment
 import X from "x";
@@ -265,7 +268,7 @@ let el = <For each={items}>{item => item.name}</For>`,
         });
       });
       test('invalid case 16', () => {
-        testInvalid('jsx-no-undef', rule, {
+        invalid({
           code: `
 import X from "x"; // attached comment
 let el = <For each={items}>{item => item.name}</For>`,
