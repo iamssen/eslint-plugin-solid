@@ -95,7 +95,8 @@ export default createRule<Options, MessageIds>({
             });
           }
           return;
-        } else if (jsxPropName(node) !== 'innerHTML') {
+        }
+        if (jsxPropName(node) !== 'innerHTML') {
           return;
         }
 

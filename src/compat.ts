@@ -1,8 +1,5 @@
-import {
-  type TSESLint,
-  type TSESTree,
-  ASTUtils,
-} from '@typescript-eslint/utils';
+import { ASTUtils } from '@typescript-eslint/utils';
+import type { TSESLint, TSESTree } from '@typescript-eslint/utils';
 
 export type CompatContext =
   | {

@@ -1,4 +1,5 @@
-import { ASTUtils, ESLintUtils, TSESTree as T } from '@typescript-eslint/utils';
+import { ASTUtils, ESLintUtils } from '@typescript-eslint/utils';
+import type { TSESTree as T } from '@typescript-eslint/utils';
 import { isFunctionNode, isJSXElementOrFragment } from '../utils.js';
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;

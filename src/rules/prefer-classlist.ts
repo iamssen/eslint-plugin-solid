@@ -1,4 +1,5 @@
-import { ESLintUtils, TSESTree as T } from '@typescript-eslint/utils';
+import { ESLintUtils } from '@typescript-eslint/utils';
+import type { TSESTree as T } from '@typescript-eslint/utils';
 import { jsxHasProp, jsxPropName } from '../utils.js';
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
@@ -50,7 +51,7 @@ export default createRule<Options, MessageIds>({
     return {
       JSXAttribute(node) {
         if (
-          ['class', 'className'].indexOf(jsxPropName(node)) === -1 ||
+          !['class', 'className'].includes(jsxPropName(node)) ||
           jsxHasProp(
             (node.parent as T.JSXOpeningElement | undefined)?.attributes ?? [],
             'classlist',
@@ -63,7 +64,7 @@ export default createRule<Options, MessageIds>({
           if (
             expr.type === 'CallExpression' &&
             expr.callee.type === 'Identifier' &&
-            classnames.indexOf(expr.callee.name) !== -1 &&
+            classnames.includes(expr.callee.name) &&
             expr.arguments.length === 1 &&
             expr.arguments[0].type === 'ObjectExpression'
           ) {

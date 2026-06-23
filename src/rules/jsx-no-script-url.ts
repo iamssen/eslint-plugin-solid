@@ -13,7 +13,7 @@ const { getStaticValue }: { getStaticValue: any } = ASTUtils;
 // INFORMATION SEPARATOR ONE, inclusive:
 // https://infra.spec.whatwg.org/#c0-control-or-space
 const isJavaScriptProtocol =
-  /^[\u0000-\u001F ]*j[\r\n\t]*a[\r\n\t]*v[\r\n\t]*a[\r\n\t]*s[\r\n\t]*c[\r\n\t]*r[\r\n\t]*i[\r\n\t]*p[\r\n\t]*t[\r\n\t]*:/i; // eslint-disable-line no-control-regex
+  /^[\u{0}-\u{1F} ]*j[\r\n\t]*a[\r\n\t]*v[\r\n\t]*a[\r\n\t]*s[\r\n\t]*c[\r\n\t]*r[\r\n\t]*i[\r\n\t]*p[\r\n\t]*t[\r\n\t]*:/iu; // eslint-disable-line no-control-regex
 
 /**
  * This rule is adapted from eslint-plugin-react's jsx-no-script-url rule under the MIT license.
@@ -36,23 +36,25 @@ export default createRule({
   create(context) {
     return {
       JSXAttribute(node) {
-        if (node.name.type === 'JSXIdentifier' && node.value) {
-          const link: { value: unknown } | null = getStaticValue(
-            node.value.type === 'JSXExpressionContainer'
-              ? node.value.expression
-              : node.value,
-            getScope(context, node),
-          );
-          if (
-            link &&
-            typeof link.value === 'string' &&
-            isJavaScriptProtocol.test(link.value)
-          ) {
-            context.report({
-              node: node.value,
-              messageId: 'noJSURL',
-            });
-          }
+        if (!(node.name.type === 'JSXIdentifier' && node.value)) {
+          return;
+        }
+
+        const link: { value: unknown } | null = getStaticValue(
+          node.value.type === 'JSXExpressionContainer'
+            ? node.value.expression
+            : node.value,
+          getScope(context, node),
+        );
+        if (
+          link &&
+          typeof link.value === 'string' &&
+          isJavaScriptProtocol.test(link.value)
+        ) {
+          context.report({
+            node: node.value,
+            messageId: 'noJSURL',
+          });
         }
       },
     };

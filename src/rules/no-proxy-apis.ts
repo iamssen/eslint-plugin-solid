@@ -1,4 +1,5 @@
-import { ESLintUtils, TSESTree as T } from '@typescript-eslint/utils';
+import { ESLintUtils } from '@typescript-eslint/utils';
+import type { TSESTree as T } from '@typescript-eslint/utils';
 import {
   isFunctionNode,
   isPropsByName,
@@ -54,22 +55,20 @@ export default createRule({
       'CallExpression'(node) {
         if (node.callee.type === 'Identifier') {
           if (matchImport('mergeProps', node.callee.name)) {
-            node.arguments
-              .filter((arg) => {
-                if (arg.type === 'SpreadElement') return true;
-                const traced = trace(arg, context);
-                return (
-                  (traced.type === 'Identifier' &&
-                    !isPropsByName(traced.name)) ||
-                  isFunctionNode(traced)
-                );
-              })
-              .forEach((badArg) => {
-                context.report({
-                  node: badArg,
-                  messageId: 'mergeProps',
-                });
+            const badArgs = node.arguments.filter((arg) => {
+              if (arg.type === 'SpreadElement') return true;
+              const traced = trace(arg, context);
+              return (
+                (traced.type === 'Identifier' && !isPropsByName(traced.name)) ||
+                isFunctionNode(traced)
+              );
+            });
+            for (const badArg of badArgs) {
+              context.report({
+                node: badArg,
+                messageId: 'mergeProps',
               });
+            }
           }
         } else if (node.callee.type === 'MemberExpression') {
           if (

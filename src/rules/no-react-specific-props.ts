@@ -1,4 +1,5 @@
-import { ESLintUtils, TSESLint } from '@typescript-eslint/utils';
+import { ESLintUtils } from '@typescript-eslint/utils';
+import type { TSESLint } from '@typescript-eslint/utils';
 import { isDOMElementName, jsxGetProp, jsxHasProp } from '../utils.js';
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;

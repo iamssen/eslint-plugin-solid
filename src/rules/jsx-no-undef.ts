@@ -1,4 +1,5 @@
-import { ESLintUtils, TSESTree as T } from '@typescript-eslint/utils';
+import type { TSESTree as T } from '@typescript-eslint/utils';
+import { ESLintUtils } from '@typescript-eslint/utils';
 import { getScope, getSourceCode } from '../compat.js';
 import {
   appendImports,
@@ -10,7 +11,7 @@ import {
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 
 // Currently all of the control flow components are from 'solid-js'.
-const AUTO_COMPONENTS = ['Show', 'For', 'Index', 'Switch', 'Match'];
+const AUTO_COMPONENTS = new Set(['Show', 'For', 'Index', 'Switch', 'Match']);
 const SOURCE_MODULE = 'solid-js';
 
 /*
@@ -90,17 +91,18 @@ export default createRule<Options, MessageIds>({
         isCustomDirective,
       }: { isComponent?: boolean; isCustomDirective?: boolean } = {},
     ) {
+      // Ignore 'this' keyword (also maked as JSXIdentifier when used in JSX)
+      if (node.name === 'this') {
+        return;
+      }
+
       let scope = getScope(context, node);
       const sourceCode = getSourceCode(context);
       const sourceType = sourceCode.ast.sourceType;
       const scopeUpperBound =
         !allowGlobals && sourceType === 'module' ? 'module' : 'global';
-      const variables = [...scope.variables];
 
-      // Ignore 'this' keyword (also maked as JSXIdentifier when used in JSX)
-      if (node.name === 'this') {
-        return;
-      }
+      const variables = [...scope.variables];
 
       while (
         scope.type !== scopeUpperBound &&
@@ -110,22 +112,22 @@ export default createRule<Options, MessageIds>({
         scope = scope.upper;
         variables.push(...scope.variables);
       }
-      if (scope.childScopes.length) {
+      if (scope.childScopes.length > 0) {
         variables.push(...scope.childScopes[0].variables);
         // Temporary fix for babel-eslint
-        if (scope.childScopes[0].childScopes.length) {
+        if (scope.childScopes[0].childScopes.length > 0) {
           variables.push(...scope.childScopes[0].childScopes[0].variables);
         }
       }
 
-      if (variables.find((variable) => variable.name === node.name)) {
+      if (variables.some((variable) => variable.name === node.name)) {
         return;
       }
 
       if (
         isComponent &&
         autoImport &&
-        AUTO_COMPONENTS.includes(node.name) &&
+        AUTO_COMPONENTS.has(node.name) &&
         !missingComponentsSet.has(node.name)
       ) {
         // track which names are undefined
@@ -153,12 +155,13 @@ export default createRule<Options, MessageIds>({
       'JSXOpeningElement'(node) {
         let n: T.Node | undefined;
         switch (node.name.type) {
-          case 'JSXIdentifier':
+          case 'JSXIdentifier': {
             if (!isDOMElementName(node.name.name)) {
               checkIdentifierInJSX(node.name, { isComponent: true });
             }
             break;
-          case 'JSXMemberExpression':
+          }
+          case 'JSXMemberExpression': {
             n = node.name;
             do {
               n = (n as any).object;
@@ -167,8 +170,10 @@ export default createRule<Options, MessageIds>({
               checkIdentifierInJSX(n);
             }
             break;
-          default:
+          }
+          default: {
             break;
+          }
         }
       },
       'JSXAttribute > JSXNamespacedName': (node: T.JSXNamespacedName) => {
@@ -183,8 +188,8 @@ export default createRule<Options, MessageIds>({
       },
       'Program:exit': (programNode: T.Program) => {
         // add in any auto import components used in the program
-        const missingComponents = Array.from(missingComponentsSet.values());
-        if (autoImport && missingComponents.length) {
+        const missingComponents = [...missingComponentsSet];
+        if (autoImport && missingComponents.length > 0) {
           const importNode = programNode.body.find(
             (n) =>
               n.type === 'ImportDeclaration' &&

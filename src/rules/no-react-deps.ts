@@ -27,35 +27,39 @@ export default createRule({
       ImportDeclaration: handleImportDeclaration,
       CallExpression(node) {
         if (
-          node.callee.type === 'Identifier' &&
-          matchImport(['createEffect', 'createMemo'], node.callee.name) &&
-          node.arguments.length === 2 &&
-          node.arguments.every((arg) => arg.type !== 'SpreadElement')
+          !(
+            node.callee.type === 'Identifier' &&
+            matchImport(['createEffect', 'createMemo'], node.callee.name) &&
+            node.arguments.length === 2 &&
+            node.arguments.every((arg) => arg.type !== 'SpreadElement')
+          )
         ) {
-          // grab both arguments, tracing any variables to their actual values if possible
-          const [arg0, arg1] = node.arguments.map((arg) => trace(arg, context));
+          return;
+        }
 
-          if (
-            isFunctionNode(arg0) &&
-            arg0.params.length === 0 &&
-            arg1.type === 'ArrayExpression'
-          ) {
-            // A second argument that looks like a dependency array was passed to
-            // createEffect/createMemo, and the inline function doesn't accept a parameter, so it
-            // can't just be an initial value.
-            context.report({
-              node: node.arguments[1], // if this is a variable, highlight the usage, not the initialization
-              messageId: 'noUselessDep',
-              data: {
-                name: node.callee.name,
-              },
-              // remove dep array if it's given inline, otherwise don't fix
-              fix:
-                arg1 === node.arguments[1]
-                  ? (fixer) => fixer.remove(arg1)
-                  : undefined,
-            });
-          }
+        // grab both arguments, tracing any variables to their actual values if possible
+        const [arg0, arg1] = node.arguments.map((arg) => trace(arg, context));
+
+        if (
+          isFunctionNode(arg0) &&
+          arg0.params.length === 0 &&
+          arg1.type === 'ArrayExpression'
+        ) {
+          // A second argument that looks like a dependency array was passed to
+          // createEffect/createMemo, and the inline function doesn't accept a parameter, so it
+          // can't just be an initial value.
+          context.report({
+            node: node.arguments[1], // if this is a variable, highlight the usage, not the initialization
+            messageId: 'noUselessDep',
+            data: {
+              name: node.callee.name,
+            },
+            // remove dep array if it's given inline, otherwise don't fix
+            fix:
+              arg1 === node.arguments[1]
+                ? (fixer) => fixer.remove(arg1)
+                : undefined,
+          });
         }
       },
     };

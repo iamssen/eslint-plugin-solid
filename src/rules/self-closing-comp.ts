@@ -1,4 +1,5 @@
-import { ESLintUtils, TSESTree as T } from '@typescript-eslint/utils';
+import type { TSESTree as T } from '@typescript-eslint/utils';
+import { ESLintUtils } from '@typescript-eslint/utils';
 import { getSourceCode } from '../compat.js';
 import { isDOMElementName } from '../utils.js';
 
@@ -27,8 +28,8 @@ function childrenIsMultilineSpaces(node: T.JSXOpeningElement) {
   return (
     childrens.length === 1 &&
     childrens[0].type === 'JSXText' &&
-    childrens[0].value.indexOf('\n') !== -1 &&
-    childrens[0].value.replace(/(?!\xA0)\s/g, '') === ''
+    childrens[0].value.includes('\n') &&
+    childrens[0].value.replaceAll(/(?!\u{A0})\s/gu, '') === ''
   );
 }
 
@@ -86,18 +87,22 @@ export default createRule<Options, MessageIds>({
       if (isComponent(node)) {
         const whichComponents = context.options[0]?.component ?? 'all';
         return whichComponents === 'all';
-      } else if (
+      }
+      if (
         node.name.type === 'JSXIdentifier' &&
         isDOMElementName(node.name.name)
       ) {
         const whichComponents = context.options[0]?.html ?? 'all';
         switch (whichComponents) {
-          case 'all':
+          case 'all': {
             return true;
-          case 'void':
+          }
+          case 'void': {
             return isVoidDOMElementName(node.name.name);
-          case 'none':
+          }
+          case 'none': {
             return false;
+          }
         }
       }
       return true; // shouldn't encounter
@@ -144,9 +149,7 @@ export default createRule<Options, MessageIds>({
                   lastTokens[1],
                 );
                 const range = [
-                  isSpaceBeforeSelfClose
-                    ? selfCloseEnding - 3
-                    : selfCloseEnding - 2,
+                  selfCloseEnding - (isSpaceBeforeSelfClose ? 3 : 2),
                   selfCloseEnding,
                 ] as const;
                 return fixer.replaceTextRange(range, `></${tagName}>`);

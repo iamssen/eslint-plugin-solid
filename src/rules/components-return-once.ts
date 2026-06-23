@@ -1,6 +1,8 @@
-import { ESLintUtils, TSESTree as T } from '@typescript-eslint/utils';
+import type { TSESTree as T } from '@typescript-eslint/utils';
+import { ESLintUtils } from '@typescript-eslint/utils';
 import { getSourceCode } from '../compat.js';
-import { getFunctionName, type FunctionNode } from '../utils.js';
+import type { FunctionNode } from '../utils.js';
+import { getFunctionName } from '../utils.js';
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 
@@ -9,14 +11,17 @@ const isNothing = (node?: T.Node): boolean => {
     return true;
   }
   switch (node.type) {
-    case 'Literal':
+    case 'Literal': {
       return ([null, undefined, false, ''] as Array<unknown>).includes(
         node.value,
       );
-    case 'JSXFragment':
+    }
+    case 'JSXFragment': {
       return !node.children || node.children.every(isNothing);
-    default:
+    }
+    default: {
       return false;
+    }
   }
 };
 
@@ -54,7 +59,13 @@ export default createRule({
         ? text
         : `{${text}}`;
     };
-    const currentFunction = () => functionStack[functionStack.length - 1];
+    const currentFunction = () => {
+      const fn = functionStack.at(-1);
+      if (!fn) {
+        throw new Error('functionStack length is 0');
+      }
+      return fn;
+    };
     const onFunctionEnter = (node: FunctionNode) => {
       let lastReturn: T.ReturnStatement | undefined;
       if (node.body.type === 'BlockStatement') {
@@ -77,19 +88,19 @@ export default createRule({
         node.parent?.type === 'JSXExpressionContainer' ||
         // ignore createMemo(() => conditional JSX), report HOC(() => conditional JSX)
         (node.parent?.type === 'CallExpression' &&
-          node.parent.arguments.some((n) => n === node) &&
+          node.parent.arguments.includes(node as T.CallExpressionArgument) &&
           !(node.parent.callee as T.Identifier).name?.match(/^[A-Z]/))
       ) {
         currentFunction().isComponent = false;
       }
       if (currentFunction().isComponent) {
         // Warn on each early return
-        currentFunction().earlyReturns.forEach((earlyReturn) => {
+        for (const earlyReturn of currentFunction().earlyReturns) {
           context.report({
             node: earlyReturn,
             messageId: 'noEarlyReturn',
           });
-        });
+        }
 
         const argument = currentFunction().lastReturn?.argument;
         if (argument?.type === 'ConditionalExpression') {
@@ -200,17 +211,17 @@ export default createRule({
       'FunctionExpression:exit': onFunctionExit,
       'ArrowFunctionExpression:exit': onFunctionExit,
       'JSXElement'() {
-        if (functionStack.length) {
+        if (functionStack.length > 0) {
           currentFunction().isComponent = true;
         }
       },
       'JSXFragment'() {
-        if (functionStack.length) {
+        if (functionStack.length > 0) {
           currentFunction().isComponent = true;
         }
       },
       'ReturnStatement'(node) {
-        if (functionStack.length && node !== currentFunction().lastReturn) {
+        if (functionStack.length > 0 && node !== currentFunction().lastReturn) {
           currentFunction().earlyReturns.push(node);
         }
       },

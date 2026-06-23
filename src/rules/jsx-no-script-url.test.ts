@@ -62,7 +62,7 @@ describe('jsx-no-script-url', () => {
     });
     test('invalid case 5', () => {
       testInvalid('jsx-no-script-url', rule, {
-        code: `const link = "\\tj\\na\\tv\\na\\ts\\nc\\tr\\ni\\tpt:alert('hacked!')";
+        code: String.raw`const link = "\tj\na\tv\na\ts\nc\tr\ni\tpt:alert('hacked!')";
     let el = <a href={link} />`,
         errors: [{ messageId: 'noJSURL' }],
       });

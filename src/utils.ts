@@ -1,5 +1,6 @@
-import { TSESTree as T, TSESLint } from '@typescript-eslint/utils';
-import { type CompatContext, findVariable } from './compat.js';
+import type { TSESTree as T, TSESLint } from '@typescript-eslint/utils';
+import type { CompatContext } from './compat.js';
+import { findVariable } from './compat.js';
 
 const domElementRegex = /^[a-z]/;
 export const isDOMElementName = (name: string): boolean =>
@@ -9,18 +10,23 @@ const propsRegex = /[pP]rops/;
 export const isPropsByName = (name: string): boolean => propsRegex.test(name);
 
 export const formatList = (strings: Array<string>): string => {
-  if (strings.length === 0) {
-    return '';
-  } else if (strings.length === 1) {
-    return `'${strings[0]}'`;
-  } else if (strings.length === 2) {
-    return `'${strings[0]}' and '${strings[1]}'`;
-  } else {
-    const last = strings.length - 1;
-    return `${strings
-      .slice(0, last)
-      .map((s) => `'${s}'`)
-      .join(', ')}, and '${strings[last]}'`;
+  switch (strings.length) {
+    case 0: {
+      return '';
+    }
+    case 1: {
+      return `'${strings[0]}'`;
+    }
+    case 2: {
+      return `'${strings[0]}' and '${strings[1]}'`;
+    }
+    default: {
+      const last = strings.length - 1;
+      return `${strings
+        .slice(0, last)
+        .map((s) => `'${s}'`)
+        .join(', ')}, and '${strings[last]}'`;
+    }
   }
 };
 
@@ -65,9 +71,10 @@ export function trace(node: T.Node, context: CompatContext): T.Node {
     switch (def?.type) {
       case 'FunctionName':
       case 'ClassName':
-      case 'ImportBinding':
+      case 'ImportBinding': {
         return def.node;
-      case 'Variable':
+      }
+      case 'Variable': {
         if (
           ((def.node.parent as T.VariableDeclaration).kind === 'const' ||
             variable.references.every((ref) => ref.init || ref.isReadOnly())) &&
@@ -76,6 +83,7 @@ export function trace(node: T.Node, context: CompatContext): T.Node {
         ) {
           return trace(def.node.init, context);
         }
+      }
     }
   }
   return node;
@@ -100,21 +108,21 @@ export type FunctionNode =
   | T.FunctionExpression
   | T.ArrowFunctionExpression
   | T.FunctionDeclaration;
-const FUNCTION_TYPES = [
+const FUNCTION_TYPES = new Set([
   'FunctionExpression',
   'ArrowFunctionExpression',
   'FunctionDeclaration',
-];
+]);
 export const isFunctionNode = (
   node: T.Node | null | undefined,
-): node is FunctionNode => !!node && FUNCTION_TYPES.includes(node.type);
+): node is FunctionNode => !!node && FUNCTION_TYPES.has(node.type);
 
 export type ProgramOrFunctionNode = FunctionNode | T.Program;
-const PROGRAM_OR_FUNCTION_TYPES = ['Program'].concat(FUNCTION_TYPES);
+const PROGRAM_OR_FUNCTION_TYPES = new Set(['Program', ...FUNCTION_TYPES]);
 export const isProgramOrFunctionNode = (
   node: T.Node | null | undefined,
 ): node is ProgramOrFunctionNode =>
-  !!node && PROGRAM_OR_FUNCTION_TYPES.includes(node.type);
+  !!node && PROGRAM_OR_FUNCTION_TYPES.has(node.type);
 
 export const isJSXElementOrFragment = (
   node: T.Node | null | undefined,
@@ -174,13 +182,15 @@ export const trackImports = (fromModule = /^solid-js(?:\/?|\b)/) => {
   const handleImportDeclaration = (node: T.ImportDeclaration) => {
     if (fromModule.test(node.source.value)) {
       for (const specifier of node.specifiers) {
-        if (specifier.type === 'ImportSpecifier') {
-          const importedName =
-            specifier.imported.type === 'Identifier'
-              ? specifier.imported.name
-              : specifier.imported.value;
-          importMap.set(importedName, specifier.local.name);
+        if (specifier.type !== 'ImportSpecifier') {
+          continue;
         }
+
+        const importedName =
+          specifier.imported.type === 'Identifier'
+            ? specifier.imported.name
+            : specifier.imported.value;
+        importMap.set(importedName, specifier.local.name);
       }
     }
   };
@@ -201,7 +211,7 @@ export function appendImports(
   identifiers: Array<string>,
 ): TSESLint.RuleFix | null {
   const identifiersString = identifiers.join(', ');
-  const reversedSpecifiers = importNode.specifiers.slice().reverse();
+  const reversedSpecifiers = importNode.specifiers.toReversed();
   const lastSpecifier = reversedSpecifiers.find(
     (s) => s.type === 'ImportSpecifier',
   );
@@ -226,12 +236,11 @@ export function appendImports(
     if (maybeBrace?.value === '{') {
       // import {} from 'source' => import { B, C, D } from 'source'
       return fixer.insertTextAfter(maybeBrace, ` ${identifiersString} `);
-    } else {
-      // import 'source' => import { B, C, D } from 'source'
-      return importToken
-        ? fixer.insertTextAfter(importToken, ` { ${identifiersString} } from`)
-        : null;
     }
+    // import 'source' => import { B, C, D } from 'source'
+    return importToken
+      ? fixer.insertTextAfter(importToken, ` { ${identifiersString} } from`)
+      : null;
   }
   return null;
 }

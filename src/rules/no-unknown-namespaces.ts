@@ -1,11 +1,12 @@
-import { ESLintUtils, TSESTree as T } from '@typescript-eslint/utils';
+import { ESLintUtils } from '@typescript-eslint/utils';
+import type { TSESTree as T } from '@typescript-eslint/utils';
 import { isDOMElementName } from '../utils.js';
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 
 const knownNamespaces = ['on', 'oncapture', 'use', 'prop', 'attr', 'bool'];
-const styleNamespaces = ['style', 'class'];
-const otherNamespaces = ['xmlns', 'xlink'];
+const styleNamespaces = new Set(['style', 'class']);
+const otherNamespaces = new Set(['xmlns', 'xlink']);
 
 type MessageIds = 'unknown' | 'style' | 'component' | 'component-suggest';
 type Options = [{ allowedNamespaces?: Array<string> }?];
@@ -78,11 +79,11 @@ export default createRule<Options, MessageIds>({
         if (
           !(
             knownNamespaces.includes(namespace) ||
-            otherNamespaces.includes(namespace) ||
+            otherNamespaces.has(namespace) ||
             explicitlyAllowedNamespaces?.includes(namespace)
           )
         ) {
-          if (styleNamespaces.includes(namespace)) {
+          if (styleNamespaces.has(namespace)) {
             context.report({
               node,
               messageId: 'style',

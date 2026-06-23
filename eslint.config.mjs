@@ -1,6 +1,8 @@
 import js from '@eslint/js';
 import prettier from 'eslint-config-prettier';
-import pluginEslintPlugin from 'eslint-plugin-eslint-plugin';
+import eslintPlugin from 'eslint-plugin-eslint-plugin';
+import { importX } from 'eslint-plugin-import-x';
+import unicorn from 'eslint-plugin-unicorn';
 import globals from 'globals';
 import path from 'node:path';
 import tseslint from 'typescript-eslint';
@@ -17,6 +19,7 @@ export default [
       'cases/',
       'tsup.config.ts',
       'vitest.*.js',
+      'rollup.config.mjs',
     ],
   },
   js.configs.recommended,
@@ -31,27 +34,77 @@ export default [
       },
       globals: globals.node,
     },
+    plugins: {
+      'import-x': importX,
+      unicorn,
+    },
     rules: {
+      ...unicorn.configs.recommended.rules,
+
+      'unicorn/prevent-abbreviations': 'off',
+      'unicorn/filename-case': 'off',
+      'unicorn/no-negated-condition': 'off',
+      'unicorn/no-array-reduce': 'off',
+      'unicorn/no-null': 'off',
+      'unicorn/no-useless-undefined': 'off',
+      'unicorn/no-lonely-if': 'off',
+      'unicorn/no-array-callback-reference': 'off',
+      'unicorn/prefer-type-error': 'off',
+      'unicorn/no-nested-ternary': 'off',
+      'unicorn/name-replacements': 'off',
+      'unicorn/consistent-boolean-name': 'off',
+
+      // TODO: re-enable in the future
+      'unicorn/no-useless-recursion': 'off',
+      'unicorn/consistent-class-member-order': 'off',
+
+      // FIXME: this rule breaks TypeScript's type narrowing
+      'unicorn/prefer-includes-over-repeated-comparisons': 'off',
+
+      'prefer-const': 'off',
+      'no-undef': 'off',
+      'no-unused-vars': 'off',
+      '@typescript-eslint/no-unused-vars': [
+        'warn',
+        {
+          args: 'none',
+          ignoreRestSiblings: true,
+        },
+      ],
+      '@typescript-eslint/no-unused-expressions': [
+        'error',
+        {
+          allowShortCircuit: true,
+          allowTernary: true,
+          allowTaggedTemplates: true,
+        },
+      ],
+      'no-shadow': 'off',
+      'no-extra-boolean-cast': 'off',
+      '@typescript-eslint/no-empty-object-type': 'off',
       '@typescript-eslint/no-explicit-any': 'off',
-      '@typescript-eslint/no-non-null-assertion': 'off',
-      '@typescript-eslint/non-nullable-type-assertion-style': 'warn',
-      'no-extra-semi': 'off',
-      'no-mixed-spaces-and-tabs': 'off',
-      'no-new-native-nonconstructor': 1,
-      'no-new-symbol': 'off',
-      'object-shorthand': 'warn',
+      '@typescript-eslint/ban-ts-comment': 'off',
+      'import-x/consistent-type-specifier-style': ['error', 'prefer-top-level'],
+      '@typescript-eslint/consistent-type-imports': [
+        'error',
+        {
+          prefer: 'type-imports',
+          fixStyle: 'separate-type-imports',
+        },
+      ],
     },
   },
   {
     files: ['src/rules/*.ts'],
+    ignores: ['**/*.test.ts'],
     languageOptions: {
       globals: globals.node,
     },
     plugins: {
-      'eslint-plugin': pluginEslintPlugin,
+      'eslint-plugin': eslintPlugin,
     },
     rules: {
-      ...pluginEslintPlugin.configs.recommended.rules,
+      ...eslintPlugin.configs.recommended.rules,
       'eslint-plugin/meta-property-ordering': 'error',
       'eslint-plugin/report-message-format': ['error', "^[A-Z\\{'].*\\.$"],
       'eslint-plugin/test-case-property-ordering': 'error',
@@ -66,6 +119,12 @@ export default [
             'https://github.com/solidjs-community/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/{{name}}.md',
         },
       ],
+    },
+  },
+  {
+    files: ['src/**/*.test.ts'],
+    rules: {
+      'unicorn/no-incorrect-template-string-interpolation': 'off',
     },
   },
   {

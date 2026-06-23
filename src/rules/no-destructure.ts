@@ -1,9 +1,5 @@
-import {
-  ASTUtils,
-  ESLintUtils,
-  TSESTree as T,
-  TSESLint,
-} from '@typescript-eslint/utils';
+import type { TSESTree as T, TSESLint } from '@typescript-eslint/utils';
+import { ASTUtils, ESLintUtils } from '@typescript-eslint/utils';
 import { getSourceCode } from '../compat.js';
 import type { FunctionNode } from '../utils.js';
 
@@ -12,14 +8,18 @@ const { getStringIfConstant } = ASTUtils;
 
 const getName = (node: T.Node): string | null => {
   switch (node.type) {
-    case 'Literal':
+    case 'Literal': {
       return typeof node.value === 'string' ? node.value : null;
-    case 'Identifier':
+    }
+    case 'Identifier': {
       return node.name;
-    case 'AssignmentPattern':
+    }
+    case 'AssignmentPattern': {
       return getName(node.left);
-    default:
+    }
+    default: {
       return getStringIfConstant(node);
+    }
   }
 };
 
@@ -33,17 +33,17 @@ interface PropertyInfo {
 // Given ({ 'hello-world': helloWorld = 5 }), returns { real: Literal('hello-world'), var: 'helloWorld', computed: false, init: Literal(5) }
 const getPropertyInfo = (prop: T.Property): PropertyInfo | null => {
   const valueName = getName(prop.value);
-  if (valueName !== null) {
-    return {
-      real: prop.key,
-      var: valueName,
-      computed: prop.computed,
-      init:
-        prop.value.type === 'AssignmentPattern' ? prop.value.right : undefined,
-    };
-  } else {
-    return null;
-  }
+  return valueName !== null
+    ? {
+        real: prop.key,
+        var: valueName,
+        computed: prop.computed,
+        init:
+          prop.value.type === 'AssignmentPattern'
+            ? prop.value.right
+            : undefined,
+      }
+    : null;
 };
 
 export default createRule({
@@ -68,7 +68,13 @@ export default createRule({
       /** switched to true by :exit if JSX is detected in the current function */
       hasJSX: boolean;
     }> = [];
-    const currentFunction = () => functionStack[functionStack.length - 1];
+    const currentFunction = () => {
+      const fn = functionStack.at(-1);
+      if (!fn) {
+        throw new Error('functionStack is empty');
+      }
+      return fn;
+    };
     const onFunctionEnter = () => {
       functionStack.push({ hasJSX: false });
     };
@@ -196,22 +202,25 @@ export default createRule({
       const scope = sourceCode.scopeManager?.acquire(func);
       if (scope) {
         // iterate through destructured variables, associated with real node
-        for (const [info, variable] of propertyInfo.map(
-          (info) => [info, scope.set.get(info.var)] as const,
-        )) {
+        for (const info of propertyInfo) {
+          const variable = scope.set.get(info.var);
           if (variable) {
             // replace all usages of the variable with props accesses
             for (const reference of variable.references) {
-              if (reference.isReadOnly()) {
-                const access =
-                  info.real.type === 'Identifier' && !info.computed
-                    ? `.${info.real.name}`
-                    : `[${sourceCode.getText(info.real)}]`;
-                yield fixer.replaceText(
-                  reference.identifier,
-                  `${propsName}${access}`,
-                );
+              if (!reference.isReadOnly()) {
+                // FIXME Conflict with unicorn/prefer-continue
+                // eslint-disable-next-line unicorn/no-break-in-nested-loop
+                continue;
               }
+
+              const access =
+                info.real.type === 'Identifier' && !info.computed
+                  ? `.${info.real.name}`
+                  : `[${sourceCode.getText(info.real)}]`;
+              yield fixer.replaceText(
+                reference.identifier,
+                `${propsName}${access}`,
+              );
             }
           }
         }
@@ -226,12 +235,12 @@ export default createRule({
       'FunctionExpression:exit': onFunctionExit,
       'ArrowFunctionExpression:exit': onFunctionExit,
       'JSXElement'() {
-        if (functionStack.length) {
+        if (functionStack.length > 0) {
           currentFunction().hasJSX = true;
         }
       },
       'JSXFragment'() {
-        if (functionStack.length) {
+        if (functionStack.length > 0) {
           currentFunction().hasJSX = true;
         }
       },

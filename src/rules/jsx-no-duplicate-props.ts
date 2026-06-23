@@ -1,4 +1,5 @@
-import { ESLintUtils, TSESTree as T } from '@typescript-eslint/utils';
+import { ESLintUtils } from '@typescript-eslint/utils';
+import type { TSESTree as T } from '@typescript-eslint/utils';
 import { jsxGetAllProps } from '../utils.js';
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;

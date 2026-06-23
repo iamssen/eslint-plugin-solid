@@ -4,19 +4,16 @@ import type {
   ValidTestCase,
 } from '@typescript-eslint/rule-tester';
 import type { ESLintUtils } from '@typescript-eslint/utils';
-import { RuleTester } from 'eslint';
-import { RuleTester as RuleTester_v10 } from 'eslint-v10';
+import { RuleTester as RuleTester_v10 } from 'eslint';
 import { RuleTester as RuleTester_v8 } from 'eslint-v8';
+import { RuleTester as RuleTester_v9 } from 'eslint-v9';
 import { createRequire } from 'node:module';
 import tseslint from 'typescript-eslint';
-import { describe } from 'vitest';
 
 const requireModule = createRequire(import.meta.url);
 
-// (Removed tsOnly symbol)
-
 // The default parser
-const v9Tester = new RuleTester({
+const v10Tester = new RuleTester_v10({
   languageOptions: {
     ecmaVersion: 2018,
     sourceType: 'module',
@@ -29,7 +26,7 @@ const v9Tester = new RuleTester({
 });
 
 // TypeScript's ESLint parser
-const tsTester = new RuleTester({
+const tsTester = new RuleTester_v10({
   languageOptions: {
     parser: tseslint.parser,
     parserOptions: {
@@ -50,7 +47,7 @@ const tsV8Tester = new RuleTester_v8({
 });
 
 // Babel's ESLint parser
-const babelTester = new RuleTester({
+const babelTester = new RuleTester_v10({
   languageOptions: {
     parser: babelEslintParser,
     parserOptions: {
@@ -87,7 +84,7 @@ const v8Tester = new RuleTester_v8({
   },
 });
 
-const v10Tester = new RuleTester_v10({
+const v9Tester = new RuleTester_v9({
   languageOptions: {
     ecmaVersion: 2018,
     sourceType: 'module',
@@ -106,11 +103,11 @@ type RuleTesterWithFramework = {
 
 const executeSync = (_text: string, callback: () => void) => callback();
 
-[RuleTester, RuleTester_v8, RuleTester_v10].forEach((Tester) => {
+for (const Tester of [RuleTester_v10, RuleTester_v9, RuleTester_v8]) {
   const T = Tester as unknown as RuleTesterWithFramework;
   T.describe = executeSync;
   T.it = executeSync;
-});
+}
 
 type AnyRuleTester = {
   run(name: string, rule: any, tests: any): void;
@@ -166,28 +163,6 @@ const parsers: Array<{
   },
 ];
 
-interface Tests {
-  valid?: Array<ValidTestCase<unknown[]> | string>;
-  invalid?: Array<InvalidTestCase<string, unknown[]>>;
-}
-
-export const run = (
-  name: string,
-  rule: ESLintUtils.RuleModule<string, readonly unknown[]>,
-  tests: Tests,
-) => {
-  const parserEnv = process.env.PARSER ?? 'ts';
-  const all = parserEnv === 'all';
-
-  for (const { id, name: parserName, tester } of parsers) {
-    if (all || parserEnv === id) {
-      describe(parserName, () => tester.run(name, rule, tests));
-    }
-  }
-
-  return tests;
-};
-
 function runWithParsers(
   name: string,
   rule: ESLintUtils.RuleModule<string, readonly unknown[]>,
@@ -198,17 +173,19 @@ function runWithParsers(
   const all = parserEnv === 'all';
 
   for (const { id, name: parserName, tester, isTsOnlyAllowed } of parsers) {
-    if (all || parserEnv === id) {
-      if (isTsOnly && !isTsOnlyAllowed) continue;
+    if (!(all || parserEnv === id)) {
+      continue;
+    }
 
-      try {
-        tester.run(name, rule, tests);
-      } catch (e: unknown) {
-        if (e instanceof Error) {
-          e.message = `[${parserName}] ${e.message}`;
-        }
-        throw e;
+    if (isTsOnly && !isTsOnlyAllowed) continue;
+
+    try {
+      tester.run(name, rule, tests);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        error.message = `[${parserName}] ${error.message}`;
       }
+      throw error;
     }
   }
 }

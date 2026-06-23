@@ -1,4 +1,5 @@
-import { ASTUtils, ESLintUtils, TSESTree as T } from '@typescript-eslint/utils';
+import type { TSESTree as T } from '@typescript-eslint/utils';
+import { ASTUtils, ESLintUtils } from '@typescript-eslint/utils';
 import { getScope, getSourceCode } from '../compat.js';
 import { isDOMElementName } from '../utils.js';
 
@@ -90,9 +91,7 @@ const getCommonEventHandlerName = (
 const isNonstandardEventName = (
   lowercaseEventName: string,
 ): lowercaseEventName is keyof typeof NONSTANDARD_EVENTS_MAP =>
-  Boolean(
-    (NONSTANDARD_EVENTS_MAP as Record<string, string>)[lowercaseEventName],
-  );
+  Object.hasOwn(NONSTANDARD_EVENTS_MAP, lowercaseEventName);
 const getStandardEventHandlerName = (
   lowercaseEventName: keyof typeof NONSTANDARD_EVENTS_MAP,
 ) => NONSTANDARD_EVENTS_MAP[lowercaseEventName];
@@ -240,11 +239,13 @@ export default createRule<Options, MessageIds>({
                 fix: (fixer) => fixer.replaceText(node.name, fixedName),
               });
             }
-          } else if (name[2] === name[2].toLowerCase()) {
+          } else if (name.at(2) === name.at(2)?.toLowerCase()) {
             // this includes words like `only` and `ongoing` as well as unknown handlers like `onfoobar`.
             // Enforce using either /^on[A-Z]/ (event handler) or /^attr:on[a-z]/ (forced regular attribute)
             // to make user intent clear and code maximally readable
-            const handlerName = `on${name[2].toUpperCase()}${name.slice(3)}`;
+            const handlerName = `on${name.at(2)?.toUpperCase()}${name.slice(
+              3,
+            )}`;
             const attrName = `attr:${name}`;
             context.report({
               node: node.name,
@@ -268,43 +269,50 @@ export default createRule<Options, MessageIds>({
       },
       Property(node: T.Property) {
         if (
-          context.options[0]?.warnOnSpread &&
-          node.parent?.type === 'ObjectExpression' &&
-          node.parent.parent?.type === 'JSXSpreadAttribute' &&
-          node.parent.parent.parent?.type === 'JSXOpeningElement'
+          !(
+            context.options[0]?.warnOnSpread &&
+            node.parent?.type === 'ObjectExpression' &&
+            node.parent.parent?.type === 'JSXSpreadAttribute' &&
+            node.parent.parent.parent?.type === 'JSXOpeningElement'
+          )
         ) {
-          const openingElement = node.parent.parent.parent;
+          return;
+        }
+
+        const openingElement = node.parent.parent.parent;
+        if (
+          openingElement.name.type === 'JSXIdentifier' &&
+          isDOMElementName(openingElement.name.name)
+        ) {
           if (
-            openingElement.name.type === 'JSXIdentifier' &&
-            isDOMElementName(openingElement.name.name)
+            node.key.type === 'Identifier' &&
+            node.key.name.startsWith('on')
           ) {
-            if (node.key.type === 'Identifier' && /^on/.test(node.key.name)) {
-              const handlerName = node.key.name;
-              // An event handler is being spread in (ex. <button {...{ onClick }} />), which doesn't
-              // actually add an event listener, just a plain attribute.
-              context.report({
-                node,
-                messageId: 'spread-handler',
-                data: {
-                  name: node.key.name,
-                },
-                *fix(fixer) {
-                  const commaAfter = sourceCode.getTokenAfter(node);
-                  yield fixer.remove(
-                    (node.parent as T.ObjectExpression).properties.length === 1
-                      ? node.parent!.parent!
-                      : node,
-                  );
-                  if (commaAfter?.value === ',') {
-                    yield fixer.remove(commaAfter);
-                  }
-                  yield fixer.insertTextAfter(
-                    node.parent!.parent!,
-                    ` ${handlerName}={${sourceCode.getText(node.value)}}`,
-                  );
-                },
-              });
-            }
+            const handlerName = node.key.name;
+            // An event handler is being spread in (ex. <button {...{ onClick }} />), which doesn't
+            // actually add an event listener, just a plain attribute.
+            context.report({
+              node,
+              messageId: 'spread-handler',
+              data: {
+                name: node.key.name,
+              },
+              *fix(fixer) {
+                const commaAfter = sourceCode.getTokenAfter(node);
+                yield fixer.remove(
+                  (node.parent as T.ObjectExpression).properties.length === 1
+                    ? node.parent!.parent!
+                    : node,
+                );
+                if (commaAfter?.value === ',') {
+                  yield fixer.remove(commaAfter);
+                }
+                yield fixer.insertTextAfter(
+                  node.parent!.parent!,
+                  ` ${handlerName}={${sourceCode.getText(node.value)}}`,
+                );
+              },
+            });
           }
         }
       },

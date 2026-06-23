@@ -1,4 +1,5 @@
-import { ASTUtils, ESLintUtils, TSESTree as T } from '@typescript-eslint/utils';
+import { ASTUtils, ESLintUtils } from '@typescript-eslint/utils';
+import type { TSESTree as T } from '@typescript-eslint/utils';
 import kebabCase from 'kebab-case';
 import { all as allCssProperties } from 'known-css-properties';
 import parse from 'style-to-object';
@@ -70,7 +71,7 @@ export default createRule<Options, MessageIds>({
 
     return {
       JSXAttribute(node) {
-        if (styleProps.indexOf(jsxPropName(node)) === -1) {
+        if (!styleProps.includes(jsxPropName(node))) {
           return;
         }
         const style =
@@ -80,7 +81,8 @@ export default createRule<Options, MessageIds>({
 
         if (!style) {
           return;
-        } else if (
+        }
+        if (
           style.type === 'Literal' &&
           typeof style.value === 'string' &&
           !allowString
@@ -114,7 +116,7 @@ export default createRule<Options, MessageIds>({
           const properties = style.properties.filter(
             (prop) => prop.type === 'Property',
           ) as Array<T.Property>;
-          properties.forEach((prop) => {
+          for (const prop of properties) {
             const name: string | null = getPropertyName(
               prop,
               getScope(context, prop),
@@ -154,7 +156,7 @@ export default createRule<Options, MessageIds>({
                 });
               }
             }
-          });
+          }
         }
       },
     };

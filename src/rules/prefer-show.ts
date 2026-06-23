@@ -1,10 +1,11 @@
-import { ESLintUtils, TSESTree as T } from '@typescript-eslint/utils';
+import { ESLintUtils } from '@typescript-eslint/utils';
+import type { TSESTree as T } from '@typescript-eslint/utils';
 import { getSourceCode } from '../compat.js';
 import { isJSXElementOrFragment } from '../utils.js';
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 
-const EXPENSIVE_TYPES = ['JSXElement', 'JSXFragment', 'Identifier'];
+const EXPENSIVE_TYPES = new Set(['JSXElement', 'JSXFragment', 'Identifier']);
 
 export default createRule({
   meta: {
@@ -32,7 +33,7 @@ export default createRule({
     };
 
     const logicalExpressionHandler = (node: T.LogicalExpression) => {
-      if (node.operator === '&&' && EXPENSIVE_TYPES.includes(node.right.type)) {
+      if (node.operator === '&&' && EXPENSIVE_TYPES.has(node.right.type)) {
         context.report({
           node,
           messageId: 'preferShowAnd',
@@ -51,8 +52,8 @@ export default createRule({
     };
     const conditionalExpressionHandler = (node: T.ConditionalExpression) => {
       if (
-        EXPENSIVE_TYPES.includes(node.consequent.type) ||
-        EXPENSIVE_TYPES.includes(node.alternate.type)
+        EXPENSIVE_TYPES.has(node.consequent.type) ||
+        EXPENSIVE_TYPES.has(node.alternate.type)
       ) {
         context.report({
           node,

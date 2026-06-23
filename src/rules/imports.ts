@@ -1,4 +1,5 @@
-import { ESLintUtils, TSESTree as T, TSESLint } from '@typescript-eslint/utils';
+import { ESLintUtils } from '@typescript-eslint/utils';
+import type { TSESTree as T, TSESLint } from '@typescript-eslint/utils';
 import { getSourceCode } from '../compat.js';
 import { appendImports, insertImports, removeSpecifier } from '../utils.js';
 
@@ -146,60 +147,62 @@ export default createRule({
         if (!isSource(source)) return;
 
         for (const specifier of node.specifiers) {
-          if (specifier.type === 'ImportSpecifier') {
-            const isType =
-              specifier.importKind === 'type' || node.importKind === 'type';
-            const map = isType ? typeMap : primitiveMap;
-            const importedName =
-              specifier.imported.type === 'Identifier'
-                ? specifier.imported.name
-                : specifier.imported.value;
-            const correctSource = map.get(importedName);
-            if (correctSource != null && correctSource !== source) {
-              context.report({
-                node: specifier,
-                messageId: 'prefer-source',
-                data: {
-                  name: importedName,
-                  source: correctSource,
-                },
-                fix(fixer) {
-                  const sourceCode = getSourceCode(context);
-                  const program: T.Program = sourceCode.ast;
-                  const correctDeclaration = program.body.find(
-                    (node) =>
-                      node.type === 'ImportDeclaration' &&
-                      node.source.value === correctSource,
-                  ) as T.ImportDeclaration | undefined;
+          if (specifier.type !== 'ImportSpecifier') {
+            continue;
+          }
 
-                  if (correctDeclaration) {
-                    return [
-                      removeSpecifier(fixer, sourceCode, specifier),
-                      appendImports(fixer, sourceCode, correctDeclaration, [
-                        sourceCode.getText(specifier),
-                      ]),
-                    ].filter(Boolean) as Array<TSESLint.RuleFix>;
-                  }
+          const isType =
+            specifier.importKind === 'type' || node.importKind === 'type';
+          const map = isType ? typeMap : primitiveMap;
+          const importedName =
+            specifier.imported.type === 'Identifier'
+              ? specifier.imported.name
+              : specifier.imported.value;
+          const correctSource = map.get(importedName);
+          if (correctSource != null && correctSource !== source) {
+            context.report({
+              node: specifier,
+              messageId: 'prefer-source',
+              data: {
+                name: importedName,
+                source: correctSource,
+              },
+              fix(fixer) {
+                const sourceCode = getSourceCode(context);
+                const program: T.Program = sourceCode.ast;
+                const correctDeclaration = program.body.find(
+                  (node) =>
+                    node.type === 'ImportDeclaration' &&
+                    node.source.value === correctSource,
+                ) as T.ImportDeclaration | undefined;
 
-                  const firstSolidDeclaration = program.body.find(
-                    (node) =>
-                      node.type === 'ImportDeclaration' &&
-                      isSource(node.source.value),
-                  ) as T.ImportDeclaration | undefined;
+                if (correctDeclaration) {
                   return [
                     removeSpecifier(fixer, sourceCode, specifier),
-                    insertImports(
-                      fixer,
-                      sourceCode,
-                      correctSource,
-                      [sourceCode.getText(specifier)],
-                      firstSolidDeclaration,
-                      isType,
-                    ),
-                  ];
-                },
-              });
-            }
+                    appendImports(fixer, sourceCode, correctDeclaration, [
+                      sourceCode.getText(specifier),
+                    ]),
+                  ].filter(Boolean) as Array<TSESLint.RuleFix>;
+                }
+
+                const firstSolidDeclaration = program.body.find(
+                  (node) =>
+                    node.type === 'ImportDeclaration' &&
+                    isSource(node.source.value),
+                ) as T.ImportDeclaration | undefined;
+                return [
+                  removeSpecifier(fixer, sourceCode, specifier),
+                  insertImports(
+                    fixer,
+                    sourceCode,
+                    correctSource,
+                    [sourceCode.getText(specifier)],
+                    firstSolidDeclaration,
+                    isType,
+                  ),
+                ];
+              },
+            });
           }
         }
       },

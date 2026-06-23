@@ -1,4 +1,5 @@
-import { ESLintUtils, TSESTree as T } from '@typescript-eslint/utils';
+import { ESLintUtils } from '@typescript-eslint/utils';
+import type { TSESTree as T } from '@typescript-eslint/utils';
 import { markVariableAsUsed } from '../compat.js';
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
@@ -27,12 +28,17 @@ export default createRule({
       'JSXOpeningElement'(node) {
         let parent: T.JSXTagNameExpression;
         switch (node.name.type) {
-          case 'JSXNamespacedName': // <Foo:Bar>
+          case 'JSXNamespacedName': {
+            // <Foo:Bar>
             return;
-          case 'JSXIdentifier': // <Foo>
+          }
+          case 'JSXIdentifier': {
+            // <Foo>
             markVariableAsUsed(context, node.name.name, node.name);
             break;
-          case 'JSXMemberExpression': // <Foo...Bar>
+          }
+          case 'JSXMemberExpression': {
+            // <Foo...Bar>
             parent = node.name.object;
             while (parent?.type === 'JSXMemberExpression') {
               parent = parent.object;
@@ -41,6 +47,7 @@ export default createRule({
               markVariableAsUsed(context, parent.name, parent);
             }
             break;
+          }
         }
       },
       'JSXAttribute > JSXNamespacedName': (node: T.JSXNamespacedName) => {
