@@ -1,6 +1,6 @@
-import rule from './imports.js';
-import { testValid, testInvalid } from './ruleTester.js';
 import { describe, test } from 'vitest';
+import rule from './imports.js';
+import { testInvalid, testValid } from './ruleTester.js';
 
 const valid = testValid('imports', rule);
 const invalid = testInvalid('imports', rule);
@@ -20,20 +20,22 @@ describe('imports', () => {
       valid(`import { createStore, produce } from "solid-js/store";`);
     });
     test('valid case 5', () => {
-      valid(
-        `import { createSignal } from "solid-js";
-    import { render } from "solid-js/web";
-    import { something } from "somewhere/else";
-    import { createStore } from "solid-js/store";`,
-      );
+      valid(`
+        import { createSignal } from "solid-js";
+        import { render } from "solid-js/web";
+        import { something } from "somewhere/else";
+        import { createStore } from "solid-js/store";
+      `);
     });
     test('valid case 6', () => {
       valid(`import * as Solid from "solid-js"; Solid.render();`);
     });
     test('valid case 7', () => {
       valid(
-        `import type { Component, JSX } from "solid-js";
-import type { Store } from "solid-js/store";`,
+        `
+        import type { Component, JSX } from "solid-js";
+        import type { Store } from "solid-js/store";
+      `,
         true,
       );
     });
@@ -54,8 +56,10 @@ import type { Store } from "solid-js/store";`,
     });
     test('invalid case 2', () => {
       invalid({
-        code: `import { createEffect } from "solid-js/web";
-import { createSignal } from "solid-js";`,
+        code: `
+          import { createEffect } from "solid-js/web";
+          import { createSignal } from "solid-js";
+        `,
         errors: [
           {
             messageId: 'prefer-source',
@@ -63,15 +67,18 @@ import { createSignal } from "solid-js";`,
           },
         ],
         output: `
-import { createSignal, createEffect } from "solid-js";`,
+          import { createSignal, createEffect } from "solid-js";
+        `,
       });
     });
     test('invalid case 3', () => {
       invalid(
         {
-          code: `import type { Component } from "solid-js/store";
-import { createSignal } from "solid-js";
-console.log('hi');`,
+          code: `
+            import type { Component } from "solid-js/store";
+            import { createSignal } from "solid-js";
+            console.log('hi');
+          `,
           errors: [
             {
               messageId: 'prefer-source',
@@ -79,16 +86,19 @@ console.log('hi');`,
             },
           ],
           output: `
-import { createSignal, Component } from "solid-js";
-console.log('hi');`,
+            import { createSignal, Component } from "solid-js";
+            console.log('hi');
+          `,
         },
         true,
       );
     });
     test('invalid case 4', () => {
       invalid({
-        code: `import { createSignal } from "solid-js/web";
-import "solid-js";`,
+        code: `
+          import { createSignal } from "solid-js/web";
+          import "solid-js";
+        `,
         errors: [
           {
             messageId: 'prefer-source',
@@ -96,13 +106,16 @@ import "solid-js";`,
           },
         ],
         output: `
-import { createSignal } from "solid-js";`,
+          import { createSignal } from "solid-js";
+        `,
       });
     });
     test('invalid case 5', () => {
       invalid({
-        code: `import { createSignal } from "solid-js/web";
-import {} from "solid-js";`,
+        code: `
+          import { createSignal } from "solid-js/web";
+          import {} from "solid-js";
+        `,
         errors: [
           {
             messageId: 'prefer-source',
@@ -110,14 +123,17 @@ import {} from "solid-js";`,
           },
         ],
         output: `
-import { createSignal } from "solid-js";`,
+          import { createSignal } from "solid-js";
+        `,
       });
     });
     describe(`Two-part fix, output here is first pass...`, () => {
       test('invalid case 6', () => {
         invalid({
-          code: `import { createEffect } from "solid-js/web";
-import { render } from "solid-js";`,
+          code: `
+            import { createEffect } from "solid-js/web";
+            import { render } from "solid-js";
+          `,
           errors: [
             {
               messageId: 'prefer-source',
@@ -129,15 +145,15 @@ import { render } from "solid-js";`,
             },
           ],
           output: `
-import { render, createEffect } from "solid-js";`,
+            import { render, createEffect } from "solid-js";
+          `,
         });
       });
     });
     describe(`...and output here is second pass`, () => {
       test('invalid case 7', () => {
         invalid({
-          code: `
-import { render, createEffect } from "solid-js";`,
+          code: `import { render, createEffect } from "solid-js";`,
           errors: [
             {
               messageId: 'prefer-source',
@@ -145,8 +161,9 @@ import { render, createEffect } from "solid-js";`,
             },
           ],
           output: `
-import { render } from "solid-js/web";
-import {  createEffect } from "solid-js";`,
+            import { render } from "solid-js/web";
+            import { createEffect } from "solid-js";
+          `,
         });
       });
     });

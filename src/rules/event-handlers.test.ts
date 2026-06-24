@@ -1,6 +1,6 @@
-import rule from './event-handlers.js';
-import { testValid, testInvalid } from './ruleTester.js';
 import { describe, test } from 'vitest';
+import rule from './event-handlers.js';
+import { testInvalid, testValid } from './ruleTester.js';
 
 const valid = testValid('event-handlers', rule);
 const invalid = testInvalid('event-handlers', rule);
@@ -8,30 +8,30 @@ const invalid = testInvalid('event-handlers', rule);
 describe('event-handlers', () => {
   describe('valid', () => {
     test('valid case 1', () => {
-      valid(
-        `const onfoo = () => 42;
-    let el = <div onClick={onfoo} />;`,
-      );
+      valid(`
+        const onfoo = () => 42;
+        let el = <div onClick={onfoo} />;
+      `);
     });
     test('valid case 2', () => {
-      valid(
-        `const string = 'string' + some_func();
-    let el = <div onLy={string} />`,
-      );
+      valid(`
+        const string = 'string' + some_func();
+        let el = <div onLy={string} />
+      `);
     });
     test('valid case 3', () => {
-      valid(
-        `function Component(props) {
-      return <div onClick={props.onClick} />;
-    }`,
-      );
+      valid(`
+        function Component(props) {
+          return <div onClick={props.onClick} />;
+        }
+      `);
     });
     test('valid case 4', () => {
-      valid(
-        `function Component(props) {
-      return <div onFoo={props.onFoo} />;
-    }`,
-      );
+      valid(`
+        function Component(props) {
+          return <div onFoo={props.onFoo} />;
+        }
+      `);
     });
     test('valid case 5', () => {
       valid(`let el = <div attr:only={() => {}} />;`);
@@ -49,10 +49,10 @@ describe('event-handlers', () => {
       valid(`let el = <div onDblClick={() => {}} />;`);
     });
     test('valid case 10', () => {
-      valid(
-        `const onClick = () => 42;
-    let el = <div {...{ onClick }} />;`,
-      );
+      valid(`
+        const onClick = () => 42;
+        let el = <div {...{ onClick }} />;
+      `);
     });
     test('valid case 11', () => {
       valid({
@@ -169,8 +169,9 @@ describe('event-handlers', () => {
     test('invalid case 10', () => {
       invalid({
         code: `
-      const string = 'string';
-      let el = <div onLy={string} />`,
+          const string = 'string';
+          let el = <div onLy={string} />
+        `,
         errors: [
           {
             messageId: 'detected-attr',
@@ -217,32 +218,44 @@ describe('event-handlers', () => {
     });
     test('invalid case 14', () => {
       invalid({
-        code: `const handleClick = () => 42;
-      let el = <div {...{ onClick: handleClick, foo }} />;`,
+        code: `
+          const handleClick = () => 42;
+          let el = <div {...{ onClick: handleClick, foo }} />;
+        `,
         options: [{ warnOnSpread: true }],
         errors: [{ messageId: 'spread-handler', data: { name: 'onClick' } }],
-        output: `const handleClick = () => 42;
-      let el = <div {...{  foo }} onClick={handleClick} />;`,
+        output: `
+          const handleClick = () => 42;
+          let el = <div {...{  foo }} onClick={handleClick} />;
+        `,
       });
     });
     test('invalid case 15', () => {
       invalid({
-        code: `const handleClick = () => 42;
-      let el = <div {...{ foo, onClick: handleClick, }} />;`,
+        code: `
+          const handleClick = () => 42;
+          let el = <div {...{ foo, onClick: handleClick, }} />;
+        `,
         options: [{ warnOnSpread: true }],
         errors: [{ messageId: 'spread-handler', data: { name: 'onClick' } }],
-        output: `const handleClick = () => 42;
-      let el = <div {...{ foo,  }} onClick={handleClick} />;`,
+        output: `
+          const handleClick = () => 42;
+          let el = <div {...{ foo,  }} onClick={handleClick} />;
+        `,
       });
     });
     test('invalid case 16', () => {
       invalid({
-        code: `const handleClick = () => 42;
-      let el = <div {...{ onClick: handleClick }} />;`,
+        code: `
+          const handleClick = () => 42;
+          let el = <div {...{ onClick: handleClick }} />;
+        `,
         options: [{ warnOnSpread: true }],
         errors: [{ messageId: 'spread-handler', data: { name: 'onClick' } }],
-        output: `const handleClick = () => 42;
-      let el = <div  onClick={handleClick} />;`,
+        output: `
+          const handleClick = () => 42;
+          let el = <div  onClick={handleClick} />;
+        `,
       });
     });
   });

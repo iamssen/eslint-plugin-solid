@@ -1,4 +1,5 @@
 import * as babelEslintParser from '@babel/eslint-parser';
+import prettier from '@prettier/sync';
 import type {
   InvalidTestCase,
   ValidTestCase,
@@ -7,13 +8,60 @@ import type { ESLintUtils } from '@typescript-eslint/utils';
 import { RuleTester as RuleTester_v10 } from 'eslint';
 import { RuleTester as RuleTester_v8 } from 'eslint-v8';
 import { RuleTester as RuleTester_v9 } from 'eslint-v9';
+import assert from 'node:assert';
 import { createRequire } from 'node:module';
 import tseslint from 'typescript-eslint';
+
+function formatWithPrettier(code: unknown): unknown {
+  if (typeof code !== 'string') {
+    return code;
+  }
+
+  try {
+    return prettier.format(code, { parser: 'typescript' }).trim();
+  } catch {
+    return code;
+  }
+}
+
+function createPrettierRuleTester<T extends new (...args: any[]) => any>(
+  BaseRuleTester: T,
+) {
+  return class extends BaseRuleTester {
+    run(name: string, rule: any, tests: { valid: any[]; invalid: any[] }) {
+      const originalStrictEqual = assert.strictEqual;
+
+      // Format both the Fixer output (actual) and the user's expected output before comparison
+      assert.strictEqual = (
+        actual: unknown,
+        expected: unknown,
+        message?: string | Error,
+      ) => {
+        return originalStrictEqual(
+          formatWithPrettier(actual),
+          formatWithPrettier(expected),
+          message,
+        );
+      };
+
+      try {
+        super.run(name, rule, tests);
+      } finally {
+        // Restore original strictEqual
+        assert.strictEqual = originalStrictEqual;
+      }
+    }
+  };
+}
+
+const PrettierRuleTester_v8 = createPrettierRuleTester(RuleTester_v8);
+const PrettierRuleTester_v9 = createPrettierRuleTester(RuleTester_v9);
+const PrettierRuleTester_v10 = createPrettierRuleTester(RuleTester_v10);
 
 const requireModule = createRequire(import.meta.url);
 
 // The default parser
-const v10Tester = new RuleTester_v10({
+const v10Tester = new PrettierRuleTester_v10({
   languageOptions: {
     ecmaVersion: 2018,
     sourceType: 'module',
@@ -26,7 +74,7 @@ const v10Tester = new RuleTester_v10({
 });
 
 // TypeScript's ESLint parser
-const tsTester = new RuleTester_v10({
+const tsTester = new PrettierRuleTester_v10({
   languageOptions: {
     parser: tseslint.parser,
     parserOptions: {
@@ -37,7 +85,7 @@ const tsTester = new RuleTester_v10({
   },
 });
 
-const tsV8Tester = new RuleTester_v8({
+const tsV8Tester = new PrettierRuleTester_v8({
   parser: requireModule.resolve('@typescript-eslint/parser'),
   parserOptions: {
     ecmaFeatures: {
@@ -47,7 +95,7 @@ const tsV8Tester = new RuleTester_v8({
 });
 
 // Babel's ESLint parser
-const babelTester = new RuleTester_v10({
+const babelTester = new PrettierRuleTester_v10({
   languageOptions: {
     parser: babelEslintParser,
     parserOptions: {
@@ -61,7 +109,7 @@ const babelTester = new RuleTester_v10({
   },
 });
 
-const babelV8Tester = new RuleTester_v8({
+const babelV8Tester = new PrettierRuleTester_v8({
   parser: requireModule.resolve('@babel/eslint-parser'),
   parserOptions: {
     sourceType: 'module',
@@ -74,7 +122,7 @@ const babelV8Tester = new RuleTester_v8({
   },
 });
 
-const v8Tester = new RuleTester_v8({
+const v8Tester = new PrettierRuleTester_v8({
   parserOptions: {
     ecmaVersion: 2018,
     sourceType: 'module',
@@ -84,7 +132,7 @@ const v8Tester = new RuleTester_v8({
   },
 });
 
-const v9Tester = new RuleTester_v9({
+const v9Tester = new PrettierRuleTester_v9({
   languageOptions: {
     ecmaVersion: 2018,
     sourceType: 'module',

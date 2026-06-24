@@ -1,6 +1,6 @@
-import rule from './jsx-no-script-url.js';
-import { testValid, testInvalid } from './ruleTester.js';
 import { describe, test } from 'vitest';
+import rule from './jsx-no-script-url.js';
+import { testInvalid, testValid } from './ruleTester.js';
 
 const valid = testValid('jsx-no-script-url', rule);
 const invalid = testInvalid('jsx-no-script-url', rule);
@@ -17,10 +17,10 @@ describe('jsx-no-script-url', () => {
       valid(`let el = <Foo bar="https://example.com" />`);
     });
     test('valid case 4', () => {
-      valid(
-        `const link = "https://example.com";
-    let el = <a href={link} />`,
-      );
+      valid(`
+        const link = "https://example.com";
+        let el = <a href={link} />
+      `);
     });
   });
   describe('invalid', () => {
@@ -44,22 +44,28 @@ describe('jsx-no-script-url', () => {
     });
     test('invalid case 4', () => {
       invalid({
-        code: `const link = "javascript:alert('hacked!')";
-    let el = <a href={link} />`,
+        code: `
+          const link = "javascript:alert('hacked!')";
+          let el = <a href={link} />
+        `,
         errors: [{ messageId: 'noJSURL' }],
       });
     });
     test('invalid case 5', () => {
       invalid({
-        code: String.raw`const link = "\tj\na\tv\na\ts\nc\tr\ni\tpt:alert('hacked!')";
-    let el = <a href={link} />`,
+        code: String.raw`
+          const link = "\tj\na\tv\na\ts\nc\tr\ni\tpt:alert('hacked!')";
+          let el = <a href={link} />
+        `,
         errors: [{ messageId: 'noJSURL' }],
       });
     });
     test('invalid case 6', () => {
       invalid({
-        code: `const link = "javascrip" + "t:alert('hacked!')";
-    let el = <a href={link} />`,
+        code: `
+          const link = "javascrip" + "t:alert('hacked!')";
+          let el = <a href={link} />
+        `,
         errors: [{ messageId: 'noJSURL' }],
       });
     });

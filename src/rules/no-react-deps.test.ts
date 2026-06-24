@@ -1,6 +1,6 @@
-import rule from './no-react-deps.js';
-import { testValid, testInvalid } from './ruleTester.js';
 import { describe, test } from 'vitest';
+import rule from './no-react-deps.js';
+import { testInvalid, testValid } from './ruleTester.js';
 
 const valid = testValid('no-react-deps', rule);
 const invalid = testInvalid('no-react-deps', rule);
@@ -8,35 +8,35 @@ const invalid = testInvalid('no-react-deps', rule);
 describe('no-react-deps', () => {
   describe('valid', () => {
     test('valid case 1', () => {
-      valid(
-        `createEffect(() => {
-      console.log(signal());
-    });`,
-      );
+      valid(`
+        createEffect(() => {
+          console.log(signal());
+        });
+      `);
     });
     test('valid case 2', () => {
-      valid(
-        `createEffect((prev) => {
-      console.log(signal());
-      return prev + 1;
-    }, 0);`,
-      );
+      valid(`
+        createEffect((prev) => {
+          console.log(signal());
+          return prev + 1;
+        }, 0);
+      `);
     });
     test('valid case 3', () => {
-      valid(
-        `createEffect((prev) => {
-      console.log(signal());
-      return (prev || 0) + 1;
-    });`,
-      );
+      valid(`
+        createEffect((prev) => {
+          console.log(signal());
+          return (prev || 0) + 1;
+        });
+      `);
     });
     test('valid case 4', () => {
-      valid(
-        `createEffect((prev) => {
-      console.log(signal());
-      return prev ? prev + 1 : 1;
-    }, undefined);`,
-      );
+      valid(`
+        createEffect((prev) => {
+          console.log(signal());
+          return prev ? prev + 1 : 1;
+        }, undefined);
+      `);
     });
     test('valid case 5', () => {
       valid(`const value = createMemo(() => computeExpensiveValue(a(), b()));`);
@@ -45,41 +45,51 @@ describe('no-react-deps', () => {
       valid(`const sum = createMemo((prev) => input() + prev, 0);`);
     });
     test('valid case 7', () => {
-      valid(
-        `const args = [() => { console.log(signal()); }, [signal()]];
-    createEffect(...args);`,
-      );
+      valid(`
+        const args = [() => { console.log(signal()); }, [signal()]];
+        createEffect(...args);
+      `);
     });
   });
   describe('invalid', () => {
     test('invalid case 1', () => {
       invalid({
-        code: `createEffect(() => {
-        console.log(signal());
-      }, [signal()]);`,
+        code: `
+          createEffect(() => {
+              console.log(signal());
+          }, [signal()]);
+        `,
         errors: [{ messageId: 'noUselessDep', data: { name: 'createEffect' } }],
-        output: `createEffect(() => {
-        console.log(signal());
-      }, );`,
+        output: `
+          createEffect(() => {
+            console.log(signal());
+          }, );
+        `,
       });
     });
     test('invalid case 2', () => {
       invalid({
-        code: `createEffect(() => {
-        console.log(signal());
-      }, [signal]);`,
+        code: `
+          createEffect(() => {
+            console.log(signal());
+          }, [signal]);
+        `,
         errors: [{ messageId: 'noUselessDep', data: { name: 'createEffect' } }],
-        output: `createEffect(() => {
-        console.log(signal());
-      }, );`,
+        output: `
+          createEffect(() => {
+            console.log(signal());
+          }, );
+        `,
       });
     });
     test('invalid case 3', () => {
       invalid({
-        code: `const deps = [signal];
-      createEffect(() => {
-        console.log(signal());
-      }, deps);`,
+        code: `
+          const deps = [signal];
+          createEffect(() => {
+            console.log(signal());
+          }, deps);
+        `,
         errors: [{ messageId: 'noUselessDep', data: { name: 'createEffect' } }],
         // no `output`
       });
@@ -107,17 +117,21 @@ describe('no-react-deps', () => {
     });
     test('invalid case 7', () => {
       invalid({
-        code: `const deps = [a, b];
-      const value = createMemo(() => computeExpensiveValue(a(), b()), deps);`,
+        code: `
+          const deps = [a, b];
+          const value = createMemo(() => computeExpensiveValue(a(), b()), deps);
+        `,
         errors: [{ messageId: 'noUselessDep', data: { name: 'createMemo' } }],
         // no `output`
       });
     });
     test('invalid case 8', () => {
       invalid({
-        code: `const deps = [a, b];
-      const memoFn = () => computeExpensiveValue(a(), b());
-      const value = createMemo(memoFn, deps);`,
+        code: `
+          const deps = [a, b];
+          const memoFn = () => computeExpensiveValue(a(), b());
+          const value = createMemo(memoFn, deps);
+        `,
         errors: [{ messageId: 'noUselessDep', data: { name: 'createMemo' } }],
         // no `output`
       });

@@ -1,6 +1,6 @@
-import rule from './prefer-for.js';
-import { testValid, testInvalid } from './ruleTester.js';
 import { describe, test } from 'vitest';
+import rule from './prefer-for.js';
+import { testInvalid, testValid } from './ruleTester.js';
 
 const valid = testValid('prefer-for', rule);
 const invalid = testInvalid('prefer-for', rule);
@@ -50,28 +50,32 @@ describe('prefer-for', () => {
       test('invalid case 4', () => {
         invalid({
           code: `
-      function Component(props) {
-        return <ol>{props.data.map(d => <li>{d.text}</li>)}</ol>;
-      }`,
+            function Component(props) {
+              return <ol>{props.data.map(d => <li>{d.text}</li>)}</ol>;
+            }
+          `,
           errors: [{ messageId: 'preferFor' }],
           output: `
-      function Component(props) {
-        return <ol><For each={props.data}>{d => <li>{d.text}</li>}</For></ol>;
-      }`,
+            function Component(props) {
+              return <ol><For each={props.data}>{d => <li>{d.text}</li>}</For></ol>;
+            }
+          `,
         });
       });
       test('invalid case 5', () => {
         invalid(
           {
             code: `
-      function Component(props) {
-        return <ol>{props.data?.map(d => <li>{d.text}</li>)}</ol>;
-      }`,
+            function Component(props) {
+              return <ol>{props.data?.map(d => <li>{d.text}</li>)}</ol>;
+            }
+          `,
             errors: [{ messageId: 'preferFor' }],
             output: `
-      function Component(props) {
-        return <ol>{<For each={props.data}>{d => <li>{d.text}</li>}</For>}</ol>;
-      }`,
+              function Component(props) {
+                return <ol>{<For each={props.data}>{d => <li>{d.text}</li>}</For>}</ol>;
+              }
+            `,
           },
           true,
         );

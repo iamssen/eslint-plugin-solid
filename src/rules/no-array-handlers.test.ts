@@ -1,6 +1,6 @@
-import rule from './no-array-handlers.js';
-import { testValid, testInvalid } from './ruleTester.js';
 import { describe, test } from 'vitest';
+import rule from './no-array-handlers.js';
+import { testInvalid, testValid } from './ruleTester.js';
 
 const valid = testValid('no-array-handlers', rule);
 const invalid = testInvalid('no-array-handlers', rule);
@@ -13,19 +13,19 @@ describe('no-array-handlers', () => {
       );
     });
     test('valid case 2', () => {
-      valid(
-        `const handler = () => 1+1;
-    let el = <button onClick={handler} />`,
-      );
+      valid(`
+        const handler = () => 1+1;
+        let el = <button onClick={handler} />
+      `);
     });
     test('valid case 3', () => {
       valid(`let el = <button onclick={() => 9001} />`);
     });
     test('valid case 4', () => {
-      valid(
-        `const handler = () => 1+1;
-    let el = <button style={{background: 'pink'}} onclick={handler} />`,
-      );
+      valid(`
+        const handler = () => 1+1;
+        let el = <button style={{background: 'pink'}} onclick={handler} />
+      `);
     });
     test('valid case 5', () => {
       valid(`let el = <button attr:click={[(x) => x, 9001]} />`);
@@ -37,11 +37,11 @@ describe('no-array-handlers', () => {
       valid(`let el = <button on:Click={() => 1+1} />`);
     });
     test('valid case 8', () => {
-      valid(
-        `function Component(props) {
-      return <div onClick={props.onClick} />;
-    }`,
-      );
+      valid(`
+        function Component(props) {
+          return <div onClick={props.onClick} />;
+        }
+      `);
     });
     test('valid case 9', () => {
       valid(`<button onClick={() => [handler, "abc"]} />`);
@@ -51,9 +51,11 @@ describe('no-array-handlers', () => {
     });
     test('valid case 11', () => {
       valid(
-        `function Component() {
-      return <div onClick={[(n: number) => n*n, 2] as SafeArray<number>} />;
-    }`,
+        `
+        function Component() {
+          return <div onClick={[(n: number) => n*n, 2] as SafeArray<number>} />;
+        }
+      `,
         true,
       );
     });
@@ -108,10 +110,12 @@ describe('no-array-handlers', () => {
     test('invalid case 8', () => {
       invalid(
         {
-          code: `function Component() {
-      const arr = [(n: number) => n*n, 2];
-      return <div onClick={arr} />;
-    }`,
+          code: `
+            function Component() {
+              const arr = [(n: number) => n*n, 2];
+              return <div onClick={arr} />;
+            }
+          `,
           errors: [{ messageId: 'noArrayHandlers' }],
         },
         true,

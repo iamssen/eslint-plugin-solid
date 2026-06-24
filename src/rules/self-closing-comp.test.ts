@@ -1,6 +1,6 @@
-import { testValid, testInvalid } from './ruleTester.js';
-import rule from './self-closing-comp.js';
 import { describe, test } from 'vitest';
+import { testInvalid, testValid } from './ruleTester.js';
+import rule from './self-closing-comp.js';
 
 const valid = testValid('self-closing-comp', rule);
 const invalid = testInvalid('self-closing-comp', rule);
@@ -22,18 +22,18 @@ describe('self-closing-comp', () => {
       );
     });
     test('valid case 5', () => {
-      valid(
-        `let el = <Component>
-      <Component name="Foo" />
-    </Component>;`,
-      );
+      valid(`
+        let el = <Component>
+          <Component name="Foo" />
+        </Component>;
+      `);
     });
     test('valid case 6', () => {
-      valid(
-        `let el = <Compound.Component>
-      <Compound.Component />
-    </Compound.Component>`,
-      );
+      valid(`
+        let el = <Compound.Component>
+          <Compound.Component />
+        </Compound.Component>
+      `);
     });
     test('valid case 7', () => {
       valid(`let el = <Component name="Foo"> </Component>;`);
@@ -70,10 +70,12 @@ describe('self-closing-comp', () => {
     });
     test('valid case 15', () => {
       valid({
-        code: `let el = (
-        <div>
-        </div>
-      )`,
+        code: `
+          let el = (
+            <div>
+            </div>
+          )
+        `,
         options: [{ html: 'none' }],
       });
     });
@@ -133,26 +135,34 @@ describe('self-closing-comp', () => {
     });
     test('invalid case 7', () => {
       invalid({
-        code: `let el = (
-        <div>
-        </div>
-      );`,
+        code: `
+          let el = (
+            <div>
+            </div>
+          )
+        `,
         errors: [{ messageId: 'selfClose' }],
-        output: `let el = (
-        <div />
-      );`,
+        output: `
+          let el = (
+            <div />
+          )
+        `,
       });
     });
     test('invalid case 8', () => {
       invalid({
-        code: `let el = (
-        <Component>
-        </Component>
-      );`,
+        code: `
+          let el = (
+            <Component>
+            </Component>
+          )
+        `,
         errors: [{ messageId: 'selfClose' }],
-        output: `let el = (
-        <Component />
-      );`,
+        output: `
+          let el = (
+            <Component />
+          )
+        `,
       });
     });
     test('invalid case 9', () => {

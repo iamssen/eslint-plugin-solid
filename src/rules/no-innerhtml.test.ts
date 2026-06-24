@@ -1,6 +1,6 @@
-import rule from './no-innerhtml.js';
-import { testValid, testInvalid } from './ruleTester.js';
 import { describe, test } from 'vitest';
+import rule from './no-innerhtml.js';
+import { testInvalid, testValid } from './ruleTester.js';
 
 const valid = testValid('no-innerhtml', rule);
 const invalid = testInvalid('no-innerhtml', rule);
@@ -76,49 +76,49 @@ describe('no-innerhtml', () => {
     test('invalid case 6', () => {
       invalid({
         code: `
-        let el = (
-          <div prop1 prop2={2} innerHTML="<p>Hello</p><p>world!</p>">
-            <p>Child element content</p>
-          </div>
-        );
-      `,
+          let el = (
+            <div prop1 prop2={2} innerHTML="<p>Hello</p><p>world!</p>">
+              <p>Child element content</p>
+            </div>
+          );
+        `,
         errors: [{ messageId: 'conflict' }],
       });
     });
     test('invalid case 7', () => {
       invalid({
         code: `
-        let el = (
-          <div prop1 prop2={2} innerHTML="<p>Hello</p><p>world!</p>">
-            <p>Child element content 1</p>
-            <p>Child element context 2</p>
-          </div>
-        );
-      `,
+          let el = (
+            <div prop1 prop2={2} innerHTML="<p>Hello</p><p>world!</p>">
+              <p>Child element content 1</p>
+              <p>Child element context 2</p>
+            </div>
+          );
+        `,
         errors: [{ messageId: 'conflict' }],
       });
     });
     test('invalid case 8', () => {
       invalid({
         code: `
-        let el = (
-          <div prop1 prop2={2} innerHTML="<p>Hello</p><p>world!</p>">
-            {"Child text content"}
-          </div>
-        );
-      `,
+          let el = (
+            <div prop1 prop2={2} innerHTML="<p>Hello</p><p>world!</p>">
+              {"Child text content"}
+            </div>
+          );
+        `,
         errors: [{ messageId: 'conflict' }],
       });
     });
     test('invalid case 9', () => {
       invalid({
         code: `
-        let el = (
-          <div prop1 prop2={2} innerHTML="<p>Hello</p><p>world!</p>">
-            {identifier}
-          </div>
-        );
-      `,
+          let el = (
+            <div prop1 prop2={2} innerHTML="<p>Hello</p><p>world!</p>">
+              {identifier}
+            </div>
+          );
+        `,
         errors: [{ messageId: 'conflict' }],
       });
     });
