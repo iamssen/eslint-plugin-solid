@@ -7,14 +7,14 @@ const invalid = testInvalid('components-return-once', rule);
 
 describe('components-return-once', () => {
   describe('valid', () => {
-    test('valid case 1', () => {
+    test('standard component with a single return is valid', () => {
       valid(`
         function Component() {
           return <div />;
         }
       `);
     });
-    test('valid case 2', () => {
+    test('early return is permitted in standard functions', () => {
       valid(`
         function someFunc() {
           if (condition) {
@@ -24,7 +24,7 @@ describe('components-return-once', () => {
         }
       `);
     });
-    test('valid case 3', () => {
+    test('early return is permitted in functions not used as components', () => {
       valid(`
         function notAComponent() {
           if (condition) {
@@ -34,7 +34,7 @@ describe('components-return-once', () => {
         }
       `);
     });
-    test('valid case 4', () => {
+    test('early return is permitted inside callbacks', () => {
       valid(`
         callback(() => {
           if (condition) {
@@ -44,7 +44,7 @@ describe('components-return-once', () => {
         });
       `);
     });
-    test('valid case 5', () => {
+    test('early return is permitted inside inner functions in a component', () => {
       valid(`
         function Component() {
           const renderContent = () => {
@@ -55,7 +55,7 @@ describe('components-return-once', () => {
         }
       `);
     });
-    test('valid case 6', () => {
+    test('early return is permitted inside inner function declarations in a component', () => {
       valid(`
         function Component() {
           function renderContent() {
@@ -66,7 +66,7 @@ describe('components-return-once', () => {
         }
       `);
     });
-    test('valid case 7', () => {
+    test('early return is permitted inside deeply nested inner functions', () => {
       valid(`
         function Component() {
           const renderContent = () => {
@@ -81,7 +81,7 @@ describe('components-return-once', () => {
         }
       `);
     });
-    test('valid case 8', () => {
+    test('hoisted functions can be used in component returns', () => {
       valid(`
         function Component() {
           return <>{hoisted()}</>;
@@ -91,14 +91,14 @@ describe('components-return-once', () => {
         }
       `);
     });
-    test('valid case 9', () => {
+    test('component can have trailing variable declarations after return', () => {
       valid(`
         function Component() {
           return <></>;
           const hoisted = 'hoisted';
         }`);
     });
-    test('valid case 10', () => {
+    test('component can have trailing class declarations after return', () => {
       valid(`
         function Component() {
           return <></>;
@@ -108,7 +108,7 @@ describe('components-return-once', () => {
   });
   describe('invalid', () => {
     describe(`Early returns`, () => {
-      test('invalid case 1', () => {
+      test('early return inside a component breaks reactivity', () => {
         invalid({
           code: `
             function Component() {
@@ -121,7 +121,7 @@ describe('components-return-once', () => {
           errors: [{ messageId: 'noEarlyReturn' }],
         });
       });
-      test('invalid case 2', () => {
+      test('early return inside an arrow function component breaks reactivity', () => {
         invalid({
           code: `
             const Component = () => {
@@ -134,7 +134,7 @@ describe('components-return-once', () => {
           errors: [{ messageId: 'noEarlyReturn' }],
         });
       });
-      test('invalid case 3', () => {
+      test('early return breaks reactivity even with hoisted functions', () => {
         invalid({
           code: `
             const Component = () => {
@@ -150,7 +150,7 @@ describe('components-return-once', () => {
       });
     });
     describe(`Balanced ternaries`, () => {
-      test('invalid case 4', () => {
+      test('returning a ternary with JSX expressions on both branches is invalid', () => {
         invalid({
           code: `
             function Component() {
@@ -165,7 +165,7 @@ describe('components-return-once', () => {
           `,
         });
       });
-      test('invalid case 5', () => {
+      test('returning a ternary with mixed branches is invalid', () => {
         invalid({
           code: `
             function Component() {
@@ -182,7 +182,7 @@ describe('components-return-once', () => {
       });
     });
     describe(`Ternaries with clear fallback`, () => {
-      test('invalid case 6', () => {
+      test('returning a ternary with nested JSX elements is invalid', () => {
         invalid({
           code: `
             function Component() {
@@ -208,7 +208,7 @@ describe('components-return-once', () => {
       });
     });
     describe(`Switch/Match`, () => {
-      test('invalid case 7', () => {
+      test('returning nested ternary expressions is invalid', () => {
         invalid({
           code: `
             function Component(props) {
@@ -234,7 +234,7 @@ describe('components-return-once', () => {
       });
     });
     describe(`Logical`, () => {
-      test('invalid case 8', () => {
+      test('returning a logical AND expression is invalid', () => {
         invalid({
           code: `
             function Component(props) {
@@ -251,7 +251,7 @@ describe('components-return-once', () => {
       });
       // FIXME: RuleTester uses Prettier for formatting,
       // which incorrectly strips the single JSX fragment needed for Solid.js conditional return rules.
-      test.skip('invalid case 9', () => {
+      test.skip('returning a logical OR expression is invalid', () => {
         invalid({
           code: `
             // prettier-ignore
@@ -272,7 +272,7 @@ describe('components-return-once', () => {
       });
     });
     describe(`HOCs`, () => {
-      test('invalid case 10', () => {
+      test('early return inside higher-order components breaks reactivity', () => {
         invalid({
           code: `
             HOC(() => {

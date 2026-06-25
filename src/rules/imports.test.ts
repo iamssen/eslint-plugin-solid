@@ -7,19 +7,19 @@ const invalid = testInvalid('imports', rule);
 
 describe('imports', () => {
   describe('valid', () => {
-    test('valid case 1', () => {
+    test('importing Solid.js core APIs from solid-js is valid', () => {
       valid(`import { createSignal, mergeProps as merge } from "solid-js";`);
     });
-    test('valid case 2', () => {
+    test('importing Solid.js core APIs using single quotes is valid', () => {
       valid(`import { createSignal, mergeProps as merge } from 'solid-js';`);
     });
-    test('valid case 3', () => {
+    test('importing Solid.js web APIs from solid-js/web is valid', () => {
       valid(`import { render, hydrate } from "solid-js/web";`);
     });
-    test('valid case 4', () => {
+    test('importing Solid.js store APIs from solid-js/store is valid', () => {
       valid(`import { createStore, produce } from "solid-js/store";`);
     });
-    test('valid case 5', () => {
+    test('importing from various Solid.js modules correctly is valid', () => {
       valid(`
         import { createSignal } from "solid-js";
         import { render } from "solid-js/web";
@@ -27,10 +27,10 @@ describe('imports', () => {
         import { createStore } from "solid-js/store";
       `);
     });
-    test('valid case 6', () => {
+    test('namespace imports from solid-js are valid', () => {
       valid(`import * as Solid from "solid-js"; Solid.render();`);
     });
-    test('valid case 7', () => {
+    test('importing types from solid-js modules is valid', () => {
       valid(
         `
         import type { Component, JSX } from "solid-js";
@@ -41,7 +41,7 @@ describe('imports', () => {
     });
   });
   describe('invalid', () => {
-    test('invalid case 1', () => {
+    test('detects core APIs incorrectly imported from solid-js/web', () => {
       invalid({
         code: `import { createEffect } from "solid-js/web";`,
         errors: [
@@ -54,7 +54,7 @@ describe('imports', () => {
 `,
       });
     });
-    test('invalid case 2', () => {
+    test('merges incorrect core API imports with existing solid-js imports', () => {
       invalid({
         code: `
           import { createEffect } from "solid-js/web";
@@ -71,7 +71,7 @@ describe('imports', () => {
         `,
       });
     });
-    test('invalid case 3', () => {
+    test('merges incorrect core type imports with existing solid-js imports', () => {
       invalid(
         {
           code: `
@@ -93,7 +93,7 @@ describe('imports', () => {
         true,
       );
     });
-    test('invalid case 4', () => {
+    test('merges incorrect core API imports with existing empty solid-js imports', () => {
       invalid({
         code: `
           import { createSignal } from "solid-js/web";
@@ -110,7 +110,7 @@ describe('imports', () => {
         `,
       });
     });
-    test('invalid case 5', () => {
+    test('merges incorrect core API imports with existing empty specifier solid-js imports', () => {
       invalid({
         code: `
           import { createSignal } from "solid-js/web";
@@ -128,7 +128,7 @@ describe('imports', () => {
       });
     });
     describe(`Two-part fix, output here is first pass...`, () => {
-      test('invalid case 6', () => {
+      test('fixes multiple incorrect imports across different solid-js modules (pass 1)', () => {
         invalid({
           code: `
             import { createEffect } from "solid-js/web";
@@ -151,7 +151,7 @@ describe('imports', () => {
       });
     });
     describe(`...and output here is second pass`, () => {
-      test('invalid case 7', () => {
+      test('fixes multiple incorrect imports across different solid-js modules (pass 2)', () => {
         invalid({
           code: `import { render, createEffect } from "solid-js";`,
           errors: [

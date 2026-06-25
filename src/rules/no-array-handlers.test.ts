@@ -7,49 +7,49 @@ const invalid = testInvalid('no-array-handlers', rule);
 
 describe('no-array-handlers', () => {
   describe('valid', () => {
-    test('valid case 1', () => {
+    test('standard function event handlers are valid', () => {
       valid(
         `let el = <button style={{background: 'red'}} onClick={() => 9001} />`,
       );
     });
-    test('valid case 2', () => {
+    test('variable function event handlers are valid', () => {
       valid(`
         const handler = () => 1+1;
         let el = <button onClick={handler} />
       `);
     });
-    test('valid case 3', () => {
+    test('lowercase standard function event handlers are valid', () => {
       valid(`let el = <button onclick={() => 9001} />`);
     });
-    test('valid case 4', () => {
+    test('lowercase variable function event handlers are valid', () => {
       valid(`
         const handler = () => 1+1;
         let el = <button style={{background: 'pink'}} onclick={handler} />
       `);
     });
-    test('valid case 5', () => {
+    test('array handlers are valid for attr: namespace', () => {
       valid(`let el = <button attr:click={[(x) => x, 9001]} />`);
     });
-    test('valid case 6', () => {
+    test('array handlers are valid for prop: namespace', () => {
       valid(`let el = <button prop:onClick={[(x) => x, 9001]} />`);
     });
-    test('valid case 7', () => {
+    test('function handlers are valid for on: namespace', () => {
       valid(`let el = <button on:Click={() => 1+1} />`);
     });
-    test('valid case 8', () => {
+    test('props passed as event handlers are valid', () => {
       valid(`
         function Component(props) {
           return <div onClick={props.onClick} />;
         }
       `);
     });
-    test('valid case 9', () => {
+    test('functions returning arrays are valid', () => {
       valid(`<button onClick={() => [handler, "abc"]} />`);
     });
-    test('valid case 10', () => {
+    test('functions returning arrays with objects are valid', () => {
       valid(`<button onClick={() => [handler, {data:true}]} /> `);
     });
-    test('valid case 11', () => {
+    test('array handlers casted with as are valid', () => {
       valid(
         `
         function Component() {
@@ -61,13 +61,13 @@ describe('no-array-handlers', () => {
     });
   });
   describe('invalid', () => {
-    test('invalid case 1', () => {
+    test('detects array syntax for standard event handlers', () => {
       invalid({
         code: `let el = <button onClick={[(n) => console.log(n), 'str']} />`,
         errors: [{ messageId: 'noArrayHandlers' }],
       });
     });
-    test('invalid case 2', () => {
+    test('detects array syntax with typescript types for standard event handlers', () => {
       invalid(
         {
           code: `let el = <button onClick={[(k: string) => k.toUpperCase(), 'hello']} />`,
@@ -76,38 +76,38 @@ describe('no-array-handlers', () => {
         true,
       );
     });
-    test('invalid case 3', () => {
+    test('detects array syntax without functions for standard event handlers', () => {
       invalid({
         code: `let el = <div onMouseOver={[1,2,3]} />`,
         errors: [{ messageId: 'noArrayHandlers' }],
       });
     });
-    test('invalid case 4', () => {
+    test('detects array syntax for on: namespace event handlers', () => {
       invalid({
         code: `let el = <div on:click={[handler, i()]} />`,
         errors: [{ messageId: 'noArrayHandlers' }],
       });
     });
-    test('invalid case 5', () => {
+    test('detects array syntax for lowercase standard event handlers', () => {
       invalid({
         code: `let el = <button type="button" onclick={[handler, i() + 2]} class="btn" />`,
         errors: [{ messageId: 'noArrayHandlers' }],
       });
     });
-    test('invalid case 6', () => {
+    test('detects array syntax passed as variables', () => {
       invalid({
         code: `let handler = [(x) => x*2, 54];
       let el = <button style={{background: 'pink'}} onclick={handler} />`,
         errors: [{ messageId: 'noArrayHandlers' }],
       });
     });
-    test('invalid case 7', () => {
+    test('detects array syntax for event handlers inside nested components', () => {
       invalid({
         code: `const thing = (props) => <div onclick={[props.callback, props.id]}><button type="button" onclick={handler} class="btn" /></div>`,
         errors: [{ messageId: 'noArrayHandlers' }],
       });
     });
-    test('invalid case 8', () => {
+    test('detects array syntax passed as variables with typescript types', () => {
       invalid(
         {
           code: `

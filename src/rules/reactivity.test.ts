@@ -7,7 +7,7 @@ const invalid = testInvalid('reactivity', rule);
 
 describe('reactivity', () => {
   describe('valid', () => {
-    test('valid case 1', () => {
+    test('component rendering with props access is valid', () => {
       valid(`
         function MyComponent(props) {
           return <div>Hello {props.name}</div>;
@@ -15,21 +15,21 @@ describe('reactivity', () => {
         let el = <MyComponent name="Solid" />;
       `);
     });
-    test('valid case 2', () => {
+    test('using signal in createEffect is tracked', () => {
       valid(`
         const [first, setFirst] = createSignal("JSON");
         const [last, setLast] = createSignal("Bourne");
         createEffect(() => console.log(\`\${first()} \${last()}\`));
       `);
     });
-    test('valid case 3', () => {
+    test('using props inside component body is valid if wrapped in tracking scope', () => {
       valid(`
         let Component = props => {
           return <div>{props.value || "default"}</div>;
         };
       `);
     });
-    test('valid case 4', () => {
+    test('accessing props in a function called in JSX is valid', () => {
       valid(`
         let Component = props => {
           const value = () => props.value || "default";
@@ -37,7 +37,7 @@ describe('reactivity', () => {
         };
       `);
     });
-    test('valid case 5', () => {
+    test('accessing props in createMemo is tracked', () => {
       valid(`
         let Component = props => {
           const value = createMemo(() => props.value || "default");
@@ -45,7 +45,7 @@ describe('reactivity', () => {
         };
       `);
     });
-    test('valid case 6', () => {
+    test('accessing merged props is tracked', () => {
       valid(`
         let Component = _props => {
           const props = mergeProps({ value: "default" }, _props);
@@ -53,7 +53,7 @@ describe('reactivity', () => {
         };
       `);
     });
-    test('valid case 7', () => {
+    test('accessing split props is tracked', () => {
       valid(`
         let Component = _props => {
           const [foo, bar, baz] = splitProps(_props, ["foo"], ["bar"]);
@@ -61,7 +61,7 @@ describe('reactivity', () => {
         };
       `);
     });
-    test('valid case 8', () => {
+    test('using untrack prevents tracking', () => {
       valid(`
         let Component = () => {
           const [a, setA] = createSignal(1);
@@ -72,7 +72,7 @@ describe('reactivity', () => {
         };
       `);
     });
-    test('valid case 9', () => {
+    test('using signal in JSX is tracked', () => {
       valid(`
         function Component(props) {
           const [value, setValue] = createSignal();
@@ -80,7 +80,7 @@ describe('reactivity', () => {
         }
       `);
     });
-    test('valid case 10', () => {
+    test('using signal in both createEffect and JSX is tracked', () => {
       valid(`
         function Component(props) {
           const [value, setValue] = createSignal();
@@ -89,34 +89,34 @@ describe('reactivity', () => {
         }
       `);
     });
-    test('valid case 11', () => {
+    test('using signal in on callback is valid', () => {
       valid(`
         const [value, setValue] = createSignal();
         on(value, () => console.log('hello'));
       `);
     });
-    test('valid case 12', () => {
+    test('using signal array in on callback is valid', () => {
       valid(`
         const [value, setValue] = createSignal();
         on([value], () => console.log('hello'));
       `);
     });
     describe(`spreading props`, () => {
-      test('valid case 13', () => {
+      test('spreading props in JSX is tracked', () => {
         valid(`
           function Component(props) {
             return <div {...props} />;
           }
         `);
       });
-      test('valid case 14', () => {
+      test('spreading nested props in JSX is tracked', () => {
         valid(`
           function Component(props) {
             return <div {...props.nestedProps} />;
           }
         `);
       });
-      test('valid case 15', () => {
+      test('spreading signal object in JSX is tracked', () => {
         valid(`
           function Component() {
             const [signal, setSignal] = createSignal({});
@@ -126,7 +126,7 @@ describe('reactivity', () => {
       });
     });
     describe(`Derived signals`, () => {
-      test('valid case 16', () => {
+      test('derived signal nested inside unused function is valid', () => {
         valid(`
           let c = () => {
             const [signal] = createSignal();
@@ -139,26 +139,26 @@ describe('reactivity', () => {
           };
         `);
       });
-      test('valid case 17', () => {
+      test('signal access inside createEffect is valid', () => {
         valid(`
           const [signal] = createSignal();
           createEffect(() => console.log(signal()));
         `);
       });
-      test('valid case 18', () => {
+      test('using signal in createMemo is tracked', () => {
         valid(`
           const [signal] = createSignal();
           const memo = createMemo(() => signal());
         `);
       });
-      test('valid case 19', () => {
+      test('using signal in event handler and JSX is tracked', () => {
         valid(`
           const el = <button onClick={() => toggleShow(!show())}>
             {show() ? "Hide" : "Show"}
           </button>
         `);
       });
-      test('valid case 20', () => {
+      test('using signal inside IIFE inside createEffect is tracked', () => {
         valid(`
           const [count] = createSignal();
           createEffect(() => {
@@ -166,13 +166,13 @@ describe('reactivity', () => {
           });
         `);
       });
-      test('valid case 21', () => {
+      test('using signal inside IIFE inside JSX is tracked', () => {
         valid(`
           const [count] = createSignal();
           const el = <div>{(() => count())()}</div>
         `);
       });
-      test('valid case 22', () => {
+      test('using signal in setter in event handler is valid', () => {
         valid(`
           const [count, setCount] = createSignal();
           const el = <button type="button" onClick={() => setCount(count() + 1)}>Increment</button>;
@@ -180,12 +180,12 @@ describe('reactivity', () => {
       });
     });
     describe(`Parse top level JSX`, () => {
-      test('valid case 23', () => {
+      test('top level JSX is valid', () => {
         valid(`const el = <div />`);
       });
     });
     describe(`getOwner/runWithOwner`, () => {
-      test('valid case 24', () => {
+      test('using runWithOwner with getOwner is valid', () => {
         valid(`
           const [signal] = createSignal();
           createEffect(() => {
@@ -194,7 +194,7 @@ describe('reactivity', () => {
           });
         `);
       });
-      test('valid case 25', () => {
+      test('using runWithOwner with undefined is valid', () => {
         valid(`
           const [signal] = createSignal();
           createEffect(() => {
@@ -204,7 +204,7 @@ describe('reactivity', () => {
       });
     });
     describe(`Sync callbacks`, () => {
-      test('valid case 26', () => {
+      test('synchronous array methods like forEach are tracked scopes', () => {
         valid(`
           const [signal] = createSignal();
           createEffect(() => {
@@ -212,7 +212,7 @@ describe('reactivity', () => {
           });
         `);
       });
-      test('valid case 27', () => {
+      test('synchronous array methods are tracked scopes for props', () => {
         valid(`
           function Component(props) {
             createEffect(() => {
@@ -222,7 +222,7 @@ describe('reactivity', () => {
           }
         `);
       });
-      test('valid case 28', () => {
+      test('synchronous array methods are tracked scopes for non-props', () => {
         valid(`
           function Component(bleargh /* doesn't match props regex */) {
             createEffect(() => {
@@ -234,7 +234,7 @@ describe('reactivity', () => {
       });
     });
     describe(`Timers`, () => {
-      test('valid case 29', () => {
+      test('using signals in timer callbacks is valid', () => {
         valid(`
           const [signal] = createSignal(5);
           setTimeout(() => console.log(signal()), 500);
@@ -246,7 +246,7 @@ describe('reactivity', () => {
       });
     });
     describe(`Observers from Standard Web APIs`, () => {
-      test('valid case 30', () => {
+      test('using signals in observer callbacks is valid', () => {
         valid(`
           const [signal] = createSignal(5);
           new IntersectionObserver(() => console.log(signal()));
@@ -258,7 +258,7 @@ describe('reactivity', () => {
       });
     });
     describe(`Async tracking scope exceptions`, () => {
-      test('valid case 31', () => {
+      test('fetch with await before state setter is valid', () => {
         valid(`
           const [photos, setPhotos] = createSignal([]);
           onMount(async () => {
@@ -267,7 +267,7 @@ describe('reactivity', () => {
           });
         `);
       });
-      test('valid case 32', () => {
+      test('awaiting delay in on callback before setter is valid', () => {
         valid(`
           const [a, setA] = createSignal(1);
           const [b] = createSignal(2);
@@ -276,7 +276,7 @@ describe('reactivity', () => {
       });
     });
     describe(`Custom hooks`, () => {
-      test('valid case 33', () => {
+      test('custom hooks like createComposedRefs create tracked scopes', () => {
         valid(`
           const Component = (props) => {
             const localRef = () => props.ref;
@@ -286,35 +286,35 @@ describe('reactivity', () => {
           }
         `);
       });
-      test('valid case 34', () => {
+      test('passing object with method to custom hook is valid', () => {
         valid(`
           function createFoo(v) {}
           const [bar, setBar] = createSignal();
           createFoo({ onBar: () => bar() });
         `);
       });
-      test('valid case 35', () => {
+      test('passing object with concise method to custom hook is valid', () => {
         valid(`
           function createFoo(v) {}
           const [bar, setBar] = createSignal();
           createFoo({ onBar() { bar() } });
         `);
       });
-      test('valid case 36', () => {
+      test('passing signal as argument to custom hook is valid', () => {
         valid(`
           function createFoo(v) {}
           const [bar, setBar] = createSignal();
           createFoo(bar);
         `);
       });
-      test('valid case 37', () => {
+      test('passing array containing signal to custom hook is valid', () => {
         valid(`
           function createFoo(v) {}
           const [bar, setBar] = createSignal();
           createFoo([bar]);
         `);
       });
-      test('valid case 38', () => {
+      test('passing object with method cast to object to custom hook is valid', () => {
         valid(
           `
           function createFoo(v) {}
@@ -324,19 +324,19 @@ describe('reactivity', () => {
           true,
         );
       });
-      test('valid case 39', () => {
+      test('passing function to namespaced custom hook is valid', () => {
         valid(`
           const [bar, setBar] = createSignal();
           X.createFoo(() => bar());
         `);
       });
-      test('valid case 40', () => {
+      test('passing function to deeply namespaced custom hook is valid', () => {
         valid(`
           const [bar, setBar] = createSignal();
           X . Y\n. createFoo(() => bar());
         `);
       });
-      test('valid case 41', () => {
+      test('custom hook specified in customReactiveFunctions is a tracked scope', () => {
         valid({
           code: `
             function customQuery(v) {}
@@ -348,7 +348,7 @@ describe('reactivity', () => {
       });
     });
     describe(`Event listeners`, () => {
-      test('valid case 42', () => {
+      test('using signal in addEventListener callback is valid', () => {
         valid(`
           const [signal, setSignal] = createSignal(1);
           const element = document.getElementById("id");
@@ -357,7 +357,7 @@ describe('reactivity', () => {
           }, { once: true });
         `);
       });
-      test('valid case 43', () => {
+      test('using signal in element.onclick is valid', () => {
         valid(`
           const [signal, setSignal] = createSignal(1);
           const element = document.getElementById("id");
@@ -366,7 +366,7 @@ describe('reactivity', () => {
           };
         `);
       });
-      test('valid case 44', () => {
+      test('using signal in JSX onClick is valid', () => {
         valid(`
           function Component() {
             const [signal, setSignal] = createSignal(1);
@@ -374,7 +374,7 @@ describe('reactivity', () => {
           }
         `);
       });
-      test('valid case 45', () => {
+      test('using signal in handler passed to JSX onClick is valid', () => {
         valid(`
           function Component() {
             const [signal, setSignal] = createSignal(1);
@@ -383,7 +383,7 @@ describe('reactivity', () => {
           }
         `);
       });
-      test('valid case 46', () => {
+      test('passing signal directly to JSX onClick is valid', () => {
         valid(`
           function Component() {
             const [signal, setSignal] = createSignal(1);
@@ -391,7 +391,7 @@ describe('reactivity', () => {
           }
         `);
       });
-      test('valid case 47', () => {
+      test('using signal in JSX on:click is valid', () => {
         valid(`
           function Component() {
             const [signal, setSignal] = createSignal(1);
@@ -399,7 +399,7 @@ describe('reactivity', () => {
           }
         `);
       });
-      test('valid case 48', () => {
+      test('calling props.onClick in JSX onClick is valid', () => {
         valid(`
           function Component(props) {
             return <div onClick={e => props.onClick(e)} />;
@@ -408,14 +408,14 @@ describe('reactivity', () => {
       });
     });
     describe(`event listeners are reactive on components`, () => {
-      test('valid case 49', () => {
+      test('passing props.onClick to component is valid', () => {
         valid(`
           const Parent = props => {
             return <Child onClick={props.onClick} />;
           }
         `);
       });
-      test('valid case 50', () => {
+      test('wrapping props.onClick in function and passing to component is valid', () => {
         valid(`
           const Parent = props => {
             return <Child onClick={e => props.onClick(e)} />;
@@ -424,7 +424,7 @@ describe('reactivity', () => {
       });
     });
     describe(`Pass reactive variables as-is into provider value prop`, () => {
-      test('valid case 51', () => {
+      test('passing signal directly to Context Provider value is valid', () => {
         valid(`
           const Component = props => {
             const [signal] = createSignal();
@@ -434,7 +434,7 @@ describe('reactivity', () => {
       });
     });
     describe(`Don't warn on using props.initial* or props.default* for initialization`, () => {
-      test('valid case 52', () => {
+      test('using initial* props for initialization is valid', () => {
         valid(`
           function Component(props) {
             const [count, setCount] = useSignal(props.initialCount);
@@ -442,7 +442,7 @@ describe('reactivity', () => {
           }
         `);
       });
-      test('valid case 53', () => {
+      test('using default* props for initialization is valid', () => {
         valid(`
           function Component(props) {
             const [count, setCount] = useSignal(props.defaultCount);
@@ -452,7 +452,7 @@ describe('reactivity', () => {
       });
     });
     describe(`Store getters`, () => {
-      test('valid case 54', () => {
+      test('store getters are tracked scopes', () => {
         valid(`
           const [state, setState] = createStore({
             firstName: 'Will',
@@ -465,7 +465,7 @@ describe('reactivity', () => {
       });
     });
     describe(`untrack()`, () => {
-      test('valid case 55', () => {
+      test('untrack creates untracked scope', () => {
         valid(`
           const [signal] = createSignal(5);
           untrack(() => {
@@ -475,7 +475,7 @@ describe('reactivity', () => {
       });
     });
     describe(`has JSX, but lowercase function and not named props => don't treat first parameter as props`, () => {
-      test('valid case 56', () => {
+      test('lowercase function without props parameter is not treated as component', () => {
         valid(`
           function notAComponent(something) {
             console.log(something.a);
@@ -485,18 +485,18 @@ describe('reactivity', () => {
       });
     });
     describe(`function expression inside tagged template literal expression is tracked scope`, () => {
-      test('valid case 57', () => {
+      test('tagged template literal for css creates tracked scope', () => {
         valid('css`color: ${props => props.color}`;');
       });
-      test('valid case 58', () => {
+      test('tagged template literal for html creates tracked scope', () => {
         valid('html`<div>${props => props.name}</div>`;');
       });
-      test('valid case 59', () => {
+      test('tagged template literal for styled.css creates tracked scope', () => {
         valid('styled.css`color: ${props => props.color};`');
       });
     });
     describe(`refs`, () => {
-      test('valid case 60', () => {
+      test('ref callback is valid', () => {
         valid(`
           function Component() {
             let canvas;
@@ -504,7 +504,7 @@ describe('reactivity', () => {
           }
         `);
       });
-      test('valid case 61', () => {
+      test('ref callback with block body is valid', () => {
         valid(`
           function Component() {
             let canvas;
@@ -516,7 +516,7 @@ describe('reactivity', () => {
           }
         `);
       });
-      test('valid case 62', () => {
+      test('using signal in ref callback is valid', () => {
         valid(`
           function Component() {
             const [index] = createSignal(0);
@@ -530,7 +530,7 @@ describe('reactivity', () => {
           }
         `);
       });
-      test('valid case 63', () => {
+      test('passing setter to ref is valid', () => {
         valid(`
           function Component() {
             const [canvas, setCanvas] = createSignal();
@@ -540,7 +540,7 @@ describe('reactivity', () => {
       });
     });
     describe(`mapArray()`, () => {
-      test('valid case 64', () => {
+      test('mapArray first argument is a tracked scope', () => {
         valid(`
           function createCustomStore() {
             const [store, updateStore] = createStore({});
@@ -553,7 +553,7 @@ describe('reactivity', () => {
           }
         `);
       });
-      test('valid case 65', () => {
+      test('indexArray first argument is a tracked scope', () => {
         valid(`
           function createCustomStore() {
             const [store, updateStore] = createStore({});
@@ -568,30 +568,30 @@ describe('reactivity', () => {
       });
     });
     describe(`type casting`, () => {
-      test('valid case 66', () => {
+      test('createMemo with type casting is valid', () => {
         valid(`const m = createMemo(() => 5) as Accessor<number>;`, true);
       });
-      test('valid case 67', () => {
+      test('createMemo with non-null assertion is valid', () => {
         valid(`const m = createMemo(() => 5)!;`, true);
       });
-      test('valid case 68', () => {
+      test('createMemo with non-null assertion and type casting is valid', () => {
         valid(`const m = createMemo(() => 5)! as Accessor<number>;`, true);
       });
-      test('valid case 69', () => {
+      test('createMemo with satisfies operator is valid', () => {
         valid(
           `const m = createMemo(() => 5) satisfies Accessor<number>;`,
           true,
         );
       });
-      test('valid case 70', () => {
+      test('createSignal with type casting is valid', () => {
         valid(`const [s] = createSignal('a' as string)`, true);
       });
-      test('valid case 71', () => {
+      test('custom hook with type casting is valid', () => {
         valid(`createFoo('a' as string)`, true);
       });
     });
     describe(`functions in JSXExpressionContainers`, () => {
-      test('valid case 72', () => {
+      test('function in JSXExpressionContainer is a tracked scope', () => {
         valid(`
           function Component(props) {
             return (
@@ -605,7 +605,7 @@ describe('reactivity', () => {
       });
     });
     describe(`passing function instead of signal`, () => {
-      test('valid case 73', () => {
+      test('passing function wrapping signal is valid', () => {
         valid(`
           const [signal, setSignal] = createSignal();
           let el = <Child foo={() => signal()}></Child>
@@ -613,14 +613,14 @@ describe('reactivity', () => {
       });
     });
     describe(`static* prefix for props`, () => {
-      test('valid case 74', () => {
+      test('static prop access is not reactive', () => {
         valid(`
           function Component(props) {
             const value = props.staticValue;
           }
         `);
       });
-      test('valid case 75', () => {
+      test('static prop access via helper function is not reactive', () => {
         valid(`
           function Component() {
             const staticValue = () => props.value;
@@ -630,7 +630,7 @@ describe('reactivity', () => {
       });
     });
     describe(`observable`, () => {
-      test('valid case 76', () => {
+      test('observable from props is a tracked scope', () => {
         valid(`
           function Component(props) {
             const count$ = observable(() => props.count);
@@ -638,7 +638,7 @@ describe('reactivity', () => {
           }
         `);
       });
-      test('valid case 77', () => {
+      test('observable from signal is a tracked scope', () => {
         valid(`
           const [signal, setSignal] = createSignal(0);
           const value$ = observable(signal);
@@ -646,7 +646,7 @@ describe('reactivity', () => {
       });
     });
     describe(`use: functions`, () => {
-      test('valid case 78', () => {
+      test('use: directive is a tracked scope', () => {
         valid(`
           let someHook;
           function Component(props) {
@@ -656,7 +656,7 @@ describe('reactivity', () => {
       });
     });
     describe(`f*cking insane edge case with multiple functions taking props as sync callbacks (#110)`, () => {
-      test('valid case 79', () => {
+      test('multiple functions taking props as sync callbacks is valid', () => {
         valid(`
           function formObjectDispatch(formObject, action) {
             const { field } = action.payload;
@@ -669,7 +669,7 @@ describe('reactivity', () => {
   });
   describe('invalid', () => {
     describe(`Untracked signals`, () => {
-      test('invalid case 1', () => {
+      test('detects untracked signal usage in component body', () => {
         invalid({
           code: `
             const Component = () => {
@@ -681,7 +681,7 @@ describe('reactivity', () => {
           errors: [{ messageId: 'untrackedReactive', line: 4 }],
         });
       });
-      test('invalid case 2', () => {
+      test('detects untracked signal usage alongside tracked usage', () => {
         invalid({
           code: `
             const Component = () => {
@@ -695,7 +695,7 @@ describe('reactivity', () => {
       });
     });
     describe(`Untracked property access`, () => {
-      test('invalid case 3', () => {
+      test('detects untracked property access in component body', () => {
         invalid({
           code: `
             const Component = props => {
@@ -706,7 +706,7 @@ describe('reactivity', () => {
           errors: [{ messageId: 'untrackedReactive' }],
         });
       });
-      test('invalid case 4', () => {
+      test('detects untracked property access via destructuring', () => {
         invalid({
           code: `
             const Component = props => {
@@ -725,7 +725,7 @@ describe('reactivity', () => {
           ],
         });
       });
-      test('invalid case 5', () => {
+      test('detects untracked property access when assigned to variable', () => {
         invalid({
           code: `
             const Component = props => {
@@ -741,7 +741,7 @@ describe('reactivity', () => {
           ],
         });
       });
-      test('invalid case 6', () => {
+      test('detects untracked property access in createSignal initialization', () => {
         invalid({
           code: `
             const Component = props => {
@@ -753,7 +753,7 @@ describe('reactivity', () => {
       });
     });
     describe(`mark \`props\` as props by name before we've determined if Component is a component in :exit`, () => {
-      test('invalid case 7', () => {
+      test('detects untracked property access in derived signal when called in component body', () => {
         invalid({
           code: `
             const Component = props => {
@@ -772,7 +772,7 @@ describe('reactivity', () => {
       });
     });
     describe(`treat first parameter of uppercase function with JSX as a props`, () => {
-      test('invalid case 8', () => {
+      test('detects untracked property access in uppercase function returning JSX', () => {
         invalid({
           code: `
             function Component(something) {
@@ -785,7 +785,7 @@ describe('reactivity', () => {
       });
     });
     describe(`Derived signals`, () => {
-      test('invalid case 9', () => {
+      test('detects untracked signal usage in derived signal when called in component body', () => {
         invalid({
           code: `
             const Component = () => {
@@ -804,7 +804,7 @@ describe('reactivity', () => {
           ],
         });
       });
-      test('invalid case 10', () => {
+      test('detects untracked signal usage in derived signal function when called in component body', () => {
         invalid({
           code: `
             const Component = () => {
@@ -823,7 +823,7 @@ describe('reactivity', () => {
           ],
         });
       });
-      test('invalid case 11', () => {
+      test('detects untracked signal usage in nested derived signal when called in component body', () => {
         invalid({
           code: `
             const Component = () => {
@@ -845,7 +845,7 @@ describe('reactivity', () => {
           ],
         });
       });
-      test('invalid case 12', () => {
+      test('detects untracked signal usage in derived signal when called in component body alongside other signals', () => {
         invalid({
           code: `
             const Component = () => {
@@ -868,7 +868,7 @@ describe('reactivity', () => {
           ],
         });
       });
-      test('invalid case 13', () => {
+      test('detects untracked signal usage through multiple derived signals when called in component body', () => {
         invalid({
           code: `
             const Component = () => {
@@ -892,7 +892,7 @@ describe('reactivity', () => {
       });
     });
     describe(`Unused reactives`, () => {
-      test('invalid case 14', () => {
+      test('detects unused createSignal', () => {
         invalid({
           code: `
             const Component = () => {
@@ -907,7 +907,7 @@ describe('reactivity', () => {
           ],
         });
       });
-      test('invalid case 15', () => {
+      test('detects unused createSignal with only setter', () => {
         invalid({
           code: `
             const Component = () => {
@@ -922,7 +922,7 @@ describe('reactivity', () => {
           ],
         });
       });
-      test('invalid case 16', () => {
+      test('detects unused createMemo', () => {
         invalid({
           code: `
             const Component = () => {
@@ -938,7 +938,7 @@ describe('reactivity', () => {
       });
     });
     describe(`Uncalled signals`, () => {
-      test('invalid case 17', () => {
+      test('detects uncalled signal passed to JSX', () => {
         invalid({
           code: `
             const Component = () => {
@@ -955,7 +955,7 @@ describe('reactivity', () => {
           ],
         });
       });
-      test('invalid case 18', () => {
+      test('detects uncalled memo passed to JSX', () => {
         invalid({
           code: `
             const Component = () => {
@@ -972,7 +972,7 @@ describe('reactivity', () => {
           ],
         });
       });
-      test('invalid case 19', () => {
+      test('detects uncalled signal used as attribute', () => {
         invalid({
           code: `
             const Component = () => {
@@ -989,7 +989,7 @@ describe('reactivity', () => {
           ],
         });
       });
-      test('invalid case 20', () => {
+      test('detects uncalled signal in string concatenation', () => {
         invalid({
           code: `
             const Component = () => {
@@ -1006,7 +1006,7 @@ describe('reactivity', () => {
           ],
         });
       });
-      test('invalid case 21', () => {
+      test('detects uncalled signal in template literal', () => {
         invalid({
           code: `
             const Component = () => {
@@ -1023,7 +1023,7 @@ describe('reactivity', () => {
           ],
         });
       });
-      test('invalid case 22', () => {
+      test('detects uncalled signal in unary expression', () => {
         invalid({
           code: `
             const Component = () => {
@@ -1040,7 +1040,7 @@ describe('reactivity', () => {
           ],
         });
       });
-      test('invalid case 23', () => {
+      test('detects uncalled signal in property access', () => {
         invalid({
           code: `
             const Component = (props) => {
@@ -1059,7 +1059,7 @@ describe('reactivity', () => {
       });
     });
     describe(`event listeners are not rebound on native elements`, () => {
-      test('invalid case 24', () => {
+      test('detects passing props.onClick to native element without wrapping in function', () => {
         invalid({
           code: `
             const Component = props => {
@@ -1075,7 +1075,7 @@ describe('reactivity', () => {
           ],
         });
       });
-      test('invalid case 25', () => {
+      test('detects passing props as effect callback without wrapping in function', () => {
         invalid({
           code: `
             const Component = props => {
@@ -1093,7 +1093,7 @@ describe('reactivity', () => {
       });
     });
     describe(`provider value passed as-is`, () => {
-      test('invalid case 26', () => {
+      test('detects passing props.value as-is to Context Provider', () => {
         invalid({
           code: `
             const Component = props => {
@@ -1105,7 +1105,7 @@ describe('reactivity', () => {
           ],
         });
       });
-      test('invalid case 27', () => {
+      test('detects passing props.value as-is to aliased Context Provider', () => {
         invalid({
           code: `
             const Component = props => {
@@ -1117,7 +1117,7 @@ describe('reactivity', () => {
           ],
         });
       });
-      test('invalid case 28', () => {
+      test('detects passing signal function call to Context Provider value', () => {
         invalid({
           code: `
             const Component = props => {
@@ -1132,7 +1132,7 @@ describe('reactivity', () => {
       });
     });
     describe(`getOwner/runWithOwner`, () => {
-      test('invalid case 29', () => {
+      test('detects runWithOwner called in effect without assigning to named variable', () => {
         invalid({
           code: `
             const owner = getOwner();
@@ -1142,7 +1142,7 @@ describe('reactivity', () => {
           errors: [{ messageId: 'badUnnamedDerivedSignal', line: 4 }],
         });
       });
-      test('invalid case 30', () => {
+      test('detects runWithOwner called in effect inside component without assigning to named variable', () => {
         invalid({
           code: `
             function Component() {
@@ -1156,7 +1156,7 @@ describe('reactivity', () => {
       });
     });
     describe(`Async tracking scopes`, () => {
-      test('invalid case 31', () => {
+      test('detects signal access after await in createEffect', () => {
         invalid({
           code: `
             const [count, setCount] = createSignal(0);
@@ -1168,7 +1168,7 @@ describe('reactivity', () => {
           errors: [{ messageId: 'noAsyncTrackedScope', line: 3 }],
         });
       });
-      test('invalid case 32', () => {
+      test('detects signal access after await in async createEffect', () => {
         invalid({
           code: `
             const [photos, setPhotos] = createSignal([]);
@@ -1182,7 +1182,7 @@ describe('reactivity', () => {
       });
     });
     describe(`non-function expression inside tagged template literal expression is not tracked scope`, () => {
-      test('invalid case 33', () => {
+      test('detects uncalled signal in css tagged template literal', () => {
         invalid({
           code: `
             const [signal] = createSignal("red");
@@ -1191,7 +1191,7 @@ describe('reactivity', () => {
           errors: [{ messageId: 'badSignal', line: 3 }],
         });
       });
-      test('invalid case 34', () => {
+      test('detects uncalled derived signal in css tagged template literal', () => {
         invalid({
           code: `
             const [signal] = createSignal("red");
@@ -1203,7 +1203,7 @@ describe('reactivity', () => {
       });
     });
     describe(`mapArray`, () => {
-      test('invalid case 35', () => {
+      test('detects untracked property access in mapArray second argument', () => {
         invalid({
           code: `
             function createCustomStore() {
@@ -1217,7 +1217,7 @@ describe('reactivity', () => {
           errors: [{ messageId: 'untrackedReactive' }],
         });
       });
-      test('invalid case 36', () => {
+      test('detects untracked signal access in mapArray second argument', () => {
         invalid({
           code: `
             const [array] = createSignal([]);
@@ -1228,7 +1228,7 @@ describe('reactivity', () => {
           errors: [{ messageId: 'untrackedReactive', line: 4 }],
         });
       });
-      test('invalid case 37', () => {
+      test('detects untracked signal access in indexArray second argument', () => {
         invalid({
           code: `
             const [array] = createSignal([]);
@@ -1241,7 +1241,7 @@ describe('reactivity', () => {
       });
     });
     describe(`static* prefix for props`, () => {
-      test('invalid case 38', () => {
+      test('detects untracked signal access passed to static prop', () => {
         invalid({
           code: `
             const [signal] = createSignal();
@@ -1252,7 +1252,7 @@ describe('reactivity', () => {
       });
     });
     describe(`custom hooks`, () => {
-      test('invalid case 39', () => {
+      test('detects untracked signal access in custom hook', () => {
         invalid({
           code: `
             const [signal] = createSignal(0);
@@ -1261,7 +1261,7 @@ describe('reactivity', () => {
           errors: [{ messageId: 'untrackedReactive' }],
         });
       });
-      test('invalid case 40', () => {
+      test('detects untracked signal access in array passed to custom hook', () => {
         invalid({
           code: `
             const [signal] = createSignal(0);
@@ -1270,7 +1270,7 @@ describe('reactivity', () => {
           errors: [{ messageId: 'untrackedReactive' }],
         });
       });
-      test('invalid case 41', () => {
+      test('detects untracked signal access in object passed to custom hook', () => {
         invalid({
           code: `
             const [signal] = createSignal(0);
@@ -1279,7 +1279,7 @@ describe('reactivity', () => {
           errors: [{ messageId: 'untrackedReactive' }],
         });
       });
-      test('invalid case 42', () => {
+      test('detects passing IIFE to custom hook', () => {
         invalid({
           code: `
             const [signal] = createSignal(0);

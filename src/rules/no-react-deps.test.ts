@@ -7,14 +7,14 @@ const invalid = testInvalid('no-react-deps', rule);
 
 describe('no-react-deps', () => {
   describe('valid', () => {
-    test('valid case 1', () => {
+    test('createEffect without dependency array is valid', () => {
       valid(`
         createEffect(() => {
           console.log(signal());
         });
       `);
     });
-    test('valid case 2', () => {
+    test('createEffect with initial value is valid', () => {
       valid(`
         createEffect((prev) => {
           console.log(signal());
@@ -22,7 +22,7 @@ describe('no-react-deps', () => {
         }, 0);
       `);
     });
-    test('valid case 3', () => {
+    test('createEffect with logical OR initial value is valid', () => {
       valid(`
         createEffect((prev) => {
           console.log(signal());
@@ -30,7 +30,7 @@ describe('no-react-deps', () => {
         });
       `);
     });
-    test('valid case 4', () => {
+    test('createEffect with undefined initial value is valid', () => {
       valid(`
         createEffect((prev) => {
           console.log(signal());
@@ -38,13 +38,13 @@ describe('no-react-deps', () => {
         }, undefined);
       `);
     });
-    test('valid case 5', () => {
+    test('createMemo without dependency array is valid', () => {
       valid(`const value = createMemo(() => computeExpensiveValue(a(), b()));`);
     });
-    test('valid case 6', () => {
+    test('createMemo with initial value is valid', () => {
       valid(`const sum = createMemo((prev) => input() + prev, 0);`);
     });
-    test('valid case 7', () => {
+    test('createEffect with spread arguments is valid', () => {
       valid(`
         const args = [() => { console.log(signal()); }, [signal()]];
         createEffect(...args);
@@ -52,7 +52,7 @@ describe('no-react-deps', () => {
     });
   });
   describe('invalid', () => {
-    test('invalid case 1', () => {
+    test('detects createEffect with dependency array', () => {
       invalid({
         code: `
           createEffect(() => {
@@ -67,7 +67,7 @@ describe('no-react-deps', () => {
         `,
       });
     });
-    test('invalid case 2', () => {
+    test('detects createEffect with identifier in dependency array', () => {
       invalid({
         code: `
           createEffect(() => {
@@ -82,7 +82,7 @@ describe('no-react-deps', () => {
         `,
       });
     });
-    test('invalid case 3', () => {
+    test('detects createEffect with variable as dependency array', () => {
       invalid({
         code: `
           const deps = [signal];
@@ -94,28 +94,28 @@ describe('no-react-deps', () => {
         // no `output`
       });
     });
-    test('invalid case 4', () => {
+    test('detects createMemo with dependency array', () => {
       invalid({
         code: `const value = createMemo(() => computeExpensiveValue(a(), b()), [a(), b()]);`,
         errors: [{ messageId: 'noUselessDep', data: { name: 'createMemo' } }],
         output: `const value = createMemo(() => computeExpensiveValue(a(), b()), );`,
       });
     });
-    test('invalid case 5', () => {
+    test('detects createMemo with identifiers in dependency array', () => {
       invalid({
         code: `const value = createMemo(() => computeExpensiveValue(a(), b()), [a, b]);`,
         errors: [{ messageId: 'noUselessDep', data: { name: 'createMemo' } }],
         output: `const value = createMemo(() => computeExpensiveValue(a(), b()), );`,
       });
     });
-    test('invalid case 6', () => {
+    test('detects createMemo with mixed dependency array', () => {
       invalid({
         code: `const value = createMemo(() => computeExpensiveValue(a(), b()), [a, b()]);`,
         errors: [{ messageId: 'noUselessDep', data: { name: 'createMemo' } }],
         output: `const value = createMemo(() => computeExpensiveValue(a(), b()), );`,
       });
     });
-    test('invalid case 7', () => {
+    test('detects createMemo with variable as dependency array', () => {
       invalid({
         code: `
           const deps = [a, b];
@@ -125,7 +125,7 @@ describe('no-react-deps', () => {
         // no `output`
       });
     });
-    test('invalid case 8', () => {
+    test('detects createMemo with variable function and dependency array', () => {
       invalid({
         code: `
           const deps = [a, b];

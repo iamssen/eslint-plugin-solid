@@ -7,43 +7,43 @@ const invalid = testInvalid('no-react-specific-props', rule);
 
 describe('no-react-specific-props', () => {
   describe('valid', () => {
-    test('valid case 1', () => {
+    test('standard JSX elements are valid', () => {
       valid(`let el = <div>Hello world!</div>;`);
     });
-    test('valid case 2', () => {
+    test('class prop is valid', () => {
       valid(`let el = <div class="greeting">Hello world!</div>;`);
     });
-    test('valid case 3', () => {
+    test('class prop with expression is valid', () => {
       valid(`let el = <div class={"greeting"}>Hello world!</div>;`);
     });
-    test('valid case 4', () => {
+    test('class prop alongside other attributes is valid', () => {
       valid(
         `let el = <div many other attributes class="greeting">Hello world!</div>;`,
       );
     });
-    test('valid case 5', () => {
+    test('for prop is valid', () => {
       valid(`let el = <label for="id">Hello world!</label>;`);
     });
-    test('valid case 6', () => {
+    test('for prop without trailing semicolon is valid', () => {
       valid(`let el = <label for="id">Hello world!</label>`);
     });
-    test('valid case 7', () => {
+    test('for prop with expression is valid', () => {
       valid(`let el = <label for={"id"}>Hello world!</label>`);
     });
-    test('valid case 8', () => {
+    test('for prop alongside other attributes is valid', () => {
       valid(
         `let el = <label many other attributes for="id">Hello world!</label>`,
       );
     });
-    test('valid case 9', () => {
+    test('class and for props on custom components are valid', () => {
       valid(`let el = <PascalComponent class="greeting" for="id" />`);
     });
-    test('valid case 10', () => {
+    test('key prop on custom components is valid', () => {
       valid(`let el = <PascalComponent key={item.id} />`);
     });
   });
   describe('invalid', () => {
-    test('invalid case 1', () => {
+    test('detects className prop and suggests class', () => {
       invalid({
         code: `let el = <div className="greeting">Hello world!</div>`,
         errors: [
@@ -52,7 +52,7 @@ describe('no-react-specific-props', () => {
         output: `let el = <div class="greeting">Hello world!</div>`,
       });
     });
-    test('invalid case 2', () => {
+    test('detects className prop with expression and suggests class', () => {
       invalid({
         code: `let el = <div className={"greeting"}>Hello world!</div>`,
         errors: [
@@ -61,7 +61,7 @@ describe('no-react-specific-props', () => {
         output: `let el = <div class={"greeting"}>Hello world!</div>`,
       });
     });
-    test('invalid case 3', () => {
+    test('detects className prop on self-closing element', () => {
       invalid({
         code: `let el = <div className="greeting" />`,
         errors: [
@@ -70,7 +70,7 @@ describe('no-react-specific-props', () => {
         output: `let el = <div class="greeting" />`,
       });
     });
-    test('invalid case 4', () => {
+    test('detects className prop alongside other attributes', () => {
       invalid({
         code: `let el = <div many other attributes className="greeting">Hello world!</div>`,
         errors: [
@@ -79,7 +79,7 @@ describe('no-react-specific-props', () => {
         output: `let el = <div many other attributes class="greeting">Hello world!</div>`,
       });
     });
-    test('invalid case 5', () => {
+    test('detects className prop on custom components', () => {
       invalid({
         code: `let el = <PascalComponent className="greeting">Hello world!</PascalComponent>`,
         errors: [
@@ -88,35 +88,35 @@ describe('no-react-specific-props', () => {
         output: `let el = <PascalComponent class="greeting">Hello world!</PascalComponent>`,
       });
     });
-    test('invalid case 6', () => {
+    test('detects htmlFor prop and suggests for', () => {
       invalid({
         code: `let el = <label htmlFor="id">Hello world!</label>`,
         errors: [{ messageId: 'prefer', data: { from: 'htmlFor', to: 'for' } }],
         output: `let el = <label for="id">Hello world!</label>`,
       });
     });
-    test('invalid case 7', () => {
+    test('detects htmlFor prop with expression and suggests for', () => {
       invalid({
         code: `let el = <label htmlFor={"id"}>Hello world!</label>`,
         errors: [{ messageId: 'prefer', data: { from: 'htmlFor', to: 'for' } }],
         output: `let el = <label for={"id"}>Hello world!</label>`,
       });
     });
-    test('invalid case 8', () => {
+    test('detects htmlFor prop alongside other attributes', () => {
       invalid({
         code: `let el = <label many other attributes htmlFor="id">Hello world!</label>`,
         errors: [{ messageId: 'prefer', data: { from: 'htmlFor', to: 'for' } }],
         output: `let el = <label many other attributes for="id">Hello world!</label>`,
       });
     });
-    test('invalid case 9', () => {
+    test('detects htmlFor prop on custom components', () => {
       invalid({
         code: `let el = <PascalComponent htmlFor="id">Hello world!</PascalComponent>`,
         errors: [{ messageId: 'prefer', data: { from: 'htmlFor', to: 'for' } }],
         output: `let el = <PascalComponent for="id">Hello world!</PascalComponent>`,
       });
     });
-    test('invalid case 10', () => {
+    test('detects key prop on native elements', () => {
       invalid({
         code: `let el = <div key={item.id} />`,
         errors: [{ messageId: 'noUselessKey' }],

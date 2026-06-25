@@ -7,69 +7,69 @@ const invalid = testInvalid('jsx-no-duplicate-props', rule);
 
 describe('jsx-no-duplicate-props', () => {
   describe('valid', () => {
-    test('valid case 1', () => {
+    test('different props on a JSX element are valid', () => {
       valid(`let el = <div a="a" b="b" />`);
     });
-    test('valid case 2', () => {
+    test('spreading different props is valid', () => {
       valid(`let el = <div a="a" {...{ b: "b" }} />`);
     });
-    test('valid case 3', () => {
+    test('spreading different props with string keys is valid', () => {
       valid(`let el = <div a="a" {...{ "b": "b" }} />`);
     });
-    test('valid case 4', () => {
+    test('props with same name but different cases are valid', () => {
       valid(`let el = <div a="a" A="A" />`);
     });
-    test('valid case 5', () => {
+    test('spreading props with same name but different cases is valid', () => {
       valid(`let el = <div a="a" {...{ A: "A" }} />`);
     });
-    test('valid case 6', () => {
+    test('a single class prop is valid', () => {
       valid(`let el = <div class="blue" />`);
     });
-    test('valid case 7', () => {
+    test('a single children prop is valid', () => {
       valid(`let el = <div children={<div />} />`);
     });
-    test('valid case 8', () => {
+    test('standard JSX children are valid', () => {
       valid(`let el = <div><div /></div>`);
     });
   });
   describe('invalid', () => {
-    test('invalid case 1', () => {
+    test('detects duplicate props on a JSX element', () => {
       invalid({
         code: `let el = <div a="a" a="aaaa" />`,
         errors: [{ messageId: 'noDuplicateProps' }],
       });
     });
-    test('invalid case 2', () => {
+    test('detects duplicate props when one is spread', () => {
       invalid({
         code: `let el = <div a="a" {...{a: "aaaa" }} />`,
         errors: [{ messageId: 'noDuplicateProps' }],
       });
     });
-    test('invalid case 3', () => {
+    test('detects duplicate props when the first is spread', () => {
       invalid({
         code: `let el = <div {...{a: "aaaa" }} a="a" />`,
         errors: [{ messageId: 'noDuplicateProps' }],
       });
     });
-    test('invalid case 4', () => {
+    test('detects duplicate props when one is spread with a string key', () => {
       invalid({
         code: `let el = <div a="a" {...{ "a": "aaaa" }} />`,
         errors: [{ messageId: 'noDuplicateProps' }],
       });
     });
-    test('invalid case 5', () => {
+    test('detects duplicate class props on a JSX element', () => {
       invalid({
         code: `let el = <div class="blue" class="green" />`,
         errors: [{ messageId: 'noDuplicateClass' }],
       });
     });
-    test('invalid case 6', () => {
+    test('detects duplicate class props when one is spread', () => {
       invalid({
         code: `let el = <div class="blue" {...{ class: "green" }} />`,
         errors: [{ messageId: 'noDuplicateClass' }],
       });
     });
-    test('invalid case 7', () => {
+    test('detects conflicts between children prop and JSX children', () => {
       invalid({
         code: `let el = <div children={<div />}><div /></div>`,
         errors: [
@@ -82,7 +82,7 @@ describe('jsx-no-duplicate-props', () => {
         ],
       });
     });
-    test('invalid case 8', () => {
+    test('detects conflicts between innerHTML and textContent props', () => {
       invalid({
         code: `let el = <div innerHTML="<p></p>" textContent="howdy!" />`,
         errors: [

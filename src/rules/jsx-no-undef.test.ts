@@ -9,23 +9,23 @@ const invalid = testInvalid('jsx-no-undef', rule);
 
 describe('jsx-no-undef', () => {
   describe('valid', () => {
-    test('valid case 1', () => {
+    test('custom directives used as properties are valid', () => {
       valid(`let X; let el = <div use:X={{}} />;`);
     });
-    test('valid case 2', () => {
+    test('custom directives inside IIFE are valid', () => {
       valid(`(X => <div use:X={{}} />)()`);
     });
-    test('valid case 3', () => {
+    test('custom directives without values are valid', () => {
       valid(`let X; let el = <div use:X />`);
     });
-    test('valid case 4', () => {
+    test('custom directives defined in the same statement are valid', () => {
       valid(`let X, el = <div use:X />`);
     });
-    test('valid case 5', () => {
+    test('components and custom directives defined together are valid', () => {
       valid(`let Component, X = <Component use:X />`);
     });
     describe(`},`, () => {
-      test('valid case 6', () => {
+      test('component names are ignored when typescriptEnabled is true', () => {
         valid({
           code: `let el = <Component />`,
           options: [{ typescriptEnabled: true }],
@@ -34,14 +34,14 @@ describe('jsx-no-undef', () => {
     });
   });
   describe('invalid', () => {
-    test('invalid case 1', () => {
+    test('detects undefined components', () => {
       invalid({
         code: `let el = <Component />;`,
         errors: [{ messageId: 'undefined', data: { identifier: 'Component' } }],
       });
     });
     describe(`custom directives`, () => {
-      test('invalid case 2', () => {
+      test('detects undefined custom directives', () => {
         invalid({
           code: `let el = <div use:X />;`,
           errors: [
@@ -52,7 +52,7 @@ describe('jsx-no-undef', () => {
           ],
         });
       });
-      test('invalid case 3', () => {
+      test('detects undefined custom directives even when typescriptEnabled is true', () => {
         invalid({
           code: `let el = <div use:X />;`,
           options: [{ typescriptEnabled: true }],
@@ -64,7 +64,7 @@ describe('jsx-no-undef', () => {
           ],
         });
       });
-      test('invalid case 4', () => {
+      test('detects undefined custom directives with values', () => {
         invalid({
           code: `let el = <div use:X={{}} />;`,
           errors: [
@@ -77,7 +77,7 @@ describe('jsx-no-undef', () => {
       });
     });
     describe(`},`, () => {
-      test('invalid case 5', () => {
+      test('detects undefined custom directives even when allowGlobals is true', () => {
         invalid({
           code: `let el = <div use:X />;`,
           options: [{ allowGlobals: true }],
@@ -91,7 +91,7 @@ describe('jsx-no-undef', () => {
       });
     });
     describe(`auto imports`, () => {
-      test('invalid case 6', () => {
+      test('auto-imports Solid.js For component', () => {
         invalid({
           code: `let el = <For each={items}>{item => item.name}</For>`,
           errors: [
@@ -106,7 +106,7 @@ describe('jsx-no-undef', () => {
           `,
         });
       });
-      test('invalid case 7', () => {
+      test('auto-imports Solid.js Show component', () => {
         invalid({
           code: `let el = <Show when={item}>{item => item.name}</Show>`,
           errors: [
@@ -121,7 +121,7 @@ describe('jsx-no-undef', () => {
           `,
         });
       });
-      test('invalid case 8', () => {
+      test('auto-imports Solid.js Switch and Match components', () => {
         invalid({
           code: `
             render(
@@ -147,7 +147,7 @@ describe('jsx-no-undef', () => {
           `,
         });
       });
-      test('invalid case 9', () => {
+      test('adds auto-import alongside existing default imports', () => {
         invalid({
           code: `
             import X from "x";
@@ -166,7 +166,7 @@ describe('jsx-no-undef', () => {
           `,
         });
       });
-      test('invalid case 10', () => {
+      test('adds auto-import to existing Solid.js imports', () => {
         invalid({
           code: `
             import { Show } from "solid-js";
@@ -184,7 +184,7 @@ describe('jsx-no-undef', () => {
           `,
         });
       });
-      test('invalid case 11', () => {
+      test('adds auto-import to existing Solid.js imports with multiple specifiers', () => {
         invalid({
           code: `
             import { For, Switch } from "solid-js";
@@ -210,7 +210,7 @@ describe('jsx-no-undef', () => {
           `,
         });
       });
-      test('invalid case 12', () => {
+      test('adds auto-import with multiple existing imports', () => {
         invalid({
           code: `
             import X from "x";
@@ -230,7 +230,7 @@ describe('jsx-no-undef', () => {
           `,
         });
       });
-      test('invalid case 13', () => {
+      test('adds auto-import to existing Solid.js default and namespace imports', () => {
         invalid({
           code: `
             import X from "x";
@@ -250,7 +250,7 @@ describe('jsx-no-undef', () => {
           `,
         });
       });
-      test('invalid case 14', () => {
+      test('adds auto-import to existing empty Solid.js imports', () => {
         invalid({
           code: `
             import X from "x";
@@ -270,7 +270,7 @@ describe('jsx-no-undef', () => {
           `,
         });
       });
-      test('invalid case 15', () => {
+      test('adds auto-import while preserving comments on existing imports', () => {
         invalid({
           code: `
             // attached comment
@@ -291,7 +291,7 @@ describe('jsx-no-undef', () => {
           `,
         });
       });
-      test('invalid case 16', () => {
+      test('adds auto-import while preserving trailing comments', () => {
         invalid({
           code: `
             import X from "x"; // attached comment

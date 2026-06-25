@@ -7,15 +7,15 @@ const invalid = testInvalid('prefer-for', rule);
 
 describe('prefer-for', () => {
   describe('valid', () => {
-    test('valid case 1', () => {
+    test('using For component is valid', () => {
       valid(
         `let Component = (props) => <ol><For each={props.data}>{d => <li>{d.text}</li>}</For></ol>;`,
       );
     });
-    test('valid case 2', () => {
+    test('using map outside JSX is valid', () => {
       valid(`let abc = x.map(y => y + z);`);
     });
-    test('valid case 3', () => {
+    test('using map inside component body is valid', () => {
       valid(
         `let Component = (props) => {
       let abc = x.map(y => y + z);
@@ -26,28 +26,28 @@ describe('prefer-for', () => {
   });
   describe('invalid', () => {
     describe(`fixes to add <For />, which can be auto-imported in jsx-no-undef`, () => {
-      test('invalid case 1', () => {
+      test('detects array map in JSX and suggests For component', () => {
         invalid({
           code: `let Component = (props) => <ol>{props.data.map(d => <li>{d.text}</li>)}</ol>;`,
           errors: [{ messageId: 'preferFor' }],
           output: `let Component = (props) => <ol><For each={props.data}>{d => <li>{d.text}</li>}</For></ol>;`,
         });
       });
-      test('invalid case 2', () => {
+      test('detects array map in Fragment and suggests For component', () => {
         invalid({
           code: `let Component = (props) => <>{props.data.map(d => <li>{d.text}</li>)}</>;`,
           errors: [{ messageId: 'preferFor' }],
           output: `let Component = (props) => <><For each={props.data}>{d => <li>{d.text}</li>}</For></>;`,
         });
       });
-      test('invalid case 3', () => {
+      test('detects array map with key and suggests For component without key', () => {
         invalid({
           code: `let Component = (props) => <ol>{props.data.map(d => <li key={d.id}>{d.text}</li>)}</ol>;`,
           errors: [{ messageId: 'preferFor' }],
           output: `let Component = (props) => <ol><For each={props.data}>{d => <li key={d.id}>{d.text}</li>}</For></ol>;`,
         });
       });
-      test('invalid case 4', () => {
+      test('detects array map in block body component', () => {
         invalid({
           code: `
             function Component(props) {
@@ -62,7 +62,7 @@ describe('prefer-for', () => {
           `,
         });
       });
-      test('invalid case 5', () => {
+      test('detects optional chaining array map in JSX', () => {
         invalid(
           {
             code: `
@@ -82,13 +82,13 @@ describe('prefer-for', () => {
       });
     });
     describe(`deopts`, () => {
-      test('invalid case 6', () => {
+      test('detects array map with empty callback arguments', () => {
         invalid({
           code: `let Component = (props) => <ol>{props.data.map(() => <li />)}</ol>;`,
           errors: [{ messageId: 'preferForOrIndex' }],
         });
       });
-      test('invalid case 7', () => {
+      test('detects array map with rest operator in callback', () => {
         invalid({
           code: `let Component = (props) => <ol>{props.data.map((...args) => <li>{args[0].text}</li>)}</ol>;`,
           errors: [{ messageId: 'preferForOrIndex' }],

@@ -7,78 +7,78 @@ const invalid = testInvalid('no-proxy-apis', rule);
 
 describe('no-proxy-apis', () => {
   describe('valid', () => {
-    test('valid case 1', () => {
+    test('using mergeProps with empty object is valid', () => {
       valid(`let merged = mergeProps({}, props);`);
     });
-    test('valid case 2', () => {
+    test('using mergeProps with variable object is valid', () => {
       valid(`const obj = {}; let merged = mergeProps(obj, props);`);
     });
-    test('valid case 3', () => {
+    test('using mergeProps with let variable object is valid', () => {
       valid(`let obj = {}; let merged = mergeProps(obj, props);`);
     });
-    test('valid case 4', () => {
+    test('using mergeProps with getter is valid', () => {
       valid(`let merged = mergeProps({ get asdf() { signal() } }, props);`);
     });
-    test('valid case 5', () => {
+    test('spreading object literal is valid', () => {
       valid(`let el = <div {...{ asdf: 'asdf' }} />`);
     });
-    test('valid case 6', () => {
+    test('spreading variable is valid', () => {
       valid(`let el = <div {...asdf} />`);
     });
-    test('valid case 7', () => {
+    test('using property named Proxy is valid', () => {
       valid(`let obj = { Proxy: 1 }`);
     });
   });
   describe('invalid', () => {
-    test('invalid case 1', () => {
+    test('detects new Proxy instantiation', () => {
       invalid({
         code: `let proxy = new Proxy(asdf, {});`,
         errors: [{ messageId: 'proxyLiteral' }],
       });
     });
-    test('invalid case 2', () => {
+    test('detects Proxy.revocable call', () => {
       invalid({
         code: `let proxy = Proxy.revocable(asdf, {});`,
         errors: [{ messageId: 'proxyLiteral' }],
       });
     });
-    test('invalid case 3', () => {
+    test('detects import from solid-js/store', () => {
       invalid({
         code: `import {} from 'solid-js/store';`,
         errors: [{ messageId: 'noStore' }],
       });
     });
-    test('invalid case 4', () => {
+    test('detects spreading function call', () => {
       invalid({
         code: `let el = <div {...maybeSignal()} />`,
         errors: [{ messageId: 'spreadCall' }],
       });
     });
-    test('invalid case 5', () => {
+    test('detects spreading function call inside object literal', () => {
       invalid({
         code: `let el = <div {...{ ...maybeSignal() }} />`,
         errors: [{ messageId: 'spreadCall' }],
       });
     });
-    test('invalid case 6', () => {
+    test('detects spreading member expression', () => {
       invalid({
         code: `let el = <div {...maybeProps.foo} />`,
         errors: [{ messageId: 'spreadMember' }],
       });
     });
-    test('invalid case 7', () => {
+    test('detects spreading member expression inside object literal', () => {
       invalid({
         code: `let el = <div {...{ ...maybeProps.foo }} />`,
         errors: [{ messageId: 'spreadMember' }],
       });
     });
-    test('invalid case 8', () => {
+    test('detects mergeProps with single argument', () => {
       invalid({
         code: `let merged = mergeProps(maybeSignal)`,
         errors: [{ messageId: 'mergeProps' }],
       });
     });
-    test('invalid case 9', () => {
+    test('detects mergeProps with function argument', () => {
       invalid({
         code: `let func = () => ({}); let merged = mergeProps(func, props)`,
         errors: [{ messageId: 'mergeProps' }],

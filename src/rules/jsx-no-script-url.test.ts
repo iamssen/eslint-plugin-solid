@@ -7,16 +7,16 @@ const invalid = testInvalid('jsx-no-script-url', rule);
 
 describe('jsx-no-script-url', () => {
   describe('valid', () => {
-    test('valid case 1', () => {
+    test('standard http URLs are valid', () => {
       valid(`let el = <a href="https://example.com" />`);
     });
-    test('valid case 2', () => {
+    test('standard http URLs in custom components are valid', () => {
       valid(`let el = <Link to="https://example.com" />`);
     });
-    test('valid case 3', () => {
+    test('standard http URLs in custom props are valid', () => {
       valid(`let el = <Foo bar="https://example.com" />`);
     });
-    test('valid case 4', () => {
+    test('standard http URLs passed as variables are valid', () => {
       valid(`
         const link = "https://example.com";
         let el = <a href={link} />
@@ -24,25 +24,25 @@ describe('jsx-no-script-url', () => {
     });
   });
   describe('invalid', () => {
-    test('invalid case 1', () => {
+    test('javascript: URLs in a tags are invalid', () => {
       invalid({
         code: `let el = <a href="javascript:alert('hacked!')" />`,
         errors: [{ messageId: 'noJSURL' }],
       });
     });
-    test('invalid case 2', () => {
+    test('javascript: URLs in Link components are invalid', () => {
       invalid({
         code: `let el = <Link to="javascript:alert('hacked!')" />`,
         errors: [{ messageId: 'noJSURL' }],
       });
     });
-    test('invalid case 3', () => {
+    test('javascript: URLs in custom props are invalid', () => {
       invalid({
         code: `let el = <Foo bar="javascript:alert('hacked!')" />`,
         errors: [{ messageId: 'noJSURL' }],
       });
     });
-    test('invalid case 4', () => {
+    test('javascript: URLs passed as variables are invalid', () => {
       invalid({
         code: `
           const link = "javascript:alert('hacked!')";
@@ -51,7 +51,7 @@ describe('jsx-no-script-url', () => {
         errors: [{ messageId: 'noJSURL' }],
       });
     });
-    test('invalid case 5', () => {
+    test('javascript: URLs with tab and newline characters are invalid', () => {
       invalid({
         code: String.raw`
           const link = "\tj\na\tv\na\ts\nc\tr\ni\tpt:alert('hacked!')";
@@ -60,7 +60,7 @@ describe('jsx-no-script-url', () => {
         errors: [{ messageId: 'noJSURL' }],
       });
     });
-    test('invalid case 6', () => {
+    test('javascript: URLs constructed from concatenated strings are invalid', () => {
       invalid({
         code: `
           const link = "javascrip" + "t:alert('hacked!')";

@@ -7,39 +7,39 @@ const invalid = testInvalid('no-unknown-namespaces', rule);
 
 describe('no-unknown-namespaces', () => {
   describe('valid', () => {
-    test('valid case 1', () => {
+    test('standard on: namespace is valid', () => {
       valid(`let el = <div on:click={null} />;`);
     });
-    test('valid case 2', () => {
+    test('standard on: namespace with different event is valid', () => {
       valid(`let el = <div on:focus={null} />;`);
     });
-    test('valid case 3', () => {
+    test('standard on: namespace without value is valid', () => {
       valid(`let el = <div on:quux />;`);
     });
-    test('valid case 4', () => {
+    test('standard oncapture: namespace is valid', () => {
       valid(`let el = <div oncapture:click={null} />;`);
     });
-    test('valid case 5', () => {
+    test('standard oncapture: namespace with different event is valid', () => {
       valid(`let el = <div oncapture:focus={null} />;`);
     });
-    test('valid case 6', () => {
+    test('standard use: namespace is valid', () => {
       valid(`let el = <div use:X={null} />;`);
     });
-    test('valid case 7', () => {
+    test('standard use: namespace without value is valid', () => {
       valid(`let el = <div use:X />;`);
     });
-    test('valid case 8', () => {
+    test('standard prop: namespace is valid', () => {
       valid(`let el = <div prop:scrollTop="0px" />;`);
     });
-    test('valid case 9', () => {
+    test('standard attr: namespace is valid', () => {
       valid(`let el = <div attr:title="title" />;`);
     });
-    test('valid case 10', () => {
+    test('standard xmlns: namespace is valid', () => {
       valid(
         `let el = <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"></svg>`,
       );
     });
-    test('valid case 11', () => {
+    test('custom namespace in allowedNamespaces is valid', () => {
       valid({
         options: [{ allowedNamespaces: ['foo'] }],
         code: `let el = <bar foo="http://www.w3.org/2000/svg" version="1.1" foo:bar="http://www.w3.org/1999/xlink" />`,
@@ -47,43 +47,43 @@ describe('no-unknown-namespaces', () => {
     });
   });
   describe('invalid', () => {
-    test('invalid case 1', () => {
+    test('detects unknown namespace foo:', () => {
       invalid({
         code: `let el = <div foo:boo={null} />`,
         errors: [{ messageId: 'unknown', data: { namespace: 'foo' } }],
       });
     });
-    test('invalid case 2', () => {
+    test('detects unknown namespace bar:', () => {
       invalid({
         code: `let el = <div bar:car={null} />`,
         errors: [{ messageId: 'unknown', data: { namespace: 'bar' } }],
       });
     });
-    test('invalid case 3', () => {
+    test('detects style: namespace and suggests standard style prop', () => {
       invalid({
         code: `let el = <div style:width="100%" />`,
         errors: [{ messageId: 'style', data: { namespace: 'style' } }],
       });
     });
-    test('invalid case 4', () => {
+    test('detects style: namespace with expression', () => {
       invalid({
         code: `let el = <div style:width={0} />`,
         errors: [{ messageId: 'style', data: { namespace: 'style' } }],
       });
     });
-    test('invalid case 5', () => {
+    test('detects class: namespace and suggests standard class prop', () => {
       invalid({
         code: `let el = <div class:mt-10={true} />`,
         errors: [{ messageId: 'style', data: { namespace: 'class' } }],
       });
     });
-    test('invalid case 6', () => {
+    test('detects class: namespace without value', () => {
       invalid({
         code: `let el = <div class:mt-10 />`,
         errors: [{ messageId: 'style', data: { namespace: 'class' } }],
       });
     });
-    test('invalid case 7', () => {
+    test('detects attr: namespace on custom component', () => {
       invalid({
         code: `let el = <Box attr:foo="bar" />`,
         errors: [
@@ -100,7 +100,7 @@ describe('no-unknown-namespaces', () => {
         ],
       });
     });
-    test('invalid case 8', () => {
+    test('detects unknown namespace on custom component', () => {
       invalid({
         code: `let el = <Box foo:boo={null} />`,
         errors: [

@@ -7,49 +7,49 @@ const invalid = testInvalid('prefer-classlist', rule);
 
 describe('prefer-classlist', () => {
   describe('valid', () => {
-    test('valid case 1', () => {
+    test('classlist prop is valid', () => {
       valid(`let el = <div classlist={{ red: true }}>Hello, world!</div>`);
     });
-    test('valid case 2', () => {
+    test('class prop with string literal is valid', () => {
       valid(`let el = <div class="red">Hello, world!</div>`);
     });
-    test('valid case 3', () => {
+    test('className prop with string literal is valid', () => {
       valid(`let el = <div className="red">Hello, world!</div>`);
     });
-    test('valid case 4', () => {
+    test('cn function used in custom prop is valid', () => {
       valid(`let el = <div something={cn({ red: true })}>Hello, world!</div>`);
     });
-    test('valid case 5', () => {
+    test('clsx function used in custom prop is valid', () => {
       valid(
         `let el = <div something={clsx({ red: true })}>Hello, world!</div>`,
       );
     });
-    test('valid case 6', () => {
+    test('classnames function used in custom prop is valid', () => {
       valid(
         `let el = <div something={classnames({ red: true })}>Hello, world!</div>`,
       );
     });
-    test('valid case 7', () => {
+    test('other function used in class prop is valid', () => {
       valid(
         `let el = <div class={someOtherClassFunction({ red: true })}>Hello, world!</div>`,
       );
     });
-    test('valid case 8', () => {
+    test('cn function with multiple arguments in class prop is valid', () => {
       valid(
         `let el = <div class={cn({ red: true }, condition && "yellow")}>Hello, world!</div>`,
       );
     });
-    test('valid case 9', () => {
+    test('cn function with conditional in custom prop is valid', () => {
       valid(
         `let el = <div something={cn(condition && "yellow")}>Hello, world!</div>`,
       );
     });
-    test('valid case 10', () => {
+    test('clsx function in class prop alongside classlist is valid', () => {
       valid(
         `let el = <div class={clsx({ red: true })} classlist={{}}>Hello, world!</div>`,
       );
     });
-    test('valid case 11', () => {
+    test('clsx function in class prop is valid when not in options', () => {
       valid({
         code: `let el = <div class={clsx({ red: true })}>Hello, world!</div>`,
         options: [{ classnames: ['x', 'y', 'z'] }],
@@ -57,14 +57,14 @@ describe('prefer-classlist', () => {
     });
   });
   describe('invalid', () => {
-    test('invalid case 1', () => {
+    test('detects cn function in class prop and suggests classlist', () => {
       invalid({
         code: `let el = <div class={cn({ red: true })}>Hello, world!</div>`,
         errors: [{ messageId: 'preferClasslist', data: { classnames: 'cn' } }],
         output: `let el = <div classlist={{ red: true }}>Hello, world!</div>`,
       });
     });
-    test('invalid case 2', () => {
+    test('detects clsx function in class prop and suggests classlist', () => {
       invalid({
         code: `let el = <div class={clsx({ red: true })}>Hello, world!</div>`,
         errors: [
@@ -73,7 +73,7 @@ describe('prefer-classlist', () => {
         output: `let el = <div classlist={{ red: true }}>Hello, world!</div>`,
       });
     });
-    test('invalid case 3', () => {
+    test('detects classnames function in class prop and suggests classlist', () => {
       invalid({
         code: `let el = <div class={classnames({ red: true })}>Hello, world!</div>`,
         errors: [
@@ -82,7 +82,7 @@ describe('prefer-classlist', () => {
         output: `let el = <div classlist={{ red: true }}>Hello, world!</div>`,
       });
     });
-    test('invalid case 4', () => {
+    test('detects custom function from options in class prop', () => {
       invalid({
         code: `let el = <div class={x({ red: true })}>Hello, world!</div>`,
         options: [{ classnames: ['x', 'y', 'z'] }],
@@ -90,14 +90,14 @@ describe('prefer-classlist', () => {
         output: `let el = <div classlist={{ red: true }}>Hello, world!</div>`,
       });
     });
-    test('invalid case 5', () => {
+    test('detects cn function in className prop', () => {
       invalid({
         code: `let el = <div className={cn({ red: true })}>Hello, world!</div>`,
         errors: [{ messageId: 'preferClasslist', data: { classnames: 'cn' } }],
         output: `let el = <div classlist={{ red: true }}>Hello, world!</div>`,
       });
     });
-    test('invalid case 6', () => {
+    test('detects cn function with multiple arguments and suggests classlist', () => {
       invalid({
         code: `let el = <div class={cn({ red: true, "mx-4": props.size > 2 })}>Hello, world!</div>`,
         errors: [{ messageId: 'preferClasslist', data: { classnames: 'cn' } }],

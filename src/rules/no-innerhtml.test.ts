@@ -7,57 +7,57 @@ const invalid = testInvalid('no-innerhtml', rule);
 
 describe('no-innerhtml', () => {
   describe('valid', () => {
-    test('valid case 1', () => {
+    test('standard elements without innerHTML are valid', () => {
       valid(`let el = <div prop1 prop2={2}>Hello world!</div>`);
     });
-    test('valid case 2', () => {
+    test('custom components without innerHTML are valid', () => {
       valid(`let el = <Box prop1 prop2={2}>Hello world!</Box>`);
     });
-    test('valid case 3', () => {
+    test('innerHTML with string literal is valid', () => {
       valid(
         `let el = <div prop1 prop2={2} innerHTML="<p>Hello</p><p>world!</p>" />`,
       );
     });
-    test('valid case 4', () => {
+    test('innerHTML with concatenated string literal is valid', () => {
       valid(
         `let el = <div prop1 prop2={2} innerHTML={"<p>Hello</p>" + "<p>world!</p>"} />`,
       );
     });
-    test('valid case 5', () => {
+    test('innerHTML with empty children is valid', () => {
       valid(
         `let el = <div prop1 prop2={2} innerHTML="<p>Hello</p><p>world!</p>"></div>`,
       );
     });
   });
   describe('invalid', () => {
-    test('invalid case 1', () => {
+    test('detects malformed HTML in innerHTML string literal', () => {
       invalid({
         code: `let el = <div prop1 prop2={2} innerHTML="<p>Hello</><p>world!</p>" />`,
         options: [{ allowStatic: false }],
         errors: [{ messageId: 'dangerous' }],
       });
     });
-    test('invalid case 2', () => {
+    test('detects malformed HTML in innerHTML JSX expression', () => {
       invalid({
         code: `let el = <div innerHTML={"<p>Hello</p><p>world!</p>"} />`,
         options: [{ allowStatic: false }],
         errors: [{ messageId: 'dangerous' }],
       });
     });
-    test('invalid case 3', () => {
+    test('detects malformed HTML in innerHTML concatenated string', () => {
       invalid({
         code: `let el = <div prop1 prop2={2} innerHTML={"<p>Hello</p>" + "<p>world!</p>"} />`,
         options: [{ allowStatic: false }],
         errors: [{ messageId: 'dangerous' }],
       });
     });
-    test('invalid case 4', () => {
+    test('detects non-string expression in innerHTML', () => {
       invalid({
         code: `let el = <div prop1 prop2={2} innerHTML={Math.random()} />`,
         errors: [{ messageId: 'dangerous' }],
       });
     });
-    test('invalid case 5', () => {
+    test('detects plain text in innerHTML and suggests innerText', () => {
       invalid({
         code: `let el = <div prop1 prop2={2} innerHTML="Hello world!" />`,
         errors: [
@@ -73,7 +73,7 @@ describe('no-innerhtml', () => {
         ],
       });
     });
-    test('invalid case 6', () => {
+    test('detects conflict between innerHTML and JSX children', () => {
       invalid({
         code: `
           let el = (
@@ -85,7 +85,7 @@ describe('no-innerhtml', () => {
         errors: [{ messageId: 'conflict' }],
       });
     });
-    test('invalid case 7', () => {
+    test('detects conflict between innerHTML and multiple JSX children', () => {
       invalid({
         code: `
           let el = (
@@ -98,7 +98,7 @@ describe('no-innerhtml', () => {
         errors: [{ messageId: 'conflict' }],
       });
     });
-    test('invalid case 8', () => {
+    test('detects conflict between innerHTML and string literal child', () => {
       invalid({
         code: `
           let el = (
@@ -110,7 +110,7 @@ describe('no-innerhtml', () => {
         errors: [{ messageId: 'conflict' }],
       });
     });
-    test('invalid case 9', () => {
+    test('detects conflict between innerHTML and expression child', () => {
       invalid({
         code: `
           let el = (
@@ -122,20 +122,20 @@ describe('no-innerhtml', () => {
         errors: [{ messageId: 'conflict' }],
       });
     });
-    test('invalid case 10', () => {
+    test('detects dangerouslySetInnerHTML and suggests innerHTML', () => {
       invalid({
         code: `let el = <div dangerouslySetInnerHTML={{ __html: "<p>Hello</p><p>world!</p>" }} />`,
         errors: [{ messageId: 'dangerouslySetInnerHTML' }],
         output: `let el = <div innerHTML={"<p>Hello</p><p>world!</p>"} />`,
       });
     });
-    test('invalid case 11', () => {
+    test('detects dangerouslySetInnerHTML with variable', () => {
       invalid({
         code: `let el = <div dangerouslySetInnerHTML={foo} />`,
         errors: [{ messageId: 'dangerouslySetInnerHTML' }],
       });
     });
-    test('invalid case 12', () => {
+    test('detects dangerouslySetInnerHTML with empty object', () => {
       invalid({
         code: `let el = <div dangerouslySetInnerHTML={{}} />`,
         errors: [{ messageId: 'dangerouslySetInnerHTML' }],

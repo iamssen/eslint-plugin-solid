@@ -7,25 +7,25 @@ const invalid = testInvalid('no-destructure', rule);
 
 describe('no-destructure', () => {
   describe('valid', () => {
-    test('valid case 1', () => {
+    test('accessing props without destructuring is valid', () => {
       valid(`let Component = props => <div />`);
     });
-    test('valid case 2', () => {
+    test('accessing props with parenthesis without destructuring is valid', () => {
       valid(`let Component = (props) => <div />`);
     });
-    test('valid case 3', () => {
+    test('accessing props with block body without destructuring is valid', () => {
       valid(`let Component = (props) => { return <div />; }`);
     });
-    test('valid case 4', () => {
+    test('accessing props with implicit return without destructuring is valid', () => {
       valid(`let Component = (props) => (<div />)`);
     });
-    test('valid case 5', () => {
+    test('returning null without destructuring is valid', () => {
       valid(`let Component = props => null`);
     });
-    test('valid case 6', () => {
+    test('passing props properties without destructuring is valid', () => {
       valid(`let Component = (props) => <div a={props.a} />`);
     });
-    test('valid case 7', () => {
+    test('using splitProps is valid', () => {
       valid(`
         let Component = (props) => { 
           const [local, rest] = splitProps(props, ['a']);
@@ -33,7 +33,7 @@ describe('no-destructure', () => {
         }
       `);
     });
-    test('valid case 8', () => {
+    test('destructuring non-props variables is valid', () => {
       valid(`
         let Component = props => {
           const { a } = someFunction();
@@ -41,10 +41,10 @@ describe('no-destructure', () => {
         }
       `);
     });
-    test('valid case 9', () => {
+    test('destructuring params in non-component functions is valid', () => {
       valid(`let NotAComponent = ({ a }, more, params) => <div a={a} />`);
     });
-    test('valid case 10', () => {
+    test('destructuring params in inner functions is valid', () => {
       valid(`
         let Component = props => {
           let inner = ({ a, ...rest }) => a;
@@ -53,7 +53,7 @@ describe('no-destructure', () => {
         }
       `);
     });
-    test('valid case 11', () => {
+    test('destructuring props inside component body is caught by reactivity rule instead', () => {
       valid(`
         // This one might be surprising, since we're clearly destructuring props!
         // But this will be caught as a reactive expression use outside of
@@ -67,64 +67,64 @@ describe('no-destructure', () => {
         }
       `);
     });
-    test('valid case 12', () => {
+    test('standard JSX elements are valid', () => {
       valid(`let element = <div />`);
     });
-    test('valid case 13', () => {
+    test('accessing props with typescript types without destructuring is valid', () => {
       valid(`let Component = (props: Props) => <div />;`, true);
     });
   });
   describe('invalid', () => {
-    test('invalid case 1', () => {
+    test('detects empty object destructuring in component params', () => {
       invalid({
         code: `let Component = ({}) => <div />`,
         errors: [{ messageId: 'noDestructure' }],
         output: `let Component = (props) => <div />`,
       });
     });
-    test('invalid case 2', () => {
+    test('detects simple property destructuring in component params', () => {
       invalid({
         code: `let Component = ({ a }) => <div a={a} />`,
         errors: [{ messageId: 'noDestructure' }],
         output: `let Component = (props) => <div a={props.a} />`,
       });
     });
-    test('invalid case 3', () => {
+    test('detects simple property destructuring in component params with implicit return', () => {
       invalid({
         code: `let Component = ({ a }) => (<div a={a} />)`,
         errors: [{ messageId: 'noDestructure' }],
         output: `let Component = (props) => (<div a={props.a} />)`,
       });
     });
-    test('invalid case 4', () => {
+    test('detects property destructuring with alias in component params', () => {
       invalid({
         code: `let Component = ({ a: A }) => <div a={A} />`,
         errors: [{ messageId: 'noDestructure' }],
         output: `let Component = (props) => <div a={props.a} />`,
       });
     });
-    test('invalid case 5', () => {
+    test('detects string literal property destructuring in component params', () => {
       invalid({
         code: `let Component = ({ 'a': A }) => <div a={A} />`,
         errors: [{ messageId: 'noDestructure' }],
         output: `let Component = (props) => <div a={props['a']} />`,
       });
     });
-    test('invalid case 6', () => {
+    test('detects computed property destructuring in component params', () => {
       invalid({
         code: `let Component = ({ ['a' + '']: a }) => <div a={a} />`,
         errors: [{ messageId: 'noDestructure' }],
         output: `let Component = (props) => <div a={props['a' + '']} />`,
       });
     });
-    test('invalid case 7', () => {
+    test('detects mixed destructuring in component params', () => {
       invalid({
         code: `let Component = ({ ['a' + '']: a, b }) => <div a={a} b={b} />`,
         errors: [{ messageId: 'noDestructure' }],
         output: `let Component = (props) => <div a={props['a' + '']} b={props.b} />`,
       });
     });
-    test('invalid case 8', () => {
+    test('detects destructuring with default values in component params', () => {
       invalid({
         code: `let Component = ({ a = 5 }) => <div a={a} />`,
         errors: [{ messageId: 'noDestructure' }],
@@ -136,7 +136,7 @@ describe('no-destructure', () => {
         `,
       });
     });
-    test('invalid case 9', () => {
+    test('detects destructuring with default values and implicit return', () => {
       invalid({
         code: `let Component = ({ a = 5 }) => (<div a={a} />)`,
         errors: [{ messageId: 'noDestructure' }],
@@ -148,7 +148,7 @@ describe('no-destructure', () => {
         `,
       });
     });
-    test('invalid case 10', () => {
+    test('detects destructuring with alias and default values', () => {
       invalid({
         code: `let Component = ({ a: A = 5 }) => <div a={A} />`,
         errors: [{ messageId: 'noDestructure' }],
@@ -160,7 +160,7 @@ describe('no-destructure', () => {
         `,
       });
     });
-    test('invalid case 11', () => {
+    test('detects string literal destructuring with default values', () => {
       invalid({
         code: `let Component = ({ 'a': A = 5 }) => <div a={A} />`,
         errors: [{ messageId: 'noDestructure' }],
@@ -172,7 +172,7 @@ describe('no-destructure', () => {
         `,
       });
     });
-    test('invalid case 12', () => {
+    test('detects computed property destructuring with default values', () => {
       invalid({
         code: `let Component = ({ ['a' + '']: a = 5 }) => <div a={a} />`,
         errors: [{ messageId: 'noDestructure' }],
@@ -184,7 +184,7 @@ describe('no-destructure', () => {
         `,
       });
     });
-    test('invalid case 13', () => {
+    test('detects mixed destructuring with default values', () => {
       invalid({
         code: `let Component = ({ ['a' + '']: a = 5, b = 10, c }) => <div a={a} b={b} c={c} />`,
         errors: [{ messageId: 'noDestructure' }],
@@ -196,7 +196,7 @@ describe('no-destructure', () => {
         `,
       });
     });
-    test('invalid case 14', () => {
+    test('detects destructuring with default values in block body', () => {
       invalid({
         code: `
           let Component = ({ a = 5 }) => { 
@@ -212,7 +212,7 @@ describe('no-destructure', () => {
         `,
       });
     });
-    test('invalid case 15', () => {
+    test('detects destructuring with default values in block body with other statements', () => {
       invalid({
         code: `
           let Component = ({ a = 5 }) => { 
@@ -232,7 +232,7 @@ describe('no-destructure', () => {
         `,
       });
     });
-    test('invalid case 16', () => {
+    test('detects rest operator in component params', () => {
       invalid({
         code: `let Component = ({ ...rest }) => <div a={rest.a} />`,
         errors: [{ messageId: 'noDestructure' }],
@@ -244,7 +244,7 @@ describe('no-destructure', () => {
         `,
       });
     });
-    test('invalid case 17', () => {
+    test('detects property destructuring with rest operator', () => {
       invalid({
         code: `let Component = ({ a, ...rest }) => <div a={a} />`,
         errors: [{ messageId: 'noDestructure' }],
@@ -256,7 +256,7 @@ describe('no-destructure', () => {
         `,
       });
     });
-    test('invalid case 18', () => {
+    test('detects property destructuring with rest operator and implicit return', () => {
       invalid({
         code: `let Component = ({ a, ...rest }) => (<div a={a} />)`,
         errors: [{ messageId: 'noDestructure' }],
@@ -268,7 +268,7 @@ describe('no-destructure', () => {
         `,
       });
     });
-    test('invalid case 19', () => {
+    test('detects property destructuring with differently named rest operator', () => {
       invalid({
         code: `let Component = ({ a, ...other }) => <div a={a} />`,
         errors: [{ messageId: 'noDestructure' }],
@@ -280,7 +280,7 @@ describe('no-destructure', () => {
         `,
       });
     });
-    test('invalid case 20', () => {
+    test('detects property destructuring with rest operator and multiple props uses', () => {
       invalid({
         code: `let Component = ({ a, ...rest }) => <div a={a} b={rest.b} />`,
         errors: [{ messageId: 'noDestructure' }],
@@ -292,7 +292,7 @@ describe('no-destructure', () => {
         `,
       });
     });
-    test('invalid case 21', () => {
+    test('detects destructuring with alias and rest operator', () => {
       invalid({
         code: `let Component = ({ a: A, ...rest }) => <div a={A} />`,
         errors: [{ messageId: 'noDestructure' }],
@@ -304,7 +304,7 @@ describe('no-destructure', () => {
         `,
       });
     });
-    test('invalid case 22', () => {
+    test('detects string literal destructuring with rest operator', () => {
       invalid({
         code: `let Component = ({ 'a': A, ...rest }) => <div a={A} />`,
         errors: [{ messageId: 'noDestructure' }],
@@ -316,7 +316,7 @@ describe('no-destructure', () => {
         `,
       });
     });
-    test('invalid case 23', () => {
+    test('detects computed property destructuring with rest operator', () => {
       invalid({
         code: `let Component = ({ ['a' + '']: A, ...rest }) => <div a={A} />`,
         errors: [{ messageId: 'noDestructure' }],
@@ -328,7 +328,7 @@ describe('no-destructure', () => {
         `,
       });
     });
-    test('invalid case 24', () => {
+    test('detects computed property destructuring with rest operator and multiple uses', () => {
       invalid({
         code: `let Component = ({ ['a' + '']: A, ...rest }) => <div a={A} b={rest.b} />`,
         errors: [{ messageId: 'noDestructure' }],
@@ -340,7 +340,7 @@ describe('no-destructure', () => {
         `,
       });
     });
-    test('invalid case 25', () => {
+    test('detects destructuring with default values and rest operator', () => {
       invalid({
         code: `
           let Component = ({ a = 5, ...rest }) => { 
@@ -356,7 +356,7 @@ describe('no-destructure', () => {
         `,
       });
     });
-    test('invalid case 26', () => {
+    test('detects destructuring with default values and rest operator with implicit return', () => {
       invalid({
         code: `let Component = ({ a = 5, ...rest }) => (<div a={a} b={rest.b} />)`,
         errors: [{ messageId: 'noDestructure' }],
@@ -368,7 +368,7 @@ describe('no-destructure', () => {
         `,
       });
     });
-    test('invalid case 27', () => {
+    test('detects computed property destructuring with default values and rest operator', () => {
       invalid({
         code: `let Component = ({ ['a' + '']: A = 5, ...rest }) => <div a={A} b={rest.b} />`,
         errors: [{ messageId: 'noDestructure' }],
@@ -380,7 +380,7 @@ describe('no-destructure', () => {
         `,
       });
     });
-    test('invalid case 28', () => {
+    test('detects destructuring with typescript types', () => {
       invalid(
         {
           code: `let Component = ({ prop1, prop2 }: Props) => <div p1={prop1} p2={prop2} />;`,

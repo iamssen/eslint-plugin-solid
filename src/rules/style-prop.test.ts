@@ -7,65 +7,65 @@ const invalid = testInvalid('style-prop', rule);
 
 describe('style-prop', () => {
   describe('valid', () => {
-    test('valid case 1', () => {
+    test('style prop with object literal is valid', () => {
       valid(`let el = <div style={{ color: 'red' }}>Hello, world!</div>`);
     });
-    test('valid case 2', () => {
+    test('style prop with object literal containing kebab-case properties is valid', () => {
       valid(
         `let el = <div style={{ color: 'red', 'background-color': 'green' }}>Hello, world!</div>`,
       );
     });
-    test('valid case 3', () => {
+    test('style prop with object literal containing kebab-case properties in double quotes is valid', () => {
       valid(
         `let el = <div style={{ color: "red", "background-color": "green" }}>Hello, world!</div>`,
       );
     });
-    test('valid case 4', () => {
+    test('style prop with vendor prefix property is valid', () => {
       valid(
         `let el = <div style={{ "-webkit-align-content": "center" }}>Hello, world!</div>`,
       );
     });
-    test('valid case 5', () => {
+    test('style prop with font-size property is valid', () => {
       valid(
         `let el = <div style={{ "font-size": "10px" }}>Hello, world!</div>`,
       );
     });
-    test('valid case 6', () => {
+    test('style prop with font-size property value 0 is valid', () => {
       valid(`let el = <div style={{ "font-size": "0" }}>Hello, world!</div>`);
     });
-    test('valid case 7', () => {
+    test('style prop with font-size property numeric value 0 is valid', () => {
       valid(`let el = <div style={{ "font-size": 0 }}>Hello, world!</div>`);
     });
-    test('valid case 8', () => {
+    test('style prop is case-sensitive, ignores uppercase STYLE prop', () => {
       valid(`let el = <div STYLE={{ fontSize: 10 }}>Hello, world!</div>`);
     });
-    test('valid case 9', () => {
+    test('style prop with flex-grow property numeric value is valid', () => {
       valid(`let el = <div style={{ "flex-grow": 1 }}>Hello, world!</div>`);
     });
-    test('valid case 10', () => {
+    test('style prop with custom css variable is valid', () => {
       valid(
         `let el = <div style={{ "--custom-width": 1 }}>Hello, world!</div>`,
       );
     });
-    test('valid case 11', () => {
+    test('style prop with string literal is valid when allowString is true', () => {
       valid({
         code: `let el = <div style="color: red;" />`,
         options: [{ allowString: true }],
       });
     });
-    test('valid case 12', () => {
+    test('style prop with template literal is valid when allowString is true', () => {
       valid({
         code: `let el = <div style={\`color: \${themeColor};\`} />`,
         options: [{ allowString: true }],
       });
     });
-    test('valid case 13', () => {
+    test('css prop with object literal is valid when styleProps includes css', () => {
       valid({
         code: `let el = <div css={{ color: 'red' }}>Hello, world</div>`,
         options: [{ styleProps: ['style', 'css'] }],
       });
     });
-    test('valid case 14', () => {
+    test('style prop is ignored when styleProps only includes css', () => {
       valid({
         code: `let el = <div style={{ fontSize: 10 }}>Hello, world!</div>`,
         options: [{ styleProps: ['css'] }],
@@ -73,7 +73,7 @@ describe('style-prop', () => {
     });
   });
   describe('invalid', () => {
-    test('invalid case 1', () => {
+    test('detects camelCase style property and suggests kebab-case', () => {
       invalid({
         code: `let el = <div style={{ fontSize: '10px' }}>Hello, world!</div>`,
         errors: [
@@ -85,7 +85,7 @@ describe('style-prop', () => {
         output: `let el = <div style={{ "font-size": '10px' }}>Hello, world!</div>`,
       });
     });
-    test('invalid case 2', () => {
+    test('detects backgroundColor property and suggests background-color', () => {
       invalid({
         code: `let el = <div style={{ backgroundColor: 'red' }}>Hello, world!</div>`,
         errors: [
@@ -97,20 +97,20 @@ describe('style-prop', () => {
         output: `let el = <div style={{ "background-color": 'red' }}>Hello, world!</div>`,
       });
     });
-    test('invalid case 3', () => {
+    test('detects camelCase vendor prefix property and suggests kebab-case', () => {
       invalid({
         code: `let el = <div style={{ "-webkitAlignContent": "center" }}>Hello, world!</div>`,
         errors: [{ messageId: 'kebabStyleProp' }],
         output: `let el = <div style={{ "-webkit-align-content": "center" }}>Hello, world!</div>`,
       });
     });
-    test('invalid case 4', () => {
+    test('detects uppercase style property', () => {
       invalid({
         code: `let el = <div style={{ COLOR: '10px' }}>Hello, world!</div>`,
         errors: [{ messageId: 'invalidStyleProp', data: { name: 'COLOR' } }],
       });
     });
-    test('invalid case 5', () => {
+    test('detects unknown style property', () => {
       invalid({
         code: `let el = <div style={{ unknownStyleProp: '10px' }}>Hello, world!</div>`,
         errors: [
@@ -118,7 +118,7 @@ describe('style-prop', () => {
         ],
       });
     });
-    test('invalid case 6', () => {
+    test('detects camelCase css property and suggests kebab-case', () => {
       invalid({
         code: `let el = <div css={{ fontSize: '10px' }}>Hello, world!</div>`,
         options: [{ styleProps: ['style', 'css'] }],
@@ -131,7 +131,7 @@ describe('style-prop', () => {
         output: `let el = <div css={{ "font-size": '10px' }}>Hello, world!</div>`,
       });
     });
-    test('invalid case 7', () => {
+    test('detects camelCase css property when styleProps only includes css', () => {
       invalid({
         code: `let el = <div css={{ fontSize: '10px' }}>Hello, world!</div>`,
         options: [{ styleProps: ['css'] }],
@@ -144,46 +144,46 @@ describe('style-prop', () => {
         output: `let el = <div css={{ "font-size": '10px' }}>Hello, world!</div>`,
       });
     });
-    test('invalid case 8', () => {
+    test('detects style prop with string literal and suggests object literal', () => {
       invalid({
         code: `let el = <div style="font-size: 10px;">Hello, world!</div>`,
         errors: [{ messageId: 'stringStyle' }],
         output: `let el = <div style={{"font-size":"10px"}}>Hello, world!</div>`,
       });
     });
-    test('invalid case 9', () => {
+    test('detects style prop with JSX string literal and suggests object literal', () => {
       invalid({
         code: `let el = <div style={"font-size: 10px;"}>Hello, world!</div>`,
         errors: [{ messageId: 'stringStyle' }],
         output: `let el = <div style={{"font-size":"10px"}}>Hello, world!</div>`,
       });
     });
-    test('invalid case 10', () => {
+    test('detects style prop with string literal containing missing value and suggests object literal', () => {
       invalid({
         code: `let el = <div style="font-size: 10px; missing-value: ;">Hello, world!</div>`,
         errors: [{ messageId: 'stringStyle' }],
         output: `let el = <div style={{"font-size":"10px"}}>Hello, world!</div>`,
       });
     });
-    test('invalid case 11', () => {
+    test('detects style prop with invalid CSS string literal', () => {
       invalid({
         code: `let el = <div style="Super invalid CSS! Not CSS at all!">Hello, world!</div>`,
         errors: [{ messageId: 'stringStyle' }],
       });
     });
-    test('invalid case 12', () => {
+    test('detects style prop with template literal and suggests object literal', () => {
       invalid({
         code: `let el = <div style={\`font-size: 10px;\`}>Hello, world!</div>`,
         errors: [{ messageId: 'stringStyle' }],
       });
     });
-    test('invalid case 13', () => {
+    test('detects style prop with numeric value needing unit', () => {
       invalid({
         code: `let el = <div style={{ 'font-size': 10 }}>Hello, world!</div>`,
         errors: [{ messageId: 'numericStyleValue' }],
       });
     });
-    test('invalid case 14', () => {
+    test('detects style prop with negative numeric value needing unit', () => {
       invalid({
         code: `let el = <div style={{ 'margin-top': -10 }}>Hello, world!</div>`,
         errors: [{ messageId: 'numericStyleValue' }],
