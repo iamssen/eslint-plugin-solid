@@ -1,8 +1,9 @@
-import { plugin } from './plugin.js';
+import type { ESLint, Linter } from 'eslint';
 import recommendedConfig from './configs/recommended.js';
 import typescriptConfig from './configs/typescript.js';
+import { plugin } from './plugin.js';
 
-export const configs = {
+export const configs: Record<string, Linter.LegacyConfig | Linter.Config> = {
   'recommended': {
     plugins: ['@ssen/solid'],
     env: {
@@ -26,7 +27,8 @@ export const configs = {
   'flat/recommended': recommendedConfig,
   'flat/typescript': typescriptConfig,
 };
-export const rules = plugin.rules;
+
+export const rules: ESLint.Plugin['rules'] = plugin.rules;
 
 const pluginLegacy = {
   configs,

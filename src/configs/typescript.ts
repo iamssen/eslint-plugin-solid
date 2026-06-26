@@ -1,4 +1,3 @@
-import type { TSESLint } from '@typescript-eslint/utils';
 import type { Linter } from 'eslint';
 
 import recommended from './recommended.js';
@@ -19,6 +18,6 @@ const typescript = {
     // namespaces taken care of by TS
     '@ssen/solid/no-unknown-namespaces': 0,
   },
-} satisfies TSESLint.FlatConfig.Config;
+} satisfies Linter.Config;
 
 export default typescript;

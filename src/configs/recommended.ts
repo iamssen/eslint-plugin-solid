@@ -1,5 +1,4 @@
-import type { TSESLint } from '@typescript-eslint/utils';
-
+import type { Linter } from 'eslint';
 import { plugin } from '../plugin.js';
 
 const recommended = {
@@ -43,6 +42,6 @@ const recommended = {
     // deprecated
     '@ssen/solid/prefer-classlist': 0,
   },
-} satisfies TSESLint.FlatConfig.Config;
+} satisfies Linter.Config;
 
 export default recommended;

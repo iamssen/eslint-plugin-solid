@@ -19,6 +19,7 @@ import reactivity from './rules/reactivity.js';
 import selfClosingComp from './rules/self-closing-comp.js';
 import styleProp from './rules/style-prop.js';
 // import validateJsxNesting from "./rules/validate-jsx-nesting";
+import type { ESLint } from 'eslint';
 
 import { createRequire } from 'node:module';
 
@@ -55,6 +56,8 @@ const allRules = {
 
 export const plugin = {
   meta,
-  rules: allRules,
-  configs: undefined as Record<string, unknown> | undefined,
-};
+  // NOTE: Rules are created via `@typescript-eslint/utils`'s `ESLintUtils.RuleCreator.withoutDocs`.
+  // Type assertion (`as unknown`) is required due to a readonly array mismatch with the official ESLint types.
+  rules: allRules as unknown as ESLint.Plugin['rules'],
+  // configs: undefined as Record<string, ESLint.Plugin> | undefined,
+} satisfies ESLint.Plugin;

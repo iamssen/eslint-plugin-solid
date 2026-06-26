@@ -1,9 +1,10 @@
-import { test, expect } from 'vitest';
-
-import path from 'path';
 import { ESLint as FlatESLint } from 'eslint';
 import { ESLint as LegacyESLint } from 'eslint-v8';
 import { fileURLToPath } from 'node:url';
+import path from 'path';
+import { expect, test } from 'vitest';
+
+import * as plugin from '../dist/index.js';
 
 const cwd = path.dirname(fileURLToPath(import.meta.url));
 const validDir = path.join(cwd, 'valid');
@@ -39,8 +40,6 @@ const checkResult = (
     }
   }
 };
-
-import * as plugin from '../dist/index.js';
 
 test.concurrent('fixture (legacy)', async () => {
   const eslint = new LegacyESLint({
