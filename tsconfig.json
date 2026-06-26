@@ -23,5 +23,11 @@
     "noUncheckedSideEffectImports": true
   },
   "include": ["src", "cases", "scripts"],
-  "exclude": ["**/dist", "**/dist.*", "**/vitest.*.js"]
+  "exclude": [
+    "**/dist",
+    "**/dist.*",
+    "**/vitest.*.js",
+    "cases/valid",
+    "cases/invalid"
+  ]
 }
