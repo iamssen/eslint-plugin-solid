@@ -1,234 +1,95 @@
-<p>
-  <img width="100%" src="https://assets.solidjs.com/banner?type=ESLint%20Plugin&background=tiles&project=%20" alt="Solid ESLint Extension">
-</p>
+# @ssen/eslint-plugin-solid
 
-# Solid ESLint Plugin
+Solid.js-specific ESLint rules for reactivity, JSX, event handlers, and common React-pattern mistakes.
 
-> **⚠️ NOTICE: THIS IS A HARD FORK**
-> 
-> This repository is a hard fork of the original [eslint-plugin-solid](https://github.com/solidjs-community/eslint-plugin-solid) created by Josh Wilson. 
-> It has been completely separated from the original project and is maintained independently by Seoyoen Lee (@ssen).
-> 
-> **Please note that the documentation below may contain outdated information or links pointing to the original repository. Proceed with caution.**
+## Requirements
 
-
-[![npm version](https://img.shields.io/npm/v/eslint-plugin-solid?style=for-the-badge)](https://npmjs.com/package/eslint-plugin-solid)
-[![GitHub package version](https://img.shields.io/github/package-json/v/solidjs-community/eslint-plugin-solid/main?filename=packages%2Feslint-plugin-solid%2Fpackage.json&style=for-the-badge)](https://github.com/solidjs-community/eslint-plugin-solid)
-![ESLint peer dependency](https://img.shields.io/badge/eslint-6.x--9.x-blue?style=for-the-badge)
-[![CI](https://github.com/solidjs-community/eslint-plugin-solid/actions/workflows/ci.yml/badge.svg?style=for-the-badge)](https://github.com/solidjs-community/eslint-plugin-solid/actions/workflows/ci.yml)
-
-This package contains [Solid](https://www.solidjs.com/)-specific linting rules for ESLint. It can
-ease Solid's learning curve by finding and fixing problems around Solid's reactivity system, and can
-migrate some React patterns to Solid code.
-
-It's approaching a `1.0.0` release, and it's well tested and should be helpful in Solid projects
-today.
-
-<!-- doc-gen TOC -->
-- [Solid ESLint Plugin](#solid-eslint-plugin)
-  - [Installation](#installation)
-  - [Configuration](#configuration)
-    - [TypeScript](#typescript)
-    - [Manual Configuration](#manual-configuration)
-    - [Flat Configuration](#flat-configuration)
-  - [Rules](#rules)
-  - [Troubleshooting](#troubleshooting)
-  - [Versioning](#versioning)
-<!-- end-doc-gen -->
+- Node.js 22+
+- ESLint 10+
 
 ## Installation
 
-Install `eslint` and `eslint-plugin-solid` locally.
+```sh
+npm install --save-dev eslint @ssen/eslint-plugin-solid
+```
+
+To lint TypeScript files, also install `typescript-eslint` in your project.
 
 ```sh
-npm install --save-dev eslint eslint-plugin-solid
-# or
-pnpm add --save-dev eslint eslint-plugin-solid
-yarn add --dev eslint eslint-plugin-solid
-
-# optional, to create an ESLint config file
-npx eslint --init
-# or
-pnpm eslint --init
-yarn eslint --init
+npm install --save-dev typescript-eslint
 ```
-
-If you're using VSCode, you'll want to install the [ESLint
-extension](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint). You're
-encouraged to enable auto-fixing problems on save by adding the following to your `settings.json`
-file.
-
-```json
-{
-  "editor.codeActionsOnSave": {
-    "source.fixAll": true
-  }
-}
-```
-
-If you're using Vite, you may want to install
-[vite-plugin-eslint](https://github.com/gxmari007/vite-plugin-eslint).
-
-You may also want to check out
-[eslint-plugin-jsx-a11y](https://github.com/jsx-eslint/eslint-plugin-jsx-a11y), which provides
-useful rules for writing accessible HTML.
 
 ## Configuration
 
-Use the `"plugin:@ssen/solid/recommended"` configuration to get reasonable defaults as shown [below](#rules).
-
-```json
-{
-  "plugins": ["solid"],
-  "extends": ["eslint:recommended", "plugin:@ssen/solid/recommended"]
-}
-```
-
-### TypeScript
-
-If you're using TypeScript, use the `"plugin:@ssen/solid/typescript"` configuration instead.
-This disables some features that overlap with type checking.
-
-```json
-{
-  "parser": "@typescript-eslint/parser",
-  "plugins": ["solid"],
-  "extends": ["eslint:recommended", "plugin:@ssen/solid/typescript"]
-}
-```
-
-### Manual Configuration
-
-If you don't want to use a preset, you can configure rules individually. Add the `"solid"` plugin,
-enable JSX with the parser options (or use the equivalent options for `@typescript-eslint/parser` or
-`@babel/eslint-parser`), and configure the rules you would like to use. Some rules have additional
-options you can set.
-
-```json
-{
-  "plugins": ["solid"],
-  "parserOptions": {
-    "ecmaFeatures": {
-      "jsx": true
-    }
-  },
-  "rules": {
-    "@ssen/solid/reactivity": "warn",
-    "@ssen/solid/no-destructure": "warn",
-    "@ssen/solid/jsx-no-undef": "error"
-  }
-}
-```
-
-### Flat Configuration
-
-ESLint's new configuration system, [Flat
-Configuration](https://eslint.org/docs/latest/use/configure/configuration-files-new#using-configurations-included-in-plugins),
-is available starting in ESLint [v8.23.0](https://github.com/eslint/eslint/releases/tag/v8.23.0). To
-use it, create an `eslint.config.js` file at the root of your project, instead of `.eslintrc.*`
-and/or `.eslintignore`.
+This plugin provides a single flat config: `recommended`.
 
 ```js
-import js from "@eslint/js";
-import solid from "@ssen/eslint-plugin-solid/configs/recommended";
+// eslint.config.js
+import solid from '@ssen/eslint-plugin-solid';
 
-export default [
-  js.configs.recommended, // replaces eslint:recommended
-  solid,
-];
+export default [solid.configs.recommended];
 ```
 
-For TypeScript:
+For TypeScript, configure the parser in your application while using the same Solid config.
 
 ```js
-import js from "@eslint/js";
-import solid from "@ssen/eslint-plugin-solid/configs/typescript";
-import * as tsParser from "@typescript-eslint/parser";
+// eslint.config.js
+import solid from '@ssen/eslint-plugin-solid';
+import tseslint from 'typescript-eslint';
+
+const recommended = solid.configs.recommended;
 
 export default [
-  js.configs.recommended,
   {
-    files: ["**/*.{ts,tsx}"],
-    ...solid,
+    files: ['**/*.{ts,tsx}'],
+    ...recommended,
     languageOptions: {
-      parser: tsParser,
-      parserOptions: {
-        project: "tsconfig.json",
-      },
+      ...recommended.languageOptions,
+      parser: tseslint.parser,
     },
   },
 ];
 ```
 
-These configurations do not configure global variables in ESLint. You can do this yourself manually
-or with a package like [globals](https://www.npmjs.com/package/globals) by creating a configuration
-with a `languageOptions.globals` object. We recommend setting up global variables for Browser APIs
-as well as at least ES2015.
-
-Note for the ESLint VSCode Extension: Enable the "Use Flat Config" setting for your workspace to
-enable Flat Config support.
-
-Flat configs are also available as `plugin.configs['flat/recommended']` and `plugin.configs['flat/typescript']`, after using `import plugin from '@ssen/eslint-plugin-solid'`.
+The config does not define environment globals. Add `languageOptions.globals` in your application config when needed.
 
 ## Rules
 
-✔: Enabled in the `recommended` configuration.
+✔: enabled in `recommended`.
 
-🔧: Fixable with [`eslint --fix`](https://eslint.org/docs/user-guide/command-line-interface#fixing-problems)/IDE auto-fix.
+🔧: fixable with `eslint --fix` or an editor integration.
 
 <!-- doc-gen RULES -->
 | ✔ | 🔧 | Rule | Description |
 | :---: | :---: | :--- | :--- |
-| ✔ | 🔧 | [solid/components-return-once](/packages/eslint-plugin-solid/docs/components-return-once.md) | Disallow early returns in components. Solid components only run once, and so conditionals should be inside JSX. |
-| ✔ | 🔧 | [solid/event-handlers](/packages/eslint-plugin-solid/docs/event-handlers.md) | Enforce naming DOM element event handlers consistently and prevent Solid's analysis from misunderstanding whether a prop should be an event handler. |
-| ✔ | 🔧 | [solid/imports](/packages/eslint-plugin-solid/docs/imports.md) | Enforce consistent imports from "solid-js", "solid-js/web", and "solid-js/store". |
-| ✔ |  | [solid/jsx-no-duplicate-props](/packages/eslint-plugin-solid/docs/jsx-no-duplicate-props.md) | Disallow passing the same prop twice in JSX. |
-| ✔ |  | [solid/jsx-no-script-url](/packages/eslint-plugin-solid/docs/jsx-no-script-url.md) | Disallow javascript: URLs. |
-| ✔ | 🔧 | [solid/jsx-no-undef](/packages/eslint-plugin-solid/docs/jsx-no-undef.md) | Disallow references to undefined variables in JSX. Handles custom directives. |
-| ✔ |  | [solid/jsx-uses-vars](/packages/eslint-plugin-solid/docs/jsx-uses-vars.md) | Prevent variables used in JSX from being marked as unused. |
-|  |  | [solid/no-array-handlers](/packages/eslint-plugin-solid/docs/no-array-handlers.md) | Disallow usage of type-unsafe event handlers. |
-| ✔ | 🔧 | [solid/no-destructure](/packages/eslint-plugin-solid/docs/no-destructure.md) | Disallow destructuring props. In Solid, props must be used with property accesses (`props.foo`) to preserve reactivity. This rule only tracks destructuring in the parameter list. |
-| ✔ | 🔧 | [solid/no-innerhtml](/packages/eslint-plugin-solid/docs/no-innerhtml.md) | Disallow usage of the innerHTML attribute, which can often lead to security vulnerabilities. |
-|  |  | [solid/no-proxy-apis](/packages/eslint-plugin-solid/docs/no-proxy-apis.md) | Disallow usage of APIs that use ES6 Proxies, only to target environments that don't support them. |
-| ✔ | 🔧 | [solid/no-react-deps](/packages/eslint-plugin-solid/docs/no-react-deps.md) | Disallow usage of dependency arrays in `createEffect` and `createMemo`. |
-| ✔ | 🔧 | [solid/no-react-specific-props](/packages/eslint-plugin-solid/docs/no-react-specific-props.md) | Disallow usage of React-specific `className`/`htmlFor` props, which were deprecated in v1.4.0. |
-| ✔ |  | [solid/no-unknown-namespaces](/packages/eslint-plugin-solid/docs/no-unknown-namespaces.md) | Enforce using only Solid-specific namespaced attribute names (i.e. `'on:'` in `<div on:click={...} />`). |
-|  | 🔧 | [solid/prefer-classlist](/packages/eslint-plugin-solid/docs/prefer-classlist.md) | Enforce using the classlist prop over importing a classnames helper. The classlist prop accepts an object `{ [class: string]: boolean }` just like classnames. |
-| ✔ | 🔧 | [solid/prefer-for](/packages/eslint-plugin-solid/docs/prefer-for.md) | Enforce using Solid's `<For />` component for mapping an array to JSX elements. |
-|  | 🔧 | [solid/prefer-show](/packages/eslint-plugin-solid/docs/prefer-show.md) | Enforce using Solid's `<Show />` component for conditionally showing content. Solid's compiler covers this case, so it's a stylistic rule only. |
-| ✔ |  | [solid/reactivity](/packages/eslint-plugin-solid/docs/reactivity.md) | Enforce that reactivity (props, signals, memos, etc.) is properly used, so changes in those values will be tracked and update the view as expected. |
-| ✔ | 🔧 | [solid/self-closing-comp](/packages/eslint-plugin-solid/docs/self-closing-comp.md) | Disallow extra closing tags for components without children. |
-| ✔ | 🔧 | [solid/style-prop](/packages/eslint-plugin-solid/docs/style-prop.md) | Require CSS properties in the `style` prop to be valid and kebab-cased (ex. 'font-size'), not camel-cased (ex. 'fontSize') like in React, and that property values with dimensions are strings, not numbers with implicit 'px' units. |
+| ✔ | 🔧 | [solid/components-return-once](https://github.com/iamssen/eslint-plugin-solid/blob/main/src/rules/components-return-once.md) | Disallow early returns in components. Solid components only run once, so conditionals should be inside JSX. |
+| ✔ | 🔧 | [solid/event-handlers](https://github.com/iamssen/eslint-plugin-solid/blob/main/src/rules/event-handlers.md) | Enforce consistent DOM event-handler names and prevent Solid from misinterpreting props as event handlers. |
+| ✔ | 🔧 | [solid/imports](https://github.com/iamssen/eslint-plugin-solid/blob/main/src/rules/imports.md) | Enforce consistent imports from `solid-js`, `solid-js/web`, and `solid-js/store`. |
+| ✔ |  | [solid/jsx-no-duplicate-props](https://github.com/iamssen/eslint-plugin-solid/blob/main/src/rules/jsx-no-duplicate-props.md) | Disallow passing the same prop twice in JSX. |
+| ✔ |  | [solid/jsx-no-script-url](https://github.com/iamssen/eslint-plugin-solid/blob/main/src/rules/jsx-no-script-url.md) | Disallow `javascript:` URLs. |
+| ✔ | 🔧 | [solid/jsx-no-undef](https://github.com/iamssen/eslint-plugin-solid/blob/main/src/rules/jsx-no-undef.md) | Disallow undefined JSX references and custom directives. |
+|  |  | [solid/no-array-handlers](https://github.com/iamssen/eslint-plugin-solid/blob/main/src/rules/no-array-handlers.md) | Disallow type-unsafe event handlers. |
+| ✔ | 🔧 | [solid/no-destructure](https://github.com/iamssen/eslint-plugin-solid/blob/main/src/rules/no-destructure.md) | Disallow destructuring props, which breaks Solid reactivity. |
+| ✔ | 🔧 | [solid/no-innerhtml](https://github.com/iamssen/eslint-plugin-solid/blob/main/src/rules/no-innerhtml.md) | Disallow the potentially unsafe `innerHTML` attribute. |
+|  |  | [solid/no-proxy-apis](https://github.com/iamssen/eslint-plugin-solid/blob/main/src/rules/no-proxy-apis.md) | Disallow APIs that require ES6 Proxy support. |
+| ✔ | 🔧 | [solid/no-react-deps](https://github.com/iamssen/eslint-plugin-solid/blob/main/src/rules/no-react-deps.md) | Disallow React-style dependency arrays in `createEffect` and `createMemo`. |
+| ✔ | 🔧 | [solid/no-react-specific-props](https://github.com/iamssen/eslint-plugin-solid/blob/main/src/rules/no-react-specific-props.md) | Disallow React-specific `className` and `htmlFor` props. |
+| ✔ |  | [solid/no-unknown-namespaces](https://github.com/iamssen/eslint-plugin-solid/blob/main/src/rules/no-unknown-namespaces.md) | Allow only Solid-specific namespaced JSX attributes. |
+|  | 🔧 | [solid/prefer-classlist](https://github.com/iamssen/eslint-plugin-solid/blob/main/src/rules/prefer-classlist.md) | Prefer the `classList` prop over a `classnames` helper. |
+| ✔ | 🔧 | [solid/prefer-for](https://github.com/iamssen/eslint-plugin-solid/blob/main/src/rules/prefer-for.md) | Prefer `<For />` to array mapping in JSX. |
+|  | 🔧 | [solid/prefer-show](https://github.com/iamssen/eslint-plugin-solid/blob/main/src/rules/prefer-show.md) | Prefer `<Show />` for conditional JSX. |
+| ✔ |  | [solid/reactivity](https://github.com/iamssen/eslint-plugin-solid/blob/main/src/rules/reactivity.md) | Ensure reactive values are used in tracked contexts. |
+| ✔ | 🔧 | [solid/self-closing-comp](https://github.com/iamssen/eslint-plugin-solid/blob/main/src/rules/self-closing-comp.md) | Require self-closing tags for components without children. |
+| ✔ | 🔧 | [solid/style-prop](https://github.com/iamssen/eslint-plugin-solid/blob/main/src/rules/style-prop.md) | Validate CSS property names and values in the `style` prop. |
 <!-- end-doc-gen -->
 
-## Troubleshooting
+## Development
 
-The rules in this plugin provide sensible guidelines as well as possible, but there may be times
-where you know better than the rule and want to ignore a warning. To do that, [add a
-comment](https://eslint.org/docs/latest/user-guide/configuring/rules#disabling-rules) like the
-following:
-
-```jsx
-// eslint-disable-next-line solid/reactivity
-const [editedValue, setEditedValue] = createSignal(props.value);
+```sh
+npm run lint
+npm run type-check
+npm test
+npm run build
 ```
 
-_Please note_: there may also be times where a rule correctly warns about a subtle problem,
-even if it looks like a false positive at first. With `solid/reactivity`, please look at the
-[reactivity docs](https://github.com/solidjs-community/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/reactivity.md#troubleshooting) before deciding to disable the rule.
-
-When in doubt, feel free to [file an
-issue](https://github.com/solidjs-community/eslint-plugin-solid/issues/new/choose).
-
-## Versioning
-
-Pre-1.0.0, the rules and the `recommended` and `typescript` configuations will be
-stable across patch (`0.0.x`) versions, but may change across minor (`0.x`) versions.
-If you want to pin a minor version, use a tilde in your `package.json`.
-
-<!-- doc-gen TILDE -->
-```diff
-- "eslint-plugin-solid": "^0.14.5"
-+ "eslint-plugin-solid": "~0.14.5"
-```
-<!-- end-doc-gen -->
+Run `npm run test:all` to test supported parser combinations.

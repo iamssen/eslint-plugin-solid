@@ -1,37 +1,66 @@
 # components-return-once
 
-## 1. 규칙이 존재하는 이유 (Solid.js 1.0 기반)
-Solid.js의 컴포넌트는 상태(State)와 효과(Effect)를 설정하기 위해 단 한 번만 실행되는 설정(setup) 함수입니다. React와 같이 매번 리렌더링되는 방식이 아니므로, 컴포넌트 내에서 조건에 따라 `return`을 일찍 여러 번 수행하는 방식(Early Return)을 사용하면 함수 실행이 중단되어 의도한 대로 반응성(Reactivity)이 제대로 동작하지 않게 됩니다.
+Solid 컴포넌트 함수는 일반적으로 상태가 바뀔 때마다 다시 실행되지 않습니다. 컴포넌트 함수의 조건부/조기 `return`은 처음 평가된 경로 밖에 반응형 JSX를 둘 수 있으므로, 조건부 렌더링을 JSX 안에서 표현하도록 안내합니다.
 
-## 2. Solid.js 2.0에서의 변경 여부
-**변경 없음.** Solid.js 2.0에서도 컴포넌트가 단 한 번만 실행된다는 핵심 철학은 동일합니다. 렌더링 최적화 및 DOM 업데이트는 컴포넌트 재실행이 아닌 JSX 내부의 반응성 시스템을 통해 이루어집니다.
+## React와 다른 점
 
-## 3. 그 외 규칙 이해를 위한 설명
-조건부 렌더링이 필요할 때는 컴포넌트 자체를 일찍 반환(return)하는 대신, JSX 내부에서 `<Show>`, `<Switch>` 등의 제어 흐름(Control Flow) 컴포넌트를 활용하여 렌더링 트리를 구성해야 합니다.
+React에서는 state 변경이 컴포넌트 함수를 다시 호출하므로, 다음 렌더에서 다른 `return`을 선택할 수 있습니다. Solid에서는 컴포넌트 함수가 초기화 단계에서 한 번 실행되고, 이후에는 signal과 JSX 표현식 같은 세부 반응형 계산만 갱신됩니다. 따라서 `return` 자체를 반응형 분기처럼 생각하면 안 됩니다.
 
-## 4. 예제 코드 및 시각적 설명
+## 잘못된 예
 
-```javascript
-// ❌ 잘못된 예시 (Early return)
-// 컴포넌트가 최초 1회 실행될 때 isLoading이 true라면, 
-// 밑에 있는 JSX는 아예 평가조차 되지 않으며 이후 상태가 변해도 업데이트되지 않습니다.
-function MyComponent(props) {
-  if (props.isLoading) {
-    return <div>Loading...</div>; 
-  }
-  return <div>{props.data}</div>;
-}
-
-// ✅ 올바른 예시 (<Show> 컴포넌트 사용)
-import { Show } from 'solid-js';
-
-function MyComponent(props) {
-  // 컴포넌트는 단 한 번만 실행되며, 
-  // Show 컴포넌트 내부에서 props.isLoading 의 변화를 추적하여 화면을 업데이트합니다.
-  return (
-    <Show when={!props.isLoading} fallback={<div>Loading...</div>}>
-      <div>{props.data}</div>
-    </Show>
-  );
+```tsx
+function Page(props) {
+  if (props.loading) return <p>Loading</p>;
+  return <p>{props.data}</p>;
 }
 ```
+
+## 권장 예
+
+```tsx
+import { Show } from 'solid-js';
+
+function Page(props) {
+  return <Show when={!props.loading} fallback={<p>Loading</p>}><p>{props.data}</p></Show>;
+}
+```
+
+이 규칙은 JSX를 반환하는 컴포넌트로 판단되는 함수의 조기 반환과 마지막 반환식의 조건부 반환을 검사하며, 일부 조건부 반환에는 자동 수정이 제공됩니다.
+
+단, 모든 함수의 조기 반환을 금지하는 규칙은 아닙니다. JSX를 반환하지 않는 일반 함수, render-prop 콜백 등은 컴포넌트로 판단하지 않습니다.
+
+## 예제로 보는 동작
+
+컴포넌트의 조기 반환은 invalid입니다. `loading`이 처음 `true`였다면 아래 컴포넌트는 `<p>결과</p>`를 만드는 JSX expression을 초기화하지 않습니다.
+
+```tsx
+function Page(props) {
+  if (props.loading) return <p>불러오는 중</p>; // invalid
+  return <p>{props.data}</p>;
+}
+```
+
+반면 컴포넌트 안에 있는 **일반 함수**는 매번 호출될 수 있으므로 조기 반환해도 valid입니다.
+
+```tsx
+function Page(props) {
+  const describe = () => {
+    if (props.loading) return '불러오는 중'; // valid
+    return props.data;
+  };
+
+  return <p>{describe()}</p>;
+}
+```
+
+마지막 `return`의 조건식도 invalid입니다. rule은 다음처럼 `<Show>`로 고칠 수 있습니다.
+
+```tsx
+// before: invalid
+return props.loading ? <Spinner /> : <Result />;
+
+// after: autofix 가능한 형태
+return <Show when={!props.loading} fallback={<Spinner />}><Result /></Show>;
+```
+
+`return condition && <Result />`도 `<Show when={condition}>`으로 바꿀 수 있습니다. 중첩 삼항식은 여러 조건을 표현하므로 `<Switch>`와 `<Match>`로 수정될 수 있습니다. 양쪽 branch 중 어느 쪽이 fallback인지 코드만으로 알 수 없으면, rule은 의미를 추측하지 않고 fragment 내부에 원래 식을 보존합니다.

@@ -1,27 +1,53 @@
 # no-unknown-namespaces
 
-## 1. 규칙이 존재하는 이유 (Solid.js 1.0 기반)
-Solid.js의 JSX 컴파일러는 `on:`, `use:`, `prop:`, `attr:`, `style:`, `class:`와 같은 특별한 네임스페이스 접두사를 해석하여 이벤트나 속성, 지시자를 DOM에 직접적이고 효율적으로 바인딩합니다. 만약 개발자가 오타를 내거나 지원하지 않는 임의의 네임스페이스(예: `custom:`)를 작성하면 예기치 않게 컴파일되거나 동작하지 않을 수 있으므로 이를 잡아냅니다.
+JSX namespace prop의 오타와 Solid가 특별히 처리하는 namespace의 잘못된 사용을 검사합니다. `attr:`, `class:`, `style:`, `use:`, `prop:`, `on:`, `oncapture:` 등 Solid가 인식하는 형태를 기준으로 합니다.
 
-## 2. Solid.js 2.0에서의 변경 여부
-**변경 없음.** 네임스페이스를 활용한 직접적이고 명시적인 바인딩 문법은 컴파일러의 핵심 최적화 방식 중 하나입니다.
+## namespace는 단순한 이름 규칙이 아니다
 
-## 3. 그 외 규칙 이해를 위한 설명
-예를 들어 `on:click`은 이벤트 위임을 거치지 않고 직접 이벤트 리스너를 DOM에 연결하며, `use:directive`는 커스텀 액션을 요소에 연결하는 등 각 네임스페이스마다 중요한 프레임워크 수준의 역할이 부여되어 있습니다.
+`on:click`은 일반 prop 이름에 콜론을 넣은 것이 아니라 native listener를 선택하는 compiler/runtime 지시입니다. `attr:value`는 attribute 쓰기를, `prop:value`는 DOM property 쓰기를, `class:active`는 class token 토글을, `use:directive`는 directive 함수를 연결합니다. 따라서 `bind:` 같은 다른 프레임워크의 namespace를 섞으면 문법은 파싱되더라도 Solid에서 기대한 동작이 되지 않습니다.
 
-## 4. 예제 코드 및 시각적 설명
+```tsx
+// 잘못된 예
+<div atrr:id="main" />
+<input bind:value={value} />
 
-```javascript
-// ❌ 잘못된 예시 (존재하지 않는 네임스페이스 사용)
-// 개발자가 'attr:'을 의도했으나 오타가 발생한 경우
-<div atrr:id="my-div">Hello</div> 
-
-// 'bind:' 같은 Svelte 스타일의 네임스페이스는 Solid에서 지원하지 않음
-<input bind:value={mySignal} /> 
-
-// ✅ 올바른 예시 (지원되는 공식 네임스페이스 사용)
-<div attr:id="my-div">Hello</div>
-<div class:active={isActive()}>Hello</div>
-<button on:click={(e) => console.log('직접 바인딩된 이벤트')}>Click</button>
-<div use:myDirective>Hello</div>
+// namespace가 필요 없으면 일반 prop을 사용
+<div id="main" />
 ```
+
+컴포넌트에 `attr:` 또는 알 수 없는 namespace를 사용한 경우에는 namespace를 제거하는 수정 제안이 제공될 수 있습니다. 프로젝트 고유 namespace는 `{ allowedNamespaces: ['my'] }`로 허용합니다. namespace의 실제 의미와 지원 여부는 Solid JSX 컴파일러 설정도 함께 확인해야 합니다.
+
+## 예제로 보는 동작
+
+Solid가 의미를 아는 namespace는 valid입니다.
+
+```tsx
+// 모두 valid
+<input attr:aria-label="검색" />
+<div class:active={selected()} />
+<div style:width="10rem" />
+<button on:click={save} />
+<div use:focusTrap />
+```
+
+다른 프레임워크의 namespace를 가져오거나 오타를 내면 invalid입니다.
+
+```tsx
+// invalid: `attr:`의 오타
+<div atrr:id="main" />
+
+// invalid: Svelte식 namespace는 Solid directive가 아님
+<input bind:value={value} />
+```
+
+`class:`와 `style:`의 값은 boolean toggle이 아니라 CSS 값을 직접 넣는 namespace입니다. 따라서 아래는 invalid이며, 일반 `style` object를 사용해야 합니다.
+
+```tsx
+// invalid
+<div class:mt-4 />
+
+// valid
+<div class="mt-4" />
+```
+
+프로젝트가 별도 JSX transform을 통해 `foo:bar`를 지원한다면 `{ allowedNamespaces: ['foo'] }`로 허용할 수 있습니다. component에 `attr:label`을 쓴 경우 rule은 `<Widget label="..." />` suggestion을 낼 수 있지만, component API에 맞는지 확인해야 합니다.

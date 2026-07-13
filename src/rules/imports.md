@@ -1,30 +1,53 @@
 # imports
 
-## 1. 규칙이 존재하는 이유 (Solid.js 1.0 기반)
-Solid.js의 훅 및 API 이름은 React와 매우 유사한 경우가 있습니다(예: `useContext`, `createEffect`, `children` 등). 이로 인해 개발자가 자동 완성(Auto-import)을 사용할 때 실수로 `solid-js`가 아닌 `react` 패키지에서 함수를 임포트하는 실수를 흔히 저지릅니다. 이를 린트 단계에서 방지하기 위한 규칙입니다.
+Solid API를 올바른 패키지에서 가져오도록 검사하는 규칙입니다. `solid-js`, `solid-js/web`, `solid-js/store`에서 공개되는 것으로 알려진 값과 타입의 import source를 확인하고, 잘못된 source는 자동 수정할 수 있습니다.
 
-## 2. Solid.js 2.0에서의 변경 여부
-**변경 없음.** 여전히 다른 라이브러리의 잘못된 import를 방지하여 런타임 에러를 막아야 합니다.
+## 패키지 경계
 
-## 3. 그 외 규칙 이해를 위한 설명
-이 규칙은 특히 기존 React 프로젝트를 Solid.js로 마이그레이션하거나, 두 프레임워크를 경험한 개발자가 혼동하여 발생하는 치명적인 런타임 버그를 예방하는 데 매우 효과적입니다.
+`solid-js`에는 반응성 primitive와 control-flow component가, `solid-js/web`에는 DOM renderer와 browser/web 기능이, `solid-js/store`에는 Proxy 기반 store API가 있습니다. 이름이 비슷하다고 해서 모든 API가 같은 entry point에서 export되는 것은 아니며, bundler의 export condition도 영향을 받을 수 있습니다.
 
-## 4. 예제 코드 및 시각적 설명
+```ts
+// 잘못된 예
+import { createEffect } from 'solid-js/web';
+import { render } from 'solid-js';
 
-```javascript
-// ❌ 잘못된 예시 (React에서 훅을 가져옴)
-import { useState, useEffect } from 'react'; // Solid 컴포넌트에서는 동작하지 않음!
-
-function MyComponent() {
-  const [count, setCount] = useState(0);
-  useEffect(() => { /* ... */ }, [count]);
-}
-
-// ✅ 올바른 예시 (Solid.js에서 API를 가져옴)
-import { createSignal, createEffect } from 'solid-js';
-
-function MyComponent() {
-  const [count, setCount] = createSignal(0);
-  createEffect(() => { console.log(count()); });
-}
+// 권장
+import { createEffect } from 'solid-js';
+import { render } from 'solid-js/web';
 ```
+
+이 규칙은 모든 React API 사용을 검사하는 규칙이 아니며, 구현에 등록된 Solid 심볼 목록을 기준으로 동작합니다. 새 Solid API를 다룰 때는 해당 목록과 테스트도 함께 갱신해야 합니다.
+
+## 예제로 보는 동작
+
+반응성 API, browser renderer, store API는 entry point가 다릅니다.
+
+```ts
+// valid
+import { createSignal, createEffect } from 'solid-js';
+import { render } from 'solid-js/web';
+import { createStore } from 'solid-js/store';
+```
+
+`createEffect`는 browser renderer API가 아니므로 아래는 invalid입니다.
+
+```ts
+// invalid
+import { createEffect } from 'solid-js/web';
+
+// autofix
+import { createEffect } from 'solid-js';
+```
+
+수정 대상의 import가 이미 있다면 rule은 import를 중복 생성하지 않고 합칩니다.
+
+```ts
+// before: invalid
+import { createEffect } from 'solid-js/web';
+import { createSignal } from 'solid-js';
+
+// after
+import { createSignal, createEffect } from 'solid-js';
+```
+
+alias와 namespace import는 그대로 허용됩니다. 예를 들어 `import { mergeProps as merge } from 'solid-js'`와 `import * as Solid from 'solid-js'`는 valid입니다. 이 rule은 등록된 Solid export 목록만 검사하므로, 목록에 없는 새 API의 source까지 추론하지는 않습니다.

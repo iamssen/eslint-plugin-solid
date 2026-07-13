@@ -1,31 +1,43 @@
 # no-array-handlers
 
-## 1. 규칙이 존재하는 이유 (Solid.js 1.0 기반)
-Solid.js는 이벤트 핸들러에 배열을 전달하여 인자를 바인딩하는 문법(`onClick={[handler, data]}`)을 지원하여 성능을 최적화할 수 있도록 합니다. 하지만 TypeScript 환경에서는 이러한 배열 기반 핸들러가 타입 추론과 안정성을 완벽하게 보장하기 까다로운 한계가 있습니다. 타입 안정성을 최우선으로 하는 프로젝트에서 이를 지양하고자 할 때 이 규칙을 사용합니다.
+Solid 이벤트 핸들러의 배열 구문을 금지합니다. Solid는 `<button onClick={[handler, value]} />`를 지원하며 불필요한 클로저를 줄일 수 있지만, 이 규칙은 해당 구문이 타입 안전하지 않거나 팀 코드에서 혼동을 일으키는 경우 사용합니다.
 
-## 2. Solid.js 2.0에서의 변경 여부
-**변경 없음.** 프레임워크 자체에서는 구문을 계속 유효하게 지원하지만, TypeScript에서의 한계로 인해 타입 검사 관점에서 사용하는 린트 룰입니다.
+Solid의 배열 handler는 React의 `onClick={(event) => handler(value, event)}`를 단순히 다른 문법으로 쓴 것이 아닙니다. Solid의 JSX runtime이 배열의 첫 항목을 handler로, 나머지 값을 handler 호출 시 인자로 전달하도록 해 closure 생성을 피하는 최적화 문법입니다. 그만큼 Solid 전용이고, 일반적인 JSX 타입 도구나 팀 구성원에게는 덜 익숙할 수 있습니다.
 
-## 3. 그 외 규칙 이해를 위한 설명
-성능 최적화가 극단적으로 필요한 상황이 아니라면, 가독성과 타입 체킹을 위해 화살표 함수(`onClick={() => handler(data)}`)나 클로저를 사용하는 것이 일반적으로 더 안전하고 권장되는 방식입니다.
+```tsx
+// 이 규칙에 걸리는 형태
+<button onClick={[handleClick, id]} />
 
-## 4. 예제 코드 및 시각적 설명
-
-```javascript
-// ❌ 지양하는 예시 (배열 바인딩 구문 - 타입 추론이 어려울 수 있음)
-function App() {
-  const handleClick = (id, event) => console.log(id);
-  const userId = 123;
-  
-  // 배열의 첫 요소는 핸들러 함수, 두 번째 요소는 바인딩할 데이터
-  return <button onClick={[handleClick, userId]}>Click</button>;
-}
-
-// ✅ 권장하는 예시 (화살표 함수 - 타입 검사가 완벽하게 지원됨)
-function App() {
-  const handleClick = (id, event) => console.log(id);
-  const userId = 123;
-  
-  return <button onClick={(e) => handleClick(userId, e)}>Click</button>;
-}
+// 일반적인 대안
+<button onClick={(event) => handleClick(id, event)} />
 ```
+
+이 규칙은 배열의 실제 타입 안전성을 판정하지 않고, 이벤트 속성 또는 이벤트 핸들러로 식별되는 위치의 배열 표현식을 검사합니다.
+
+## 예제로 보는 동작
+
+Solid 배열 handler 문법 자체가 이 rule에서는 invalid입니다.
+
+```tsx
+// invalid: Solid는 지원하지만 이 프로젝트는 금지
+<button onClick={[save, id]}>저장</button>
+<div on:click={[track, 'opened']} />
+<button onclick={[save, id]} />
+```
+
+동일한 동작을 일반 함수 handler로 쓰면 valid입니다.
+
+```tsx
+// valid
+<button onClick={(event) => save(id, event)}>저장</button>
+<div on:click={(event) => track('opened', event)} />
+```
+
+배열을 변수에 넣어도 피할 수 없습니다.
+
+```tsx
+const handler = [save, id];
+<button onClick={handler} />; // invalid
+```
+
+반대로 event prop이 아닌 일반 prop의 배열은 검사 대상이 아닙니다. 이 rule은 배열 첫 항목의 타입이나 handler가 실제로 동작하는지를 분석하지 않고, event handler 위치에 배열 문법이 쓰였는지만 검사합니다.

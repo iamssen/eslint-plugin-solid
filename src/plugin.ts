@@ -4,7 +4,6 @@ import imports from './rules/imports.js';
 import jsxNoDuplicateProps from './rules/jsx-no-duplicate-props.js';
 import jsxNoScriptUrl from './rules/jsx-no-script-url.js';
 import jsxNoUndef from './rules/jsx-no-undef.js';
-import jsxUsesVars from './rules/jsx-uses-vars.js';
 import noArrayHandlers from './rules/no-array-handlers.js';
 import noDestructure from './rules/no-destructure.js';
 import noInnerHTML from './rules/no-innerhtml.js';
@@ -37,7 +36,6 @@ const allRules = {
   'jsx-no-duplicate-props': jsxNoDuplicateProps,
   'jsx-no-undef': jsxNoUndef,
   'jsx-no-script-url': jsxNoScriptUrl,
-  'jsx-uses-vars': jsxUsesVars,
   'no-destructure': noDestructure,
   'no-innerhtml': noInnerHTML,
   'no-proxy-apis': noProxyApis,

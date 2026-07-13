@@ -1,18 +1,13 @@
 import { ESLint as FlatESLint } from 'eslint';
-import { ESLint as LegacyESLint } from 'eslint-v8';
 import { fileURLToPath } from 'node:url';
 import path from 'path';
 import { expect, test } from 'vitest';
-
-import * as plugin from '../dist/index.js';
 
 const cwd = path.dirname(fileURLToPath(import.meta.url));
 const validDir = path.join(cwd, 'valid');
 const jsxUndefPath = path.join(cwd, 'invalid', 'jsx-undef.jsx');
 
-const checkResult = (
-  result: LegacyESLint.LintResult | FlatESLint.LintResult,
-) => {
+const checkResult = (result: FlatESLint.LintResult) => {
   if (result.filePath.startsWith(validDir)) {
     expect(result.messages).toEqual([]);
     expect(result.errorCount).toBe(0);
@@ -41,55 +36,11 @@ const checkResult = (
   }
 };
 
-test.concurrent('fixture (legacy)', async () => {
-  const eslint = new LegacyESLint({
-    cwd,
-    plugins: {
-      '@ssen/solid': plugin as any,
-    },
-    baseConfig: {
-      root: true,
-      parser: '@typescript-eslint/parser',
-      env: { browser: true },
-      plugins: ['@ssen/solid'],
-      extends: 'plugin:@ssen/solid/recommended',
-    },
-    useEslintrc: false,
-  });
-  const results = await eslint.lintFiles(
-    '{valid,invalid}/**/*.{js,jsx,ts,tsx}',
-  );
-
-  results.forEach(checkResult);
-
-  expect(
-    results.filter((result) => result.filePath === jsxUndefPath).length,
-  ).toBe(1);
-});
-
-test.concurrent('fixture (.configs["flat/recommended"])', async () => {
-  const eslint = new FlatESLint({
-    cwd,
-    overrideConfigFile: './eslint.config.prefixed.js',
-  } as any);
-  const results = await eslint.lintFiles(
-    '{valid,invalid}/**/*.{js,jsx,ts,tsx}',
-  );
-
-  results.forEach(checkResult);
-
-  expect(
-    results.filter((result) => result.filePath === jsxUndefPath).length,
-  ).toBe(1);
-});
-
-test.concurrent('fixture (/configs/recommended)', async () => {
+test.concurrent('fixture (plugin.configs.recommended)', async () => {
   const eslint = new FlatESLint({
     cwd,
     overrideConfigFile: './eslint.config.js',
-    // ignorePatterns: ["eslint.*"],
   } as any);
-
   const results = await eslint.lintFiles(
     '{valid,invalid}/**/*.{js,jsx,ts,tsx}',
   );

@@ -1,34 +1,50 @@
 # no-react-specific-props
 
-## 1. 규칙이 존재하는 이유 (Solid.js 1.0 기반)
-React는 DOM 표준과 다르게 `class` 대신 `className`을, `for` 대신 `htmlFor`를 사용하는 등 특수한 속성 이름들을 강제합니다. 하지만 Solid.js는 브라우저 DOM 표준을 그대로 따른다는 철학을 가지고 있어, React 방식의 속성을 사용하지 못하게 하고 표준 속성(`class`, `for` 등)을 사용하도록 유도합니다.
+React에서 사용하는 JSX prop 이름을 Solid/DOM 이름으로 바꾸도록 검사합니다.
 
-## 2. Solid.js 2.0에서의 변경 여부
-**변경 없음.** 브라우저의 네이티브 DOM 속성과 가능한 일치시킨다는 원칙은 Solid.js 전 버전에 걸쳐 동일하게 유지됩니다.
+## React JSX와 Solid JSX의 차이
 
-## 3. 그 외 규칙 이해를 위한 설명
-이 규칙은 기존에 React 프로젝트에 익숙한 개발자가 Solid.js로 넘어왔을 때 습관적으로 발생시키는 오타나 잘못된 속성 매핑을 가장 빠르고 직관적으로 교정해 주는 역할을 합니다.
+React DOM renderer는 `className`, `htmlFor`, `key`처럼 React가 특별히 해석하는 prop을 사용합니다. Solid는 가능한 한 실제 DOM property/attribute와 Solid runtime의 이름을 직접 사용합니다. React 코드를 그대로 옮기면 브라우저가 알아듣지 못하는 이름이 남거나, Solid에서 아무 의미 없는 `key`가 생길 수 있습니다.
 
-## 4. 예제 코드 및 시각적 설명
+```tsx
+// 잘못된 예
+<div className="box" />
+<label htmlFor="name" />
+<div key={item.id} />
 
-```javascript
-// ❌ 잘못된 예시 (React 스타일의 속성)
-function MyForm() {
-  return (
-    <div className="form-group">
-      <label htmlFor="username">Username</label>
-      <input id="username" type="text" />
-    </div>
-  );
-}
-
-// ✅ 올바른 예시 (DOM 표준 속성 사용)
-function MyForm() {
-  return (
-    <div class="form-group">
-      <label for="username">Username</label>
-      <input id="username" type="text" />
-    </div>
-  );
-}
+// 권장
+<div class="box" />
+<label for="name" />
 ```
+
+구현상 `className`은 `class`, `htmlFor`는 `for`로 수정하며, DOM 요소뿐 아니라 컴포넌트 JSX에도 적용됩니다. `key`는 Solid의 일반 DOM/컴포넌트 prop이 아닌 경우 제거 대상으로 취급될 수 있으므로 목록 렌더링에서는 `<For>`의 item/index 모델을 사용합니다.
+
+## 예제로 보는 동작
+
+React에서 쓰던 prop 이름은 DOM/Solid 이름으로 바꿉니다. 값이 문자열이든 expression이든 이름이 `className`/`htmlFor`이면 invalid입니다.
+
+```tsx
+// invalid
+<div className={isActive() ? 'active' : ''} />
+<label htmlFor="email">이메일</label>
+
+// autofix 후: valid
+<div class={isActive() ? 'active' : ''} />
+<label for="email">이메일</label>
+```
+
+이 rule은 DOM element뿐 아니라 component에 전달하는 React식 prop도 바꿉니다.
+
+```tsx
+// invalid → <Field class="wide" />
+<Field className="wide" />
+```
+
+React에서 list reconciliation을 위해 쓰던 `key`도 일반 JSX element에서는 invalid로 보고 제거할 수 있습니다.
+
+```tsx
+// invalid → <li>{item.name}</li>
+<li key={item.id}>{item.name}</li>
+```
+
+다만 component가 `key`라는 자체 API를 실제로 받는 경우에는 이 자동 수정을 적용하기 전에 확인해야 합니다. Solid 목록 렌더링의 identity는 보통 `<For>` 또는 `<Index>` 선택으로 표현합니다.

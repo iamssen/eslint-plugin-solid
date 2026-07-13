@@ -1,44 +1,77 @@
 # reactivity
 
-## 1. 규칙이 존재하는 이유 (Solid.js 1.0 기반)
-이 규칙은 Solid.js 애플리케이션에서 **가장 치명적인 버그를 막아주는 핵심 린트 규칙**입니다. 반응형 데이터(Signal, Store, Props 등)는 값이 접근될 때(Getter 호출) 자동으로 의존성을 추적(Track)합니다. 그러나 이 추적은 JSX 내부, `createEffect`, `createMemo`와 같이 프레임워크가 인지하는 "추적 스코프(Tracking Scope)" 내에서 일어날 때만 작동합니다. setTimeout의 콜백, 비동기 함수 내부, 이벤트 핸들러 등 스코프를 벗어난 곳에서 접근하면 값의 변경을 감지하지 못하고 상태 동기화가 끊기는 문제(Tracking Loss)가 발생하므로 이를 강력히 경고합니다.
+Solid signal, memo, props, store 등의 반응형 값을 추적되지 않는 위치에서 읽거나 잘못된 방식으로 다루는 패턴을 검사합니다. Solid는 반응형 값을 추적 스코프에서 읽을 때 의존성을 등록하므로, 일반 컴포넌트 본문에서 값을 미리 읽어 변수에 고정하면 이후 변경을 놓칠 수 있습니다.
 
-## 2. Solid.js 2.0에서의 변경 여부
-**변경 없음.** Solid.js 2.0에서 반응성 시스템의 내부 구조가 다듬어졌더라도, "함수 실행과 Getter 기반의 의존성 추적"이라는 프레임워크의 대원칙은 변하지 않기 때문에 이 규칙은 여전히 가장 중요하게 취급됩니다.
+## Solid의 핵심 실행 모델
 
-## 3. 그 외 규칙 이해를 위한 설명
-만약 비동기 작업 결과나 setTimeout 내부에서 반응형 상태를 읽거나 써야 하는 상황이라면, 그 함수 내부에서 로직을 처리하는 데 그쳐야 매, 해당 결과에 따라 DOM이 갱신되기를 원한다면 스코프 바깥의 Signal을 업데이트(Setter 호출)하여 다시 추적 스코프(JSX 렌더링 등)가 갱신되도록 설계해야 합니다.
+React의 의존성 배열은 “다음 렌더에서 이 값을 비교할 것”을 선언합니다. Solid는 대신 `count()`나 `props.value`처럼 반응형 값을 **읽는 순간** 현재 실행 중인 reactive computation에 의존성을 등록합니다. 그래서 같은 값이라도 JSX expression, `createEffect` callback 안에서 읽으면 추적되지만, 컴포넌트 초기화 시 일반 변수에 복사하면 추적되지 않습니다.
 
-## 4. 예제 코드 및 시각적 설명
+```tsx
+// 주의: props.value를 컴포넌트 실행 시점에 고정
+const value = props.value;
+return <div>{value}</div>;
 
-```javascript
-// ❌ 잘못된 예시 (추적 스코프를 벗어난 경우)
-function Timer() {
-  const [time, setTime] = createSignal(0);
+// 권장: 반응형 읽기를 JSX 안에 둠
+return <div>{props.value}</div>;
+```
 
-  // createEffect 내부의 setTimeout 콜백 안에서 time()을 호출하면 
-  // 동기적인 추적 스코프가 끊겨 반응성이 동작하지 않습니다.
-  createEffect(() => {
-    setTimeout(() => {
-      console.log(time()); // 린터 경고: 비동기 스코프 내부에서의 반응성 호출
-    }, 1000);
-  });
+규칙은 반응형 값의 쓰기, 이름 없는 파생 값, 비동기/콜백 추적 스코프, JSX·연산식·템플릿 리터럴에서의 읽기 등을 상황별로 검사합니다. 사용자 정의 reactive 함수는 `{ customReactiveFunctions: ['customQuery'] }`로 등록할 수 있습니다.
 
-  return <div>{time()}</div>;
+모든 콜백에서 signal을 읽는 것이 오류라는 뜻은 아닙니다. 이벤트 핸들러나 `setTimeout`처럼 실행 시점에 최신 값을 읽는 것이 의도된 코드는 규칙의 진단과 실제 추적 필요성을 함께 검토해야 합니다.
+
+비동기 callback 안의 읽기는 callback이 나중에 실행될 때 새로운 추적 computation을 자동으로 만들지 않습니다. callback이 반응형 UI를 갱신해야 한다면 effect 안에서 값을 읽어 dependency를 등록하거나, callback에서 setter를 호출해 별도의 반응형 값을 갱신하는 식으로 의도를 분명히 해야 합니다.
+
+## 예제로 보는 동작
+
+가장 흔한 오류는 반응형 값을 컴포넌트 초기화 중에 일반 변수로 고정하는 것입니다.
+
+```tsx
+function Profile(props) {
+  const name = props.name; // invalid: 현재 값을 한 번만 읽음
+  return <h1>{name}</h1>;
 }
 
-// ✅ 올바른 예시 (추적 스코프 내부에서 미리 읽기)
-function Timer() {
-  const [time, setTime] = createSignal(0);
-
-  createEffect(() => {
-    // 동기적인 스코프 안에서 미리 값을 읽습니다.
-    const currentTime = time(); 
-    setTimeout(() => {
-      console.log(currentTime);
-    }, 1000);
-  });
-
-  return <div>{time()}</div>;
+function Profile(props) {
+  return <h1>{props.name}</h1>; // valid: JSX가 props.name을 추적
 }
 ```
+
+signal도 같은 원리입니다. signal accessor를 JSX나 reactive callback 안에서 호출해야 합니다.
+
+```tsx
+const [count, setCount] = createSignal(0);
+
+const initial = count(); // invalid: 일반 변수에 고정
+const doubled = createMemo(() => count() * 2); // valid: createMemo가 추적
+```
+
+이벤트 handler는 나중에 실행되는 “읽기”이며 dependency를 등록할 목적이 아니므로 valid입니다.
+
+```tsx
+// valid: 클릭 시점의 최신 count를 읽음
+<button onClick={() => console.log(count())}>현재 값</button>
+```
+
+반대로 effect가 비동기 경계를 건너 읽은 값은 effect dependency가 되지 않습니다.
+
+```ts
+// invalid: count()는 setTimeout callback에서 읽혀 effect가 count를 추적하지 않음
+createEffect(() => {
+  setTimeout(() => console.log(count()), 100);
+});
+
+// valid: effect 실행 중에 count를 읽어 dependency를 등록
+createEffect(() => {
+  const current = count();
+  setTimeout(() => console.log(current), 100);
+});
+```
+
+프로젝트의 custom primitive가 callback을 reactive scope로 실행한다면 옵션에 등록합니다.
+
+```ts
+// { customReactiveFunctions: ['createQuery'] }
+createQuery(() => count()); // valid with the option
+```
+
+이 rule은 event listener, observer, 일부 `create*`/`use*` hook을 의도적으로 허용합니다. 진단을 고칠 때는 먼저 그 callback이 UI 갱신을 위해 dependency를 **등록**해야 하는지, 단지 실행 시점의 최신 값을 **읽기만** 하면 되는지 구분하세요.

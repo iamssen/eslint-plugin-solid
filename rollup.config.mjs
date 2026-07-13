@@ -15,8 +15,6 @@ const config = [
   {
     input: {
       'index': 'src/index.ts',
-      'configs/recommended': 'src/configs/recommended.ts',
-      'configs/typescript': 'src/configs/typescript.ts',
     },
     output: {
       dir: 'dist',
@@ -29,8 +27,6 @@ const config = [
   {
     input: {
       'index': 'src/index.ts',
-      'configs/recommended': 'src/configs/recommended.ts',
-      'configs/typescript': 'src/configs/typescript.ts',
     },
     output: {
       dir: 'dist',

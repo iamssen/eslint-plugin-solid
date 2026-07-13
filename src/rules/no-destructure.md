@@ -1,37 +1,55 @@
 # no-destructure
 
-## 1. 규칙이 존재하는 이유 (Solid.js 1.0 기반)
-Solid.js 1.0에서 `props` 객체는 내부적으로 Getter를 통해 프로퍼티의 접근을 추적하여 반응성을 유지합니다. 만약 JavaScript의 구조 분해 할당(Destructuring)을 통해 `const { title } = props;` 처럼 사용하면, 할당 시점의 값이 정적으로 복사되면서 Getter가 소실되어 상태 변화를 추적(Track)하지 못하게 되기 때문에 이를 엄격히 금지합니다.
+컴포넌트 props를 함수 매개변수나 변수 선언에서 구조 분해하지 않도록 검사합니다. Solid props는 반응형 getter를 포함할 수 있어, 일반적인 구조 분해는 값을 읽은 시점의 값으로 만들고 이후 변경 추적을 잃을 수 있습니다.
 
-## 2. Solid.js 2.0에서의 변경 여부
-**부분적 변경 가능성 존재.** Solid.js 2.0 생태계에서는 Babel 컴파일러 변환(Destructure Transform)을 활성화하여 구조 분해 할당을 사용해도 내부적으로 다시 접근자(Getter)로 컴파일되게 만들어 반응성을 잃지 않게 하는 기능이 도입되었습니다. 그러나 이 컴파일러 옵션을 사용하지 않는 기본(Core) 환경의 메커니즘은 여전히 동일하므로, 컴파일러 설정 여부에 따라 이 규칙의 적용이 달라질 수 있습니다.
+## React와 다른 점
 
-## 3. 그 외 규칙 이해를 위한 설명
-기본적으로 Solid.js에서는 `props.title`처럼 속성에 직접 접근하거나, 분리 또는 병합이 필요할 경우 반드시 내장 유틸리티 함수인 `splitProps`와 `mergeProps`를 사용해야 반응성이 끊어지지 않습니다.
+React 함수 컴포넌트에서는 매 렌더마다 새 props 객체를 읽으므로 `({ title })`가 자연스럽습니다. Solid의 props는 호출 시점에 한 번 꺼내는 일반 값이 아니라, 부모의 변경을 읽기 시점에 반영하는 반응형 객체입니다. `const { title } = props`는 getter를 호출해 현재 값을 일반 변수에 저장하므로, JSX가 `title`을 읽어도 부모 변경에 대한 의존성이 연결되지 않습니다.
 
-## 4. 예제 코드 및 시각적 설명
+```tsx
+// 잘못된 예
+const Component = ({ title }) => <h1>{title}</h1>;
 
-```javascript
-// ❌ 잘못된 예시 (구조 분해 할당 시 반응성을 잃어버림)
-function Greeting(props) {
-  const { name } = props; // 여기서 name은 컴포넌트 마운트 시점의 문자열로 고정됨
-  
-  // props.name 이 밖에서 바뀌어도 화면은 업데이트되지 않습니다!
-  return <div>Hello, {name}</div>; 
-}
+// 권장
+const Component = (props) => <h1>{props.title}</h1>;
+```
 
-// ✅ 올바른 예시 1 (직접 접근)
-function Greeting(props) {
-  // props.name 에 접근하는 순간(Getter 호출) 변경을 추적하게 됩니다.
-  return <div>Hello, {props.name}</div>; 
-}
+props를 나누어 전달해야 하면 `splitProps`를 사용하고, 기본값을 합쳐야 하면 `mergeProps`를 사용합니다. 이 규칙은 주로 JSX를 반환하는 컴포넌트의 props 구조 분해를 자동 수정합니다.
 
-// ✅ 올바른 예시 2 (splitProps 유틸리티 사용)
-import { splitProps } from 'solid-js';
+구조 분해가 항상 문법적으로 불가능하다는 뜻은 아닙니다. 이미 accessor를 prop으로 전달했거나 반응성 추적이 필요 없는 값이라면 별도 판단이 필요하지만, 컴포넌트 props에는 직접 접근하는 것이 기본적으로 안전합니다.
 
-function Greeting(props) {
-  const [local, others] = splitProps(props, ["name"]);
-  // local과 others 모두 반응성이 유지되는 프록시/접근자 객체입니다.
-  return <div {...others}>Hello, {local.name}</div>;
+## 예제로 보는 동작
+
+React에서 익숙한 component parameter 구조 분해는 Solid props의 getter를 한 번 읽어 일반 값으로 만들기 때문에 invalid입니다.
+
+```tsx
+// invalid
+const Title = ({ text }) => <h1>{text}</h1>;
+
+// valid
+const Title = (props) => <h1>{props.text}</h1>;
+```
+
+alias, 기본값, rest도 같은 이유로 검사합니다. rule은 가능한 경우 `props` access로 자동 수정합니다.
+
+```tsx
+// invalid
+const Card = ({ title: heading = 'Untitled' }) => <article>{heading}</article>;
+
+// 자동 수정 후: 기본값의 반응성을 유지하기 위해 mergeProps를 사용
+const Card = (_props) => {
+  const props = mergeProps({ title: 'Untitled' }, _props);
+  return <article>{props.title}</article>;
+};
+```
+
+rest prop이 포함된 복합 수정은 결과를 반드시 확인해야 합니다. 반면 JSX component가 아닌 일반 함수의 객체 구조 분해는 valid입니다.
+
+```ts
+// valid: Solid props가 아닌 일반 객체
+function formatUser({ name }: { name: string }) {
+  return name.toUpperCase();
 }
 ```
+
+props 일부를 분리해 전달하려면 `splitProps(props, ['title'])`, 기본 props를 합치려면 `mergeProps({ title: 'Untitled' }, props)`를 사용합니다.

@@ -1,49 +1,50 @@
 # no-react-deps
 
-## 1. 규칙이 존재하는 이유 (Solid.js 1.0 기반)
-React의 `useEffect` 훅은 함수가 다시 실행될 조건(의존성)을 배열(Dependency Array) 형태로 두 번째 인자에 명시해야 합니다. 그러나 Solid.js의 `createEffect`는 함수 내부에서 접근하는 반응형 상태(Signal)들을 자동으로 추적합니다. 여기에 React의 습관대로 의존성 배열을 넣게 되면 Solid에서는 무시되거나 원치 않는 동작(또는 타입 에러)을 유발하므로 이를 방지하기 위한 규칙입니다.
+`createEffect`와 `createMemo`에 React식 dependency array를 전달하지 않도록 검사합니다. Solid는 계산 함수 안에서 읽은 반응형 값을 자동으로 추적합니다.
 
-## 2. Solid.js 2.0에서의 변경 여부
-**변경 없음.** 자동 스코프 의존성 추적 시스템은 Solid.js의 가장 핵심적인 설계 철학이므로 변경되지 않습니다.
+## React의 dependency array와 다른 점
 
-## 3. 그 외 규칙 이해를 위한 설명
-Solid.js에서 특정 신호가 변경될 때만 이펙트가 동작하도록 명시적으로 분리(untrack 및 track 제어)하고 싶다면 의존성 배열 대신 `on`이라는 내장 유틸리티 함수를 사용해야 합니다.
+React의 `useEffect(fn, [a, b])`는 다음 render에서 effect를 다시 실행할 조건을 인자로 전달합니다. Solid의 `createEffect`와 `createMemo`는 callback을 실행하는 동안 signal, props, store를 읽어 dependency graph를 구성합니다. 따라서 dependency array는 Solid API의 설정값이 아니라 React 코드를 마이그레이션하면서 남은 잘못된 인자일 가능성이 큽니다.
 
-## 4. 예제 코드 및 시각적 설명
+```ts
+// 잘못된 예
+createEffect(() => console.log(count()), [count]);
 
-```javascript
-// ❌ 잘못된 예시 (React 스타일의 의존성 배열 사용)
-import { createEffect, createSignal } from 'solid-js';
-
-function App() {
-  const [count, setCount] = createSignal(0);
-
-  // Solid.js의 createEffect는 두 번째 인자로 의존성 배열을 받지 않습니다.
-  createEffect(() => {
-    console.log(count());
-  }, [count]); // 린트 에러!
-}
-
-// ✅ 올바른 예시 (자동 추적)
-function App() {
-  const [count, setCount] = createSignal(0);
-
-  // 내부에서 count()가 호출되었으므로 자동으로 의존성이 추적됩니다.
-  createEffect(() => {
-    console.log(count()); 
-  }); 
-}
-
-// ✅ 올바른 예시 (명시적 추적이 필요한 경우 'on' 사용)
-import { createEffect, createSignal, on } from 'solid-js';
-
-function App() {
-  const [count, setCount] = createSignal(0);
-  const [text, setText] = createSignal("");
-
-  // count가 변경될 때만 실행되며, text()의 변경은 무시(untrack)합니다.
-  createEffect(on(count, (c) => {
-    console.log("Count is", c, "Text is", text());
-  }));
-}
+// 권장: 자동 추적
+createEffect(() => console.log(count()));
 ```
+
+특정 의존성을 명시하고 나머지 읽기를 추적하지 않으려면 Solid의 `on` 유틸리티를 사용합니다.
+
+```ts
+createEffect(on(count, (value) => console.log(value, other())));
+```
+
+이 규칙은 dependency array의 내용이 올바른지 검사하는 것이 아니라, 두 번째 인자로 전달된 배열을 제거하도록 안내합니다.
+
+Solid API의 두 번째 인자가 항상 dependency array인 것은 아닙니다. 예를 들어 `createEffect`의 두 번째 인자는 이전 실행 결과의 초기값으로 사용될 수 있으므로, 이 규칙은 배열 표현식만 React식 dependency로 간주해 보고합니다.
+
+## 예제로 보는 동작
+
+React effect를 옮기면서 남은 dependency array는 invalid입니다. Solid는 callback 안에서 `count()`를 읽을 때 이미 `count`를 추적합니다.
+
+```ts
+// invalid
+createEffect(() => console.log(count()), [count]);
+createMemo(() => filter(items(), query()), [items, query]);
+
+// autofix 후: valid
+createEffect(() => console.log(count()));
+createMemo(() => filter(items(), query()));
+```
+
+특정 값만 effect를 다시 실행시키고, callback 안의 다른 읽기는 추적하지 않게 하려면 `on`을 사용합니다.
+
+```ts
+// valid: count만 dependency로 명시
+createEffect(on(count, (value) => {
+  console.log(value, debugLabel());
+}));
+```
+
+배열의 내용이 accessor인지 `count()` 호출 결과인지는 중요하지 않습니다. `createEffect(fn, [...])`처럼 두 번째 인자가 배열이면 React dependency array로 보고합니다. 반면 다른 함수의 일반 배열 인자까지 금지하지는 않습니다.

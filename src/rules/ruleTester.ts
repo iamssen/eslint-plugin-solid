@@ -6,10 +6,7 @@ import type {
 } from '@typescript-eslint/rule-tester';
 import type { ESLintUtils } from '@typescript-eslint/utils';
 import { RuleTester as RuleTester_v10 } from 'eslint';
-import { RuleTester as RuleTester_v8 } from 'eslint-v8';
-import { RuleTester as RuleTester_v9 } from 'eslint-v9';
 import assert from 'node:assert';
-import { createRequire } from 'node:module';
 import tseslint from 'typescript-eslint';
 
 function formatWithPrettier(code: unknown): unknown {
@@ -54,11 +51,7 @@ function createPrettierRuleTester<T extends new (...args: any[]) => any>(
   };
 }
 
-const PrettierRuleTester_v8 = createPrettierRuleTester(RuleTester_v8);
-const PrettierRuleTester_v9 = createPrettierRuleTester(RuleTester_v9);
 const PrettierRuleTester_v10 = createPrettierRuleTester(RuleTester_v10);
-
-const requireModule = createRequire(import.meta.url);
 
 // The default parser
 const v10Tester = new PrettierRuleTester_v10({
@@ -85,15 +78,6 @@ const tsTester = new PrettierRuleTester_v10({
   },
 });
 
-const tsV8Tester = new PrettierRuleTester_v8({
-  parser: requireModule.resolve('@typescript-eslint/parser'),
-  parserOptions: {
-    ecmaFeatures: {
-      jsx: true,
-    },
-  },
-});
-
 // Babel's ESLint parser
 const babelTester = new PrettierRuleTester_v10({
   languageOptions: {
@@ -109,41 +93,6 @@ const babelTester = new PrettierRuleTester_v10({
   },
 });
 
-const babelV8Tester = new PrettierRuleTester_v8({
-  parser: requireModule.resolve('@babel/eslint-parser'),
-  parserOptions: {
-    sourceType: 'module',
-    requireConfigFile: false,
-    babelOptions: {
-      parserOpts: {
-        plugins: ['jsx', 'typescript'],
-      },
-    },
-  },
-});
-
-const v8Tester = new PrettierRuleTester_v8({
-  parserOptions: {
-    ecmaVersion: 2018,
-    sourceType: 'module',
-    ecmaFeatures: {
-      jsx: true,
-    },
-  },
-});
-
-const v9Tester = new PrettierRuleTester_v9({
-  languageOptions: {
-    ecmaVersion: 2018,
-    sourceType: 'module',
-    parserOptions: {
-      ecmaFeatures: {
-        jsx: true,
-      },
-    },
-  },
-});
-
 type RuleTesterWithFramework = {
   describe?: (text: string, callback: () => void) => void;
   it?: (text: string, callback: () => void) => void;
@@ -151,7 +100,7 @@ type RuleTesterWithFramework = {
 
 const executeSync = (_text: string, callback: () => void) => callback();
 
-for (const Tester of [RuleTester_v10, RuleTester_v9, RuleTester_v8]) {
+for (const Tester of [RuleTester_v10]) {
   const T = Tester as unknown as RuleTesterWithFramework;
   T.describe = executeSync;
   T.it = executeSync;
@@ -174,34 +123,10 @@ const parsers: Array<{
     isTsOnlyAllowed: true,
   },
   {
-    id: 'ts_v8',
-    name: '@typescript-eslint/parser',
-    tester: tsV8Tester as AnyRuleTester,
-    isTsOnlyAllowed: true,
-  },
-  {
     id: 'babel',
     name: '@babel/eslint-parser',
     tester: babelTester as AnyRuleTester,
     isTsOnlyAllowed: true,
-  },
-  {
-    id: 'babel_v8',
-    name: '@babel/eslint-parser v8',
-    tester: babelV8Tester as AnyRuleTester,
-    isTsOnlyAllowed: true,
-  },
-  {
-    id: 'v8',
-    name: 'eslint v8',
-    tester: v8Tester as AnyRuleTester,
-    isTsOnlyAllowed: false,
-  },
-  {
-    id: 'v9',
-    name: 'eslint v9',
-    tester: v9Tester as AnyRuleTester,
-    isTsOnlyAllowed: false,
   },
   {
     id: 'v10',

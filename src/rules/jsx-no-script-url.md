@@ -1,29 +1,38 @@
 # jsx-no-script-url
 
-## 1. 규칙이 존재하는 이유 (Solid.js 1.0 기반)
-`<a>` 태그의 `href` 속성 등에 `javascript:` 형태의 URL 스킴을 사용하는 것은 사용자의 입력값을 적절히 필터링하지 못할 경우 XSS(Cross Site Scripting) 공격에 취약해지는 원인이 됩니다. 보안상 이를 금지하기 위해 도입되었습니다.
+JSX 속성 값에 `javascript:` URL을 사용하지 않도록 검사합니다. 보안상 실행 가능한 URL을 링크나 컴포넌트 prop으로 전달하는 것을 피해야 합니다.
 
-## 2. Solid.js 2.0에서의 변경 여부
-**변경 없음.** 프레임워크의 버전에 상관없이 준수해야 하는 웹 보안 관련 일반 규칙입니다.
+`javascript:`는 브라우저가 URL 이동 대신 문자열을 JavaScript로 실행하게 하는 특수 scheme입니다. 정적 문자열뿐 아니라 template literal, 상수 결합처럼 정적으로 계산되는 표현도 위험할 수 있습니다. Solid-specific 문제가 아니라 DOM에 URL을 전달하는 모든 UI 코드의 보안 문제이므로, Solid 컴포넌트의 `to` 같은 사용자 정의 prop도 검사 대상입니다.
 
-## 3. 그 외 규칙 이해를 위한 설명
-버튼 클릭이나 링크 이동 시 스크립트를 실행해야 한다면, URL에 `javascript:void(0)`를 넣는 대신 올바른 이벤트 핸들러(예: `onClick`)를 바인딩하고 기본 동작을 막는(`e.preventDefault()`) 패턴을 사용하는 것이 권장됩니다.
+```tsx
+// 잘못된 예
+<a href="javascript:alert('xss')" />
+<Link to={`javascript:${value}`} />
 
-## 4. 예제 코드 및 시각적 설명
-
-```javascript
-// ❌ 잘못된 예시 (XSS 공격에 취약)
-<a href="javascript:alert('hello')">클릭하세요</a>
-<a href={`javascript:${userProvidedData}`}>위험한 링크</a>
-
-// ✅ 올바른 예시 (이벤트 핸들러 사용)
-<a href="#" onClick={(e) => {
-  e.preventDefault();
-  alert('hello');
-}}>
-  클릭하세요
-</a>
-
-// 접근성(a11y) 측면에서는 링크 이동이 없는 액션의 경우 버튼을 사용하는 것이 더 낫습니다.
-<button onClick={() => alert('hello')}>클릭하세요</button>
+// 액션은 버튼과 이벤트 핸들러로 표현
+<button type="button" onClick={handleClick}>실행</button>
 ```
+
+URL을 사용하는 경우에는 허용된 프로토콜과 목적지를 별도로 검증해야 합니다. 이 규칙은 일반적인 XSS 필터나 URL 검증기를 대체하지 않습니다.
+
+## 예제로 보는 동작
+
+`javascript:`는 `href`에만 위험한 것이 아닙니다. rule은 모든 JSX prop에서 정적으로 확인되는 값을 검사합니다.
+
+```tsx
+// 모두 invalid
+<a href="javascript:alert('xss')" />
+<Link to="javascript:run()" />
+<Widget action="javascript:run()" />
+<a href={`javascript:${command}`} />
+```
+
+사용자 동작은 URL scheme이 아니라 이벤트 handler로 표현합니다.
+
+```tsx
+// valid
+<button type="button" onClick={run}>실행</button>
+<a href="https://example.com">문서</a>
+```
+
+`<a href={userUrl}>`처럼 값이 런타임에 정해지면 이 rule은 URL의 실제 protocol을 알 수 없어 통과시킬 수 있습니다. 이 경우에도 `https:` 등 허용 목록을 애플리케이션 코드에서 검증해야 합니다.

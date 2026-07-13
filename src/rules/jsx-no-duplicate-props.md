@@ -1,26 +1,52 @@
 # jsx-no-duplicate-props
 
-## 1. 규칙이 존재하는 이유 (Solid.js 1.0 기반)
-동일한 JSX 요소에 같은 이름의 속성(Prop)을 두 번 이상 선언하는 실수를 방지하기 위해 존재합니다. 중복 선언된 경우 뒤에 선언된 속성이 앞의 속성을 조용히 덮어쓰게 되어 의도치 않은 버그를 유발할 수 있습니다.
+하나의 JSX 요소에 같은 prop을 두 번 전달하지 않도록 검사합니다. 명시적 속성과 정적으로 분석 가능한 spread 속성 사이의 중복도 검사하며, `children`, `class`, `className`, `innerHTML`, `textContent`처럼 함께 사용할 때 충돌하기 쉬운 속성도 별도로 다룹니다.
 
-## 2. Solid.js 2.0에서의 변경 여부
-**변경 없음.** 이는 프레임워크의 동작 방식보다는 JSX 구문 자체의 일반적이고 논리적인 오류를 잡아내기 위한 규칙입니다.
+## Solid에서 spread 순서가 중요한 이유
 
-## 3. 그 외 규칙 이해를 위한 설명
-ESLint의 기본 React 플러그인에 존재하는 `react/jsx-no-duplicate-props` 규칙과 동일한 목적과 동작 원리를 가집니다. Solid.js JSX 컴파일러에서도 동일하게 속성 덮어쓰기가 발생하므로 유효합니다.
+Solid JSX에서는 props가 단순한 HTML attribute 목록이 아닙니다. 컴포넌트 props, DOM property, directive가 함께 전달되고, spread와 명시적 prop의 순서가 결과에 영향을 줄 수 있습니다. 같은 이름을 반복하면 “뒤의 값이 이긴다”는 의도에 기대게 되어 refactoring 시 버그가 생기기 쉽습니다.
 
-## 4. 예제 코드 및 시각적 설명
+```tsx
+// 잘못된 예
+<div class="a" class="b" />
+<div {...{ class: 'a' }} class="b" />
 
-```javascript
-// ❌ 잘못된 예시 (같은 속성이 두 번 선언됨)
-<div class="primary" class="secondary" /> 
-// 실제로는 class="secondary" 만 적용됩니다.
-
-<MyComponent data={dataA} data={dataB} />
-// 의도치 않게 dataB가 dataA를 덮어씁니다.
-
-// ✅ 올바른 예시
-<div class="primary secondary" /> 
-
-<MyComponent data={dataA} />
+// 권장
+<div class="a b" />
 ```
+
+동적으로 계산되는 spread의 모든 키를 알 수 없는 경우까지 추측하지는 않습니다.
+
+## 예제로 보는 동작
+
+같은 prop을 두 번 전달하면 어느 값이 최종적으로 쓰이는지 순서에 의존하므로 invalid입니다.
+
+```tsx
+// invalid
+<Button size="small" size="large" />
+
+// valid
+<Button size="large" />
+```
+
+spread object의 key를 코드에서 알 수 있는 경우에도 중복을 찾습니다.
+
+```tsx
+// invalid: spread 안에 class가 있다는 것을 알 수 있음
+<div class="card" {...{ class: 'selected' }} />
+
+// valid: 어떤 key가 들어오는지 rule이 알 수 없음
+<div class="card" {...props} />
+```
+
+children은 prop으로 전달하거나 JSX child로 전달해야 합니다. 둘을 동시에 쓰면 무엇을 보여줄지 모호하므로 invalid입니다.
+
+```tsx
+// invalid
+<Panel children={<Header />}><Body /></Panel>
+
+// valid
+<Panel><Header /></Panel>
+```
+
+같은 이유로 `innerHTML`과 `textContent`를 함께 쓰는 것도 invalid입니다. `ignoreCase` 옵션을 켜면 `foo`와 `FOO`를 같은 이름으로 취급하도록 설정할 수 있습니다.
