@@ -37,4 +37,4 @@ Solid 1.x를 전제한 `attr:`/`on:` 및 `warnOnSpread` 테스트, `detected-att
 
 ## 타입 선언의 별도 한계
 
-검증 당시 `@solidjs/web` JSX 타입은 native `onCustom`을 선언하지 않아 prototype fixture에서 `@ts-expect-error`를 사용했다. runtime 동작과 타입 선언의 완전성은 별개이며, 이 ESLint 규칙은 그 TypeScript 오류를 진단하거나 우회하지 않는다.
+`@solidjs/web`의 기본 JSX 타입은 native `onCustom`과 검증용 `onCustom*` attribute를 선언하지 않는다. prototype fixture는 조건부 declaration merging으로 `<div>`와 `<button>`에만 필요한 prop을 허용한다. 이는 fixture의 type error를 막기 위한 국소적인 보완일 뿐이며, runtime 동작과 기본 타입 선언의 완전성은 별개다. 이 ESLint 규칙은 그 TypeScript 오류를 진단하거나 우회하지 않는다.

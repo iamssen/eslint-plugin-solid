@@ -52,7 +52,7 @@ element.getAttribute('oncustomattribute'); // "attribute-value"
 <button onCustom={[incrementArray, 2]} onClick={dispatchCustom} />
 ```
 
-현재 `@solidjs/web` JSX 타입은 `onCustom`을 선언하지 않아 prototype 코드에는 `@ts-expect-error`가 있다. 이는 타입 선언의 지원 범위 문제이며, runtime에서 동작한다는 사실과는 별개다. ESLint rule은 이 type error를 대신 진단하지 않는다.
+현재 `@solidjs/web`의 기본 JSX 타입은 `onCustom`과 검증용 `onCustom*` attribute를 선언하지 않는다. prototype fixture는 `declare module '@solidjs/web'`의 조건부 declaration merging으로 `<div>`와 `<button>`에만 필요한 prop을 허용한다. 이는 fixture의 type error를 막기 위한 국소적인 보완이며, runtime에서 동작한다는 사실과 기본 타입 선언의 지원 범위는 별개다. ESLint rule은 이 type error를 대신 진단하지 않는다.
 
 ## spread event handler
 
