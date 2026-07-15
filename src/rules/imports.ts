@@ -1,7 +1,7 @@
 import { ESLintUtils } from '@typescript-eslint/utils';
 import type { TSESTree as T, TSESLint } from '@typescript-eslint/utils';
 import { getSourceCode } from '../compat.js';
-import { appendImports, insertImports, removeSpecifier } from '../utils.js';
+import { appendImports } from '../utils.js';
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 
@@ -12,7 +12,21 @@ const createRule = ESLintUtils.RuleCreator.withoutDocs;
 // should be imported from "solid-js", etc.
 // ==============
 
-type Source = 'solid-js' | 'solid-js/web' | 'solid-js/store';
+type Source =
+  | 'solid-js'
+  | '@solidjs/web'
+  | '@solidjs/web/jsx-runtime'
+  | '@solidjs/web/jsx-dev-runtime'
+  | '@solidjs/h'
+  | '@solidjs/html'
+  | '@solidjs/universal'
+  | 'solid-js/web'
+  | 'solid-js/store'
+  | 'solid-js/h'
+  | 'solid-js/html'
+  | 'solid-js/universal'
+  | 'solid-js/jsx-runtime'
+  | 'solid-js/jsx-dev-runtime';
 
 // Set up map of imports to module
 const primitiveMap = new Map<string, Source>();
@@ -20,42 +34,44 @@ for (const primitive of [
   'createSignal',
   'createEffect',
   'createMemo',
-  'createResource',
-  'onMount',
   'onCleanup',
-  'onError',
   'untrack',
-  'batch',
-  'on',
   'createRoot',
   'getOwner',
   'runWithOwner',
-  'mergeProps',
-  'splitProps',
-  'useTransition',
-  'observable',
-  'from',
   'mapArray',
-  'indexArray',
   'createContext',
   'useContext',
   'children',
   'lazy',
   'createUniqueId',
-  'createDeferred',
   'createRenderEffect',
-  'createComputed',
   'createReaction',
-  'createSelector',
   'DEV',
   'For',
   'Show',
   'Switch',
   'Match',
-  'Index',
-  'ErrorBoundary',
-  'Suspense',
-  'SuspenseList',
+  'merge',
+  'omit',
+  'onSettled',
+  'flush',
+  'createStore',
+  'reconcile',
+  'snapshot',
+  'storePath',
+  'createProjection',
+  'Loading',
+  'Errored',
+  'Reveal',
+  'Repeat',
+  'action',
+  'isPending',
+  'latest',
+  'refresh',
+  'affects',
+  'createOptimistic',
+  'createOptimisticStore',
 ]) {
   primitiveMap.set(primitive, 'solid-js');
 }
@@ -70,18 +86,9 @@ for (const primitive of [
   'generateHydrationScript',
   'HydrationScript',
   'Dynamic',
+  'dynamic',
 ]) {
-  primitiveMap.set(primitive, 'solid-js/web');
-}
-for (const primitive of [
-  'createStore',
-  'produce',
-  'reconcile',
-  'unwrap',
-  'createMutable',
-  'modifyMutable',
-]) {
-  primitiveMap.set(primitive, 'solid-js/store');
+  primitiveMap.set(primitive, '@solidjs/web');
 }
 
 // Set up map of type imports to module
@@ -90,12 +97,6 @@ for (const type of [
   'Signal',
   'Accessor',
   'Setter',
-  'Resource',
-  'ResourceActions',
-  'ResourceOptions',
-  'ResourceReturn',
-  'ResourceFetcher',
-  'InitializedResourceReturn',
   'Component',
   'VoidProps',
   'VoidComponent',
@@ -104,39 +105,43 @@ for (const type of [
   'FlowProps',
   'FlowComponent',
   'ValidComponent',
-  'ComponentProps',
   'Ref',
-  'MergeProps',
-  'SplitPrips',
   'Context',
-  'JSX',
   'ResolvedChildren',
   'MatchProps',
+  'Element',
+  'Store',
 ]) {
   typeMap.set(type, 'solid-js');
 }
-for (const type of [/* "JSX", */ 'MountableElement']) {
-  typeMap.set(type, 'solid-js/web');
-}
-for (const type of ['StoreNode', 'Store', 'SetStoreFunction']) {
-  typeMap.set(type, 'solid-js/store');
+for (const type of ['JSX', 'ComponentProps', 'MountableElement']) {
+  typeMap.set(type, '@solidjs/web');
 }
 
-const sourceRegex = /^solid-js(?:\/web|\/store)?$/;
+const sourceRedirectMap = new Map<Source, Source>([
+  ['solid-js/h', '@solidjs/h'],
+  ['solid-js/html', '@solidjs/html'],
+  ['solid-js/universal', '@solidjs/universal'],
+  ['solid-js/jsx-runtime', '@solidjs/web/jsx-runtime'],
+  ['solid-js/jsx-dev-runtime', '@solidjs/web/jsx-dev-runtime'],
+]);
+
+const sourceRegex =
+  /^(?:solid-js(?:\/(?:web|store|h|html|universal|jsx(?:-dev)?-runtime))?|@solidjs\/(?:web(?:\/jsx(?:-dev)?-runtime)?|h|html|universal))$/;
 const isSource = (source: string): source is Source => sourceRegex.test(source);
 
 export default createRule({
   meta: {
     type: 'suggestion',
     docs: {
-      description:
-        'Enforce consistent imports from "solid-js", "solid-js/web", and "solid-js/store".',
+      description: 'Enforce consistent Solid 2.0 import sources.',
       url: 'https://github.com/solidjs-community/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/imports.md',
     },
     fixable: 'code',
     schema: [],
     messages: {
       'prefer-source': 'Prefer importing {{name}} from "{{source}}".',
+      'prefer-module-source': 'Prefer importing from "{{source}}".',
     },
   },
   // defaultOptions: [],
@@ -146,10 +151,24 @@ export default createRule({
         const source = node.source.value;
         if (!isSource(source)) return;
 
-        for (const specifier of node.specifiers) {
-          if (specifier.type !== 'ImportSpecifier') {
-            continue;
-          }
+        const redirectedSource = sourceRedirectMap.get(source);
+        if (redirectedSource) {
+          context.report({
+            node: node.source,
+            messageId: 'prefer-module-source',
+            data: { source: redirectedSource },
+            fix(fixer) {
+              return fixer.replaceText(
+                node.source,
+                JSON.stringify(redirectedSource),
+              );
+            },
+          });
+          return;
+        }
+
+        const misplacedSpecifiers = node.specifiers.flatMap((specifier) => {
+          if (specifier.type !== 'ImportSpecifier') return [];
 
           const isType =
             specifier.importKind === 'type' || node.importKind === 'type';
@@ -159,6 +178,18 @@ export default createRule({
               ? specifier.imported.name
               : specifier.imported.value;
           const correctSource = map.get(importedName);
+          return correctSource != null && correctSource !== source
+            ? [{ specifier, importedName, correctSource, isType }]
+            : [];
+        });
+
+        const canFixDeclaration =
+          misplacedSpecifiers.length === node.specifiers.length &&
+          new Set(misplacedSpecifiers.map(({ correctSource }) => correctSource))
+            .size === 1;
+
+        for (const [index, misplaced] of misplacedSpecifiers.entries()) {
+          const { specifier, importedName, correctSource, isType } = misplaced;
           if (correctSource != null && correctSource !== source) {
             context.report({
               node: specifier,
@@ -167,41 +198,38 @@ export default createRule({
                 name: importedName,
                 source: correctSource,
               },
-              fix(fixer) {
-                const sourceCode = getSourceCode(context);
-                const program: T.Program = sourceCode.ast;
-                const correctDeclaration = program.body.find(
-                  (node) =>
-                    node.type === 'ImportDeclaration' &&
-                    node.source.value === correctSource,
-                ) as T.ImportDeclaration | undefined;
+              fix:
+                index === 0 && canFixDeclaration
+                  ? (fixer) => {
+                      const sourceCode = getSourceCode(context);
+                      const program: T.Program = sourceCode.ast;
+                      const correctDeclaration = program.body.find(
+                        (node) =>
+                          node.type === 'ImportDeclaration' &&
+                          node.source.value === correctSource &&
+                          node.importKind === (isType ? 'type' : 'value'),
+                      ) as T.ImportDeclaration | undefined;
 
-                if (correctDeclaration) {
-                  return [
-                    removeSpecifier(fixer, sourceCode, specifier),
-                    appendImports(fixer, sourceCode, correctDeclaration, [
-                      sourceCode.getText(specifier),
-                    ]),
-                  ].filter(Boolean) as Array<TSESLint.RuleFix>;
-                }
+                      if (correctDeclaration) {
+                        return [
+                          fixer.remove(node),
+                          appendImports(
+                            fixer,
+                            sourceCode,
+                            correctDeclaration,
+                            misplacedSpecifiers.map(({ specifier }) =>
+                              sourceCode.getText(specifier),
+                            ),
+                          ),
+                        ].filter(Boolean) as Array<TSESLint.RuleFix>;
+                      }
 
-                const firstSolidDeclaration = program.body.find(
-                  (node) =>
-                    node.type === 'ImportDeclaration' &&
-                    isSource(node.source.value),
-                ) as T.ImportDeclaration | undefined;
-                return [
-                  removeSpecifier(fixer, sourceCode, specifier),
-                  insertImports(
-                    fixer,
-                    sourceCode,
-                    correctSource,
-                    [sourceCode.getText(specifier)],
-                    firstSolidDeclaration,
-                    isType,
-                  ),
-                ];
-              },
+                      return fixer.replaceText(
+                        node.source,
+                        JSON.stringify(correctSource),
+                      );
+                    }
+                  : undefined,
             });
           }
         }

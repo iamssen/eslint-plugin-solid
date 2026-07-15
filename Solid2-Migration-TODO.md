@@ -29,12 +29,12 @@ npm run test:rule -- src/rules/no-destructure.test.ts
 
 다른 rule의 import alias 인식에 직접 영향을 주므로 가장 먼저 수정한다.
 
-- [ ] `solid-js/web` → `@solidjs/web` fixer와 test를 구현한다.
-- [ ] `solid-js/store`의 store API → `solid-js` fixer와 test를 구현한다.
-- [ ] `@solidjs/h`, `@solidjs/html`, `@solidjs/universal` 경로를 source map에 추가한다.
-- [ ] 웹 JSX 타입(`JSX`, `ComponentProps`)은 `@solidjs/web`, renderer-neutral 타입(`Element` 등)은 `solid-js`로 분리한다.
-- [ ] 제거 API는 존재하지 않는 core import로 고치지 않는다. 별도 migration 진단으로 넘길지 결정한다.
-- [ ] `imports.test.ts`의 현재 skip migration matrix를 새 source map 기대값으로 다시 활성화한다.
+- [x] `solid-js/web` → `@solidjs/web` fixer와 test를 구현한다.
+- [x] `solid-js/store`의 store API → `solid-js` fixer와 test를 구현한다.
+- [x] `@solidjs/h`, `@solidjs/html`, `@solidjs/universal` 경로를 source map에 추가한다.
+- [x] 웹 JSX 타입(`JSX`, `ComponentProps`)은 `@solidjs/web`, renderer-neutral 타입(`Element` 등)은 `solid-js`로 분리한다.
+- [x] 제거 API는 존재하지 않는 core import로 고치지 않는다. 별도 migration 진단으로 넘길지 결정한다.
+- [x] `imports.test.ts`의 현재 skip migration matrix를 새 source map 기대값으로 다시 활성화한다.
 
 ## 2. JSX namespace와 이벤트 모델
 

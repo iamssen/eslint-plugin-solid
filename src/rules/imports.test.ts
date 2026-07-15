@@ -7,43 +7,46 @@ const invalid = testInvalid('imports', rule);
 
 describe('imports', () => {
   describe('valid', () => {
-    test('importing Solid.js core APIs from solid-js is valid', () => {
-      valid(`import { createSignal, merge } from "solid-js";`);
+    test('imports Solid 2.0 core APIs from solid-js', () => {
+      valid(
+        `import { createSignal, createStore, merge, snapshot } from "solid-js";`,
+      );
     });
-    test('importing Solid.js core APIs using single quotes is valid', () => {
-      valid(`import { createSignal, merge } from 'solid-js';`);
+
+    test('imports web renderer APIs from @solidjs/web', () => {
+      valid(`import { dynamic, hydrate, render } from "@solidjs/web";`);
     });
-    test('importing Solid.js web APIs from @solidjs/web is valid', () => {
-      valid(`import { render, hydrate } from "@solidjs/web";`);
-    });
-    test('importing Solid.js store APIs from solid-js is valid', () => {
-      valid(`import { createStore, snapshot } from "solid-js";`);
-    });
-    test('importing from various Solid.js modules correctly is valid', () => {
+
+    test('allows aliases and namespace imports', () => {
       valid(`
-        import { createSignal } from "solid-js";
-        import { render } from "@solidjs/web";
-        import { something } from "somewhere/else";
-        import { createStore } from "solid-js";
+        import { merge as mergeProps } from "solid-js";
+        import * as Solid from "solid-js";
+        Solid.createSignal(0);
       `);
     });
-    test('namespace imports from solid-js are valid', () => {
-      valid(`import * as Solid from "solid-js"; Solid.render();`);
-    });
-    test('importing types from solid-js modules is valid', () => {
+
+    test('separates renderer-neutral and web JSX types', () => {
       valid(
         `
-        import type { Component, Element, Store } from "solid-js";
-        import type { JSX, ComponentProps } from "@solidjs/web";
-      `,
+          import type { Component, Element, Store } from "solid-js";
+          import type { ComponentProps, JSX } from "@solidjs/web";
+        `,
         true,
       );
     });
+
+    test('allows Solid 2.0 alternative renderer packages', () => {
+      valid(`
+        import h from "@solidjs/h";
+        import html from "@solidjs/html";
+        import { createRenderer } from "@solidjs/universal";
+        void [h, html, createRenderer];
+      `);
+    });
   });
-  // Solid 2.0에서 solid-js/web과 solid-js/store은 제거됐다.
-  // imports rule의 새 source map과 fixer를 구현한 뒤, 아래 migration case를 2.0 기대값으로 다시 활성화한다.
-  describe.skip('invalid', () => {
-    test('detects core APIs incorrectly imported from solid-js/web', () => {
+
+  describe('invalid', () => {
+    test('moves core APIs out of the legacy web entry point', () => {
       invalid({
         code: `import { createEffect } from "solid-js/web";`,
         errors: [
@@ -52,121 +55,166 @@ describe('imports', () => {
             data: { name: 'createEffect', source: 'solid-js' },
           },
         ],
-        output: `import { createEffect } from "solid-js";
-`,
+        output: `import { createEffect } from "solid-js";`,
       });
     });
-    test('merges incorrect core API imports with existing solid-js imports', () => {
+
+    test('moves web renderer APIs to @solidjs/web', () => {
+      invalid({
+        code: `import { render } from "solid-js";`,
+        errors: [
+          {
+            messageId: 'prefer-source',
+            data: { name: 'render', source: '@solidjs/web' },
+          },
+        ],
+        output: `import { render } from "@solidjs/web";`,
+      });
+    });
+
+    test('moves store APIs out of the legacy store entry point', () => {
+      invalid({
+        code: `import { createStore, snapshot } from "solid-js/store";`,
+        errors: [
+          {
+            messageId: 'prefer-source',
+            data: { name: 'createStore', source: 'solid-js' },
+          },
+          {
+            messageId: 'prefer-source',
+            data: { name: 'snapshot', source: 'solid-js' },
+          },
+        ],
+        output: `import { createStore, snapshot } from "solid-js";`,
+      });
+    });
+
+    test('merges migrated imports into an existing Solid 2.0 import', () => {
       invalid({
         code: `
-          import { createEffect } from "solid-js/web";
+          import { createStore, snapshot } from "solid-js/store";
           import { createSignal } from "solid-js";
         `,
+        errors: [
+          {
+            messageId: 'prefer-source',
+            data: { name: 'createStore', source: 'solid-js' },
+          },
+          {
+            messageId: 'prefer-source',
+            data: { name: 'snapshot', source: 'solid-js' },
+          },
+        ],
+        output: `import { createSignal, createStore, snapshot } from "solid-js";`,
+      });
+    });
+
+    test('reports mixed destinations without an unsafe partial fix', () => {
+      invalid({
+        code: `import { createEffect, render } from "solid-js/web";`,
         errors: [
           {
             messageId: 'prefer-source',
             data: { name: 'createEffect', source: 'solid-js' },
           },
+          {
+            messageId: 'prefer-source',
+            data: { name: 'render', source: '@solidjs/web' },
+          },
         ],
-        output: `
-          import { createSignal, createEffect } from "solid-js";
-        `,
+        output: null,
       });
     });
-    test('merges incorrect core type imports with existing solid-js imports', () => {
+
+    test('moves web JSX types to @solidjs/web', () => {
       invalid(
         {
-          code: `
-            import type { Component } from "solid-js/store";
-            import { createSignal } from "solid-js";
-            console.log('hi');
-          `,
+          code: `import type { ComponentProps, JSX } from "solid-js";`,
+          errors: [
+            {
+              messageId: 'prefer-source',
+              data: { name: 'ComponentProps', source: '@solidjs/web' },
+            },
+            {
+              messageId: 'prefer-source',
+              data: { name: 'JSX', source: '@solidjs/web' },
+            },
+          ],
+          output: `import type { ComponentProps, JSX } from "@solidjs/web";`,
+        },
+        true,
+      );
+    });
+
+    test('moves renderer-neutral types to solid-js', () => {
+      invalid(
+        {
+          code: `import type { Component, Element } from "@solidjs/web";`,
           errors: [
             {
               messageId: 'prefer-source',
               data: { name: 'Component', source: 'solid-js' },
             },
+            {
+              messageId: 'prefer-source',
+              data: { name: 'Element', source: 'solid-js' },
+            },
           ],
-          output: `
-            import { createSignal, Component } from "solid-js";
-            console.log('hi');
-          `,
+          output: `import type { Component, Element } from "solid-js";`,
         },
         true,
       );
     });
-    test('merges incorrect core API imports with existing empty solid-js imports', () => {
+
+    test('moves the hyperscript package path', () => {
       invalid({
-        code: `
-          import { createSignal } from "solid-js/web";
-          import "solid-js";
-        `,
+        code: `import h from "solid-js/h";`,
         errors: [
           {
-            messageId: 'prefer-source',
-            data: { name: 'createSignal', source: 'solid-js' },
+            messageId: 'prefer-module-source',
+            data: { source: '@solidjs/h' },
           },
         ],
-        output: `
-          import { createSignal } from "solid-js";
-        `,
+        output: `import h from "@solidjs/h";`,
       });
     });
-    test('merges incorrect core API imports with existing empty specifier solid-js imports', () => {
+
+    test('moves the HTML tagged-template package path', () => {
       invalid({
-        code: `
-          import { createSignal } from "solid-js/web";
-          import {} from "solid-js";
-        `,
+        code: `import html from "solid-js/html";`,
         errors: [
           {
-            messageId: 'prefer-source',
-            data: { name: 'createSignal', source: 'solid-js' },
+            messageId: 'prefer-module-source',
+            data: { source: '@solidjs/html' },
           },
         ],
-        output: `
-          import { createSignal } from "solid-js";
-        `,
+        output: `import html from "@solidjs/html";`,
       });
     });
-    describe(`Two-part fix, output here is first pass...`, () => {
-      test('fixes multiple incorrect imports across different solid-js modules (pass 1)', () => {
-        invalid({
-          code: `
-            import { createEffect } from "solid-js/web";
-            import { render } from "solid-js";
-          `,
-          errors: [
-            {
-              messageId: 'prefer-source',
-              data: { name: 'createEffect', source: 'solid-js' },
-            },
-            {
-              messageId: 'prefer-source',
-              data: { name: 'render', source: 'solid-js/web' },
-            },
-          ],
-          output: `
-            import { render, createEffect } from "solid-js";
-          `,
-        });
+
+    test('moves the universal renderer package path', () => {
+      invalid({
+        code: `import { createRenderer } from "solid-js/universal";`,
+        errors: [
+          {
+            messageId: 'prefer-module-source',
+            data: { source: '@solidjs/universal' },
+          },
+        ],
+        output: `import { createRenderer } from "@solidjs/universal";`,
       });
     });
-    describe(`...and output here is second pass`, () => {
-      test('fixes multiple incorrect imports across different solid-js modules (pass 2)', () => {
-        invalid({
-          code: `import { render, createEffect } from "solid-js";`,
-          errors: [
-            {
-              messageId: 'prefer-source',
-              data: { name: 'render', source: 'solid-js/web' },
-            },
-          ],
-          output: `
-            import { render } from "solid-js/web";
-            import { createEffect } from "solid-js";
-          `,
-        });
+
+    test('moves the web JSX runtime package path', () => {
+      invalid({
+        code: `import { jsx } from "solid-js/jsx-runtime";`,
+        errors: [
+          {
+            messageId: 'prefer-module-source',
+            data: { source: '@solidjs/web/jsx-runtime' },
+          },
+        ],
+        output: `import { jsx } from "@solidjs/web/jsx-runtime";`,
       });
     });
   });
