@@ -31,6 +31,7 @@
     "format": "prettier --write \"**/*.{js,jsx,mjs,cjs,ts,tsx,mts,cts}\"",
     "lint": "eslint .",
     "test": "vitest --run",
+    "test:rule": "vitest --run",
     "test:all": "PARSER=all vitest --run",
     "test:watch": "vitest"
   },
