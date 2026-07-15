@@ -1,5 +1,5 @@
 import { createSignal, For, Match, Switch } from 'solid-js';
-import { render } from 'solid-js/web';
+import { render } from '@solidjs/web';
 import { Transition, TransitionGroup } from 'solid-transition-group';
 import './styles.css';
 

@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { render } from 'solid-js/web';
+import { render } from '@solidjs/web';
 import { createSignal } from 'solid-js';
 
 function Counter() {

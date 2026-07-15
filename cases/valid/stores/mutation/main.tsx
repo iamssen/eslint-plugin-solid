@@ -1,26 +1,22 @@
 // @ts-nocheck
 import { For } from 'solid-js';
-import { render } from 'solid-js/web';
-import { createStore, produce } from 'solid-js/store';
+import { render } from '@solidjs/web';
+import { createStore } from 'solid-js';
 
 const App = () => {
   let input;
   let todoId = 0;
   const [store, setStore] = createStore({ todos: [] });
   const addTodo = (text) => {
-    setStore(
-      'todos',
-      produce((todos) => {
-        todos.push({ id: ++todoId, text, completed: false });
-      }),
-    );
+    setStore((state) => {
+      state.todos.push({ id: ++todoId, text, completed: false });
+    });
   };
   const toggleTodo = (id) => {
-    setStore(
-      'todos',
-      (todo) => todo.id === id,
-      produce((todo) => (todo.completed = !todo.completed)),
-    );
+    setStore((state) => {
+      const todo = state.todos.find((item) => item.id === id);
+      if (todo) todo.completed = !todo.completed;
+    });
   };
 
   return (
@@ -46,7 +42,7 @@ const App = () => {
               <input
                 type="checkbox"
                 checked={todo.completed}
-                onChange={[toggleTodo, id]}
+                onChange={() => toggleTodo(id)}
               />
               <span
                 style={{

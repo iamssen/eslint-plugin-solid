@@ -1,5 +1,5 @@
 import { createSignal, onCleanup } from 'solid-js';
-import { render } from 'solid-js/web';
+import { render } from '@solidjs/web';
 
 const CountingComponent = () => {
   const [count, setCount] = createSignal(0);

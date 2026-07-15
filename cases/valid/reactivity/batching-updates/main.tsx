@@ -1,6 +1,6 @@
 // @ts-nocheck
-import { render } from 'solid-js/web';
-import { createSignal, batch } from 'solid-js';
+import { render } from '@solidjs/web';
+import { createSignal } from 'solid-js';
 
 const App = () => {
   const [firstName, setFirstName] = createSignal('John');
@@ -11,10 +11,8 @@ const App = () => {
   };
   const updateNames = () => {
     console.log('Button Clicked');
-    batch(() => {
-      setFirstName(firstName() + 'n');
-      setLastName(lastName() + '!');
-    });
+    setFirstName(firstName() + 'n');
+    setLastName(lastName() + '!');
   };
 
   return <button onClick={updateNames}>My name is {fullName()}</button>;

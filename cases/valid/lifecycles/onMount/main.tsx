@@ -1,12 +1,12 @@
 // @ts-nocheck
-import { render } from 'solid-js/web';
-import { createSignal, onMount, For } from 'solid-js';
+import { render } from '@solidjs/web';
+import { createSignal, onSettled, For } from 'solid-js';
 import './styles.css';
 
 function App() {
   const [photos, setPhotos] = createSignal([]);
 
-  onMount(async () => {
+  onSettled(async () => {
     const res = await fetch(
       `https://jsonplaceholder.typicode.com/photos?_limit=20`,
     );

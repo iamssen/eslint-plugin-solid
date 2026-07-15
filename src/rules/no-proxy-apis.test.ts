@@ -7,17 +7,17 @@ const invalid = testInvalid('no-proxy-apis', rule);
 
 describe('no-proxy-apis', () => {
   describe('valid', () => {
-    test('using mergeProps with empty object is valid', () => {
-      valid(`let merged = mergeProps({}, props);`);
+    test('using merge with empty object is valid', () => {
+      valid(`let merged = merge({}, props);`);
     });
-    test('using mergeProps with variable object is valid', () => {
-      valid(`const obj = {}; let merged = mergeProps(obj, props);`);
+    test('using merge with variable object is valid', () => {
+      valid(`const obj = {}; let merged = merge(obj, props);`);
     });
-    test('using mergeProps with let variable object is valid', () => {
-      valid(`let obj = {}; let merged = mergeProps(obj, props);`);
+    test('using merge with let variable object is valid', () => {
+      valid(`let obj = {}; let merged = merge(obj, props);`);
     });
-    test('using mergeProps with getter is valid', () => {
-      valid(`let merged = mergeProps({ get asdf() { signal() } }, props);`);
+    test('using merge with getter is valid', () => {
+      valid(`let merged = merge({ get asdf() { signal() } }, props);`);
     });
     test('spreading object literal is valid', () => {
       valid(`let el = <div {...{ asdf: 'asdf' }} />`);
@@ -42,7 +42,9 @@ describe('no-proxy-apis', () => {
         errors: [{ messageId: 'proxyLiteral' }],
       });
     });
-    test('detects import from solid-js/store', () => {
+    // Solid 2.0에서 store API는 solid-js root export로 이동했다.
+    // imports migration rule이 이 경로를 진단할 때 다시 활성화한다.
+    test.skip('detects import from solid-js/store', () => {
       invalid({
         code: `import {} from 'solid-js/store';`,
         errors: [{ messageId: 'noStore' }],
@@ -72,16 +74,16 @@ describe('no-proxy-apis', () => {
         errors: [{ messageId: 'spreadMember' }],
       });
     });
-    test('detects mergeProps with single argument', () => {
+    test('detects merge with single argument', () => {
       invalid({
-        code: `let merged = mergeProps(maybeSignal)`,
-        errors: [{ messageId: 'mergeProps' }],
+        code: `let merged = merge(maybeSignal)`,
+        errors: [{ messageId: 'merge' }],
       });
     });
-    test('detects mergeProps with function argument', () => {
+    test('detects merge with function argument', () => {
       invalid({
-        code: `let func = () => ({}); let merged = mergeProps(func, props)`,
-        errors: [{ messageId: 'mergeProps' }],
+        code: `let func = () => ({}); let merged = merge(func, props)`,
+        errors: [{ messageId: 'merge' }],
       });
     });
   });

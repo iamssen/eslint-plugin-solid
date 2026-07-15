@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { render, Dynamic } from 'solid-js/web';
+import { render, Dynamic } from '@solidjs/web';
 import { createSignal, For } from 'solid-js';
 
 const RedThing = () => <strong style={{ color: 'red' }}>Red Thing</strong>;

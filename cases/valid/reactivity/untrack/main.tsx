@@ -1,14 +1,15 @@
 // @ts-nocheck
-import { render } from 'solid-js/web';
+import { render } from '@solidjs/web';
 import { createSignal, createEffect, untrack } from 'solid-js';
 
 const App = () => {
   const [a, setA] = createSignal(1);
   const [b, setB] = createSignal(1);
 
-  createEffect(() => {
-    console.log(a(), untrack(b));
-  });
+  createEffect(
+    () => [a(), untrack(b)],
+    ([aValue, bValue]) => console.log(aValue, bValue),
+  );
 
   return (
     <>

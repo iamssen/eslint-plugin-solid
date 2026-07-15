@@ -1,6 +1,6 @@
 // @ts-nocheck
-import { render } from 'solid-js/web';
-import { createStore } from 'solid-js/store';
+import { render } from '@solidjs/web';
+import { createStore } from 'solid-js';
 import { useForm } from './validation';
 import './styles.css';
 
@@ -20,7 +20,7 @@ const App = () => {
   const { validate, formSubmit, errors } = useForm({
     errorClass: 'error-input',
   });
-  const [fields, setFields] = createStore();
+  const [fields, setFields] = createStore({});
   const fn = (form) => {
     form.submit();
     console.log('Done');
@@ -33,7 +33,7 @@ const App = () => {
     value === fields.password ? false : 'Passwords must Match';
 
   return (
-    <form use:formSubmit={fn}>
+    <form ref={formSubmit(fn)}>
       <h1>Sign Up</h1>
       <div class="field-block">
         <input
@@ -41,7 +41,7 @@ const App = () => {
           type="email"
           placeholder="Email"
           required
-          use:validate={[userNameExists]}
+          ref={validate(userNameExists)}
         />
         {errors.email && <ErrorMessage error={errors.email} />}
       </div>
@@ -53,7 +53,7 @@ const App = () => {
           required=""
           minlength="8"
           onInput={(e) => setFields('password', e.target.value)}
-          use:validate
+          ref={validate()}
         />
         {errors.password && <ErrorMessage error={errors.password} />}
       </div>
@@ -63,7 +63,7 @@ const App = () => {
           name="confirmpassword"
           placeholder="Confirm Password"
           required=""
-          use:validate={[matchesPassword]}
+          ref={validate(matchesPassword)}
         />
         {errors.confirmpassword && (
           <ErrorMessage error={errors.confirmpassword} />

@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { render } from 'solid-js/web';
+import { render } from '@solidjs/web';
 
 function HelloWorld() {
   const name = 'Solid';

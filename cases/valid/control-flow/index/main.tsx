@@ -1,6 +1,6 @@
 // @ts-nocheck
-import { render } from 'solid-js/web';
-import { createSignal, Index } from 'solid-js';
+import { render } from '@solidjs/web';
+import { createSignal, For } from 'solid-js';
 
 function App() {
   const [cats] = createSignal([
@@ -11,7 +11,7 @@ function App() {
 
   return (
     <ul>
-      <Index each={cats()}>
+      <For each={cats()} keyed={false}>
         {(cat, i) => (
           <li>
             <a
@@ -22,7 +22,7 @@ function App() {
             </a>
           </li>
         )}
-      </Index>
+      </For>
     </ul>
   );
 }

@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { render } from 'solid-js/web';
+import { render } from '@solidjs/web';
 import { lazy } from 'solid-js';
 
 const Greeting = lazy(() => import('./greeting'));

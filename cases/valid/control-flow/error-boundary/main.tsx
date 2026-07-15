@@ -1,6 +1,6 @@
 // @ts-nocheck
-import { render } from 'solid-js/web';
-import { ErrorBoundary } from 'solid-js';
+import { render } from '@solidjs/web';
+import { Errored } from 'solid-js';
 
 const Broken = () => {
   throw new Error('Oh No');
@@ -11,9 +11,9 @@ function App() {
   return (
     <>
       <div>Before</div>
-      <ErrorBoundary fallback={(err) => err}>
+      <Errored fallback={(err) => err()}>
         <Broken />
-      </ErrorBoundary>
+      </Errored>
       <div>After</div>
     </>
   );

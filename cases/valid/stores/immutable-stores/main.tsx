@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { render } from 'solid-js/web';
+import { render } from '@solidjs/web';
 import { For } from 'solid-js';
 
 import useRedux from './useRedux';

@@ -1,12 +1,12 @@
 // @ts-nocheck
-import { render } from 'solid-js/web';
-import { onMount, onCleanup } from 'solid-js';
+import { render } from '@solidjs/web';
+import { onSettled } from 'solid-js';
 
 import './style.css';
 
 function App() {
   let canvas;
-  onMount(() => {
+  onSettled(() => {
     const ctx = canvas.getContext('2d');
     let frame = requestAnimationFrame(loop);
 
@@ -33,7 +33,7 @@ function App() {
       ctx.putImageData(imageData, 0, 0);
     }
 
-    onCleanup(() => cancelAnimationFrame(frame));
+    return () => cancelAnimationFrame(frame);
   });
 
   return <canvas ref={canvas} width="256" height="256" />;

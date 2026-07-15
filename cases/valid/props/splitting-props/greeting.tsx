@@ -1,11 +1,11 @@
 // @ts-nocheck
-import { splitProps } from 'solid-js';
+import { omit } from 'solid-js';
 
 export default function Greeting(props) {
-  const [local, others] = splitProps(props, ['greeting', 'name']);
+  const others = omit(props, 'greeting', 'name');
   return (
     <h3 {...others}>
-      {local.greeting} {local.name}
+      {props.greeting} {props.name}
     </h3>
   );
 }

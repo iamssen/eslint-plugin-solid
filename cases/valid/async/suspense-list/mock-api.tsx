@@ -1,10 +1,10 @@
 // @ts-nocheck
-import { createResource } from 'solid-js';
+import { createMemo } from 'solid-js';
 
 export default function fetchProfileData() {
-  const [user] = createResource(fetchUser);
-  const [posts] = createResource(fetchPosts);
-  const [trivia] = createResource(fetchTrivia);
+  const user = createMemo(fetchUser);
+  const posts = createMemo(fetchPosts);
+  const trivia = createMemo(fetchTrivia);
   return { user, posts, trivia };
 }
 

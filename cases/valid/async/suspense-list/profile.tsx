@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { For, Suspense, SuspenseList } from 'solid-js';
+import { For, Loading, Reveal } from 'solid-js';
 
 const ProfileDetails = (props) => <h1>{props.user?.name}</h1>;
 
@@ -19,15 +19,15 @@ const ProfileTrivia = (props) => (
 );
 
 const ProfilePage = (props) => (
-  <SuspenseList revealOrder="forwards" tail="collapsed">
+  <Reveal order="sequential" collapsed>
     <ProfileDetails user={props.user} />
-    <Suspense fallback={<h2>Loading posts...</h2>}>
+    <Loading fallback={<h2>Loading posts...</h2>}>
       <ProfileTimeline posts={props.posts} />
-    </Suspense>
-    <Suspense fallback={<h2>Loading fun facts...</h2>}>
+    </Loading>
+    <Loading fallback={<h2>Loading fun facts...</h2>}>
       <ProfileTrivia trivia={props.trivia} />
-    </Suspense>
-  </SuspenseList>
+    </Loading>
+  </Reveal>
 );
 
 export default ProfilePage;

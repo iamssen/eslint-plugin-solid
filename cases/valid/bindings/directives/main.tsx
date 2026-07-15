@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { render } from 'solid-js/web';
+import { render } from '@solidjs/web';
 import { createSignal, Show } from 'solid-js';
 import clickOutside from './click-outside';
 import './style.css';
@@ -12,7 +12,7 @@ function App() {
       when={show()}
       fallback={<button onClick={() => setShow(true)}>Open Modal</button>}
     >
-      <div class="modal" use:clickOutside={() => setShow(false)}>
+      <div class="modal" ref={clickOutside(() => setShow(false))}>
         Some Modal
       </div>
     </Show>

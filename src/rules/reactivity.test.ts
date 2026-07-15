@@ -48,12 +48,14 @@ describe('reactivity', () => {
     test('accessing merged props is tracked', () => {
       valid(`
         let Component = _props => {
-          const props = mergeProps({ value: "default" }, _props);
+          const props = merge({ value: "default" }, _props);
           return <div>{props.value}</div>;
         };
       `);
     });
-    test('accessing split props is tracked', () => {
+    // Solid 2.0에서 splitProps는 omit으로 대체되며 반환 형태가 다르다.
+    // reactivity가 omit 결과를 props로 추적하도록 구현한 뒤 2.0 사례로 다시 작성한다.
+    test.skip('accessing split props is tracked', () => {
       valid(`
         let Component = _props => {
           const [foo, bar, baz] = splitProps(_props, ["foo"], ["bar"]);
@@ -258,7 +260,9 @@ describe('reactivity', () => {
       });
     });
     describe(`Async tracking scope exceptions`, () => {
-      test('fetch with await before state setter is valid', () => {
+      // Solid 2.0에서 onMount는 onSettled로 대체된다.
+      // 비동기 lifecycle tracking의 2.0 모델을 구현한 뒤 새 API로 다시 작성한다.
+      test.skip('fetch with await before state setter is valid', () => {
         valid(`
           const [photos, setPhotos] = createSignal([]);
           onMount(async () => {
@@ -391,7 +395,8 @@ describe('reactivity', () => {
           }
         `);
       });
-      test('using signal in JSX on:click is valid', () => {
+      // Solid 2.0에서 on: namespace는 제거됐다. onClick handler로 재작성할 때 활성화한다.
+      test.skip('using signal in JSX on:click is valid', () => {
         valid(`
           function Component() {
             const [signal, setSignal] = createSignal(1);
@@ -553,7 +558,8 @@ describe('reactivity', () => {
           }
         `);
       });
-      test('indexArray first argument is a tracked scope', () => {
+      // Solid 2.0에서 indexArray는 제거됐다. For keyed={false}의 accessor 모델로 대체한다.
+      test.skip('indexArray first argument is a tracked scope', () => {
         valid(`
           function createCustomStore() {
             const [store, updateStore] = createStore({});
@@ -629,7 +635,8 @@ describe('reactivity', () => {
         `);
       });
     });
-    describe(`observable`, () => {
+    // Solid 2.0에서 observable()은 제거됐다. createEffect 기반 adapter test로 대체한다.
+    describe.skip(`observable`, () => {
       test('observable from props is a tracked scope', () => {
         valid(`
           function Component(props) {
@@ -645,7 +652,8 @@ describe('reactivity', () => {
         `);
       });
     });
-    describe(`use: functions`, () => {
+    // Solid 2.0에서 use: directive는 제거됐다. ref directive factory 분석으로 대체한다.
+    describe.skip(`use: functions`, () => {
       test('use: directive is a tracked scope', () => {
         valid(`
           let someHook;
@@ -1228,7 +1236,8 @@ describe('reactivity', () => {
           errors: [{ messageId: 'untrackedReactive', line: 4 }],
         });
       });
-      test('detects untracked signal access in indexArray second argument', () => {
+      // Solid 2.0에서 indexArray는 제거됐다. For keyed={false} 분석으로 대체한다.
+      test.skip('detects untracked signal access in indexArray second argument', () => {
         invalid({
           code: `
             const [array] = createSignal([]);

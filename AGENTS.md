@@ -18,6 +18,9 @@ TypeScript로 관리합니다.
 - ESM(`"type": "module"`)
 - 패키지 매니저는 `package-lock.json`을 기준으로 npm을 사용
 - 소스 코드는 `src/`, 통합 테스트용 예제는 `cases/`에 둠
+- Solid.js 2.0 이상만 지원함
+  - docs/Solid2-beta-Migration-Guide.md 파일을 참고합니다.
+  - Solid.js 1.0 를 위한 규칙은 제거됩니다.
 
 ## 주요 디렉터리와 파일
 

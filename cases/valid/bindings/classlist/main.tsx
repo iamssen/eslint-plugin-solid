@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { render } from 'solid-js/web';
+import { render } from '@solidjs/web';
 import { createSignal } from 'solid-js';
 
 import './style.css';
@@ -10,19 +10,19 @@ function App() {
   return (
     <>
       <button
-        classList={{ selected: current() === 'foo' }}
+        class={{ selected: current() === 'foo' }}
         onClick={() => setCurrent('foo')}
       >
         foo
       </button>
       <button
-        classList={{ selected: current() === 'bar' }}
+        class={{ selected: current() === 'bar' }}
         onClick={() => setCurrent('bar')}
       >
         bar
       </button>
       <button
-        classList={{ selected: current() === 'baz' }}
+        class={{ selected: current() === 'baz' }}
         onClick={() => setCurrent('baz')}
       >
         baz

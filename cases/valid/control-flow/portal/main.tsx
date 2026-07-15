@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { render, Portal } from 'solid-js/web';
+import { render, Portal } from '@solidjs/web';
 
 function App() {
   return (

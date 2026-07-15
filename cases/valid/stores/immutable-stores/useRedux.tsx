@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { onCleanup } from 'solid-js';
-import { createStore, reconcile } from 'solid-js/store';
+import { createStore, reconcile } from 'solid-js';
 
 export default function useRedux(store, actions) {
   const [state, setState] = createStore(store.getState());

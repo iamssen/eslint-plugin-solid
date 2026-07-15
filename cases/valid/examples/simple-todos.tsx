@@ -1,13 +1,18 @@
 // @ts-nocheck
 import { createEffect, For } from 'solid-js';
-import { createStore, SetStoreFunction, Store } from 'solid-js/store';
-import { render } from 'solid-js/web';
+import { createStore, SetStoreFunction, Store } from 'solid-js';
+import { render } from '@solidjs/web';
 
 // Checked but not used for demo purposes
 function createLocalStore<T>(initState: T): [Store<T>, SetStoreFunction<T>] {
   const [state, setState] = createStore(initState);
-  if (localStorage.todos) setState(JSON.parse(localStorage.todos));
-  createEffect(() => (localStorage.todos = JSON.stringify(state)));
+  if (localStorage.todos) {
+    setState((draft) => Object.assign(draft, JSON.parse(localStorage.todos)));
+  }
+  createEffect(
+    () => JSON.stringify(state),
+    (value) => (localStorage.todos = value),
+  );
   return [state, setState];
 }
 
@@ -23,19 +28,13 @@ const App = () => {
         type="text"
         placeholder="enter todo and click +"
         value={state.newTitle}
-        onInput={(e) => setState({ newTitle: e.target.value })}
+        onInput={(e) => setState((draft) => (draft.newTitle = e.target.value))}
       />
       <button
         onClick={() =>
-          setState({
-            todos: [
-              ...state.todos,
-              {
-                title: state.newTitle,
-                done: false,
-              },
-            ],
-            newTitle: '',
+          setState((draft) => {
+            draft.todos.push({ title: draft.newTitle, done: false });
+            draft.newTitle = '';
           })
         }
       >
@@ -50,25 +49,25 @@ const App = () => {
                 type="checkbox"
                 checked={done}
                 onChange={(e) =>
-                  setState('todos', i(), { done: e.target.checked })
+                  setState((draft) => {
+                    draft.todos[i()].done = e.target.checked;
+                  })
                 }
               />
               <input
                 type="text"
                 value={title}
                 onChange={(e) =>
-                  setState('todos', i(), { title: e.target.value })
+                  setState((draft) => {
+                    draft.todos[i()].title = e.target.value;
+                  })
                 }
               />
               <button
-                // This function runs synchronously and doesn't create a new
-                // Solid scope. Everything in this setter function is tracked in
-                // one scope up.
                 onClick={() =>
-                  setState('todos', (t) => [
-                    ...t.slice(0, i()),
-                    ...t.slice(i() + 1),
-                  ])
+                  setState((draft) => {
+                    draft.todos.splice(i(), 1);
+                  })
                 }
               >
                 x

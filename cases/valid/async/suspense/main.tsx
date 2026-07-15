@@ -1,6 +1,6 @@
 // @ts-nocheck
-import { render } from 'solid-js/web';
-import { lazy, Suspense } from 'solid-js';
+import { render } from '@solidjs/web';
+import { lazy, Loading } from 'solid-js';
 
 const Greeting = lazy(async () => {
   // simulate delay
@@ -12,9 +12,9 @@ function App() {
   return (
     <>
       <h1>Welcome</h1>
-      <Suspense fallback={<p>Loading...</p>}>
+      <Loading fallback={<p>Loading...</p>}>
         <Greeting name="Jake" />
-      </Suspense>
+      </Loading>
     </>
   );
 }

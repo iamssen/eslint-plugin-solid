@@ -9,19 +9,24 @@ const invalid = testInvalid('jsx-no-undef', rule);
 
 describe('jsx-no-undef', () => {
   describe('valid', () => {
-    test('custom directives used as properties are valid', () => {
+    // Solid 2.0에서 use: directive는 제거됐다. ref factory 검사로 대체할 때 다시 작성한다.
+    test.skip('custom directives used as properties are valid', () => {
       valid(`let X; let el = <div use:X={{}} />;`);
     });
-    test('custom directives inside IIFE are valid', () => {
+    // Solid 2.0에서 use: directive는 제거됐다. ref factory 검사로 대체할 때 다시 작성한다.
+    test.skip('custom directives inside IIFE are valid', () => {
       valid(`(X => <div use:X={{}} />)()`);
     });
-    test('custom directives without values are valid', () => {
+    // Solid 2.0에서 use: directive는 제거됐다. ref factory 검사로 대체할 때 다시 작성한다.
+    test.skip('custom directives without values are valid', () => {
       valid(`let X; let el = <div use:X />`);
     });
-    test('custom directives defined in the same statement are valid', () => {
+    // Solid 2.0에서 use: directive는 제거됐다. ref factory 검사로 대체할 때 다시 작성한다.
+    test.skip('custom directives defined in the same statement', () => {
       valid(`let X, el = <div use:X />`);
     });
-    test('components and custom directives defined together are valid', () => {
+    // Solid 2.0에서 use: directive는 제거됐다. ref factory 검사로 대체할 때 다시 작성한다.
+    test.skip('components and custom directives defined together', () => {
       valid(`let Component, X = <Component use:X />`);
     });
     describe(`},`, () => {
@@ -40,7 +45,8 @@ describe('jsx-no-undef', () => {
         errors: [{ messageId: 'undefined', data: { identifier: 'Component' } }],
       });
     });
-    describe(`custom directives`, () => {
+    // Solid 2.0에서 use: directive와 customDirectiveUndefined 메시지는 제거 대상이다.
+    describe.skip(`custom directives`, () => {
       test('detects undefined custom directives', () => {
         invalid({
           code: `let el = <div use:X />;`,
@@ -77,7 +83,8 @@ describe('jsx-no-undef', () => {
       });
     });
     describe(`},`, () => {
-      test('detects undefined custom directives even when allowGlobals is true', () => {
+      // Solid 2.0에서 use: directive는 제거됐다.
+      test.skip('detects undefined custom directives even when allowGlobals is true', () => {
         invalid({
           code: `let el = <div use:X />;`,
           options: [{ allowGlobals: true }],

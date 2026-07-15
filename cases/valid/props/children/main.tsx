@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { render } from 'solid-js/web';
+import { render } from '@solidjs/web';
 import { createSignal, For } from 'solid-js';
 
 import ColoredList from './colored-list';

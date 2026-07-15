@@ -2,12 +2,11 @@
 import {
   createMemo,
   createSignal,
-  createComputed,
-  onCleanup,
+  createEffect,
+  createStore,
   For,
 } from 'solid-js';
-import { createStore } from 'solid-js/store';
-import { render } from 'solid-js/web';
+import { render } from '@solidjs/web';
 
 const App = () => {
   let newName, newScore;
@@ -37,33 +36,41 @@ const App = () => {
       const name = newName.value,
         score = +newScore.value;
       if (!name.length || isNaN(score)) return;
-      setState('players', (p) => [...p, { name, score }]);
+      setState((state) => state.players.push({ name, score }));
       newName.value = newScore.value = '';
     },
     handleDeleteClick = (player) => {
-      const idx = state.players.indexOf(player);
-      setState('players', (p) => [...p.slice(0, idx), ...p.slice(idx + 1)]);
+      setState((state) => {
+        const index = state.players.indexOf(player);
+        if (index >= 0) state.players.splice(index, 1);
+      });
     },
     handleScoreChange = (player, { target }) => {
       const score = +target.value;
       const idx = state.players.indexOf(player);
       if (isNaN(+score) || idx < 0) return;
-      setState('players', idx, 'score', score);
+      setState((state) => {
+        state.players[idx].score = score;
+      });
     },
     createStyles = (player) => {
       const [style, setStyle] = createSignal();
-      createComputed(() => {
-        getSorted();
-        const offset = lastPos.get(player) * 18 - curPos.get(player) * 18,
-          t = setTimeout(() =>
+      createEffect(
+        () => {
+          getSorted();
+          return lastPos.get(player) * 18 - curPos.get(player) * 18;
+        },
+        (offset) => {
+          const t = setTimeout(() =>
             setStyle({ transition: '250ms', transform: null }),
           );
-        setStyle({
-          transform: `translateY(${offset}px)`,
-          transition: null,
-        });
-        onCleanup(() => clearTimeout(t));
-      });
+          setStyle({
+            transform: `translateY(${offset}px)`,
+            transition: null,
+          });
+          return () => clearTimeout(t);
+        },
+      );
       return style;
     };
 
@@ -94,9 +101,9 @@ const App = () => {
                   class="score"
                   type="number"
                   value={score}
-                  onInput={[handleScoreChange, player]}
+                  onInput={(event) => handleScoreChange(player, event)}
                 />
-                <button type="button" onClick={[handleDeleteClick, player]}>
+                <button type="button" onClick={() => handleDeleteClick(player)}>
                   x
                 </button>
               </div>
