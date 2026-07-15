@@ -19,6 +19,15 @@ describe('event-handlers', () => {
         let el = <div onLy={string} />
       `);
     });
+    test('on* string, number, and boolean attributes are valid', () => {
+      valid(`
+        let el = <div
+          onCustomAttribute="attribute-value"
+          onCustomNumber={1}
+          onCustomBoolean={true}
+        />;
+      `);
+    });
     test('camelCase event handlers are valid when passed as props to components', () => {
       valid(`
         function Component(props) {
@@ -40,6 +49,16 @@ describe('event-handlers', () => {
     test('custom camelCase event names are valid on DOM elements', () => {
       valid(`let el = <div onLy={() => {}} />;`);
     });
+    test('native custom event handlers and array handlers are valid', () => {
+      valid(`
+        const increment = (amount) => amount;
+        let el = <button
+          onCustom={() => {}}
+          onCustomArray={[increment, 2]}
+          onClick={[increment, 2]}
+        />;
+      `);
+    });
     // Solid 2.0에서 on:은 제거됐다. native listener 옵션은 ref callback으로 처리한다.
     test.skip('using on: namespace is valid for custom events', () => {
       valid(`let el = <div on:ly={() => {}} />;`);
@@ -56,6 +75,12 @@ describe('event-handlers', () => {
         let el = <div {...{ onClick }} />;
       `);
     });
+    test('spreading event handlers with other props is valid', () => {
+      valid(`
+        const onClick = () => 42;
+        let el = <div {...{ onClick, title: "spread props" }} />;
+      `);
+    });
     test('lowercase standard event names are valid when ignoreCase option is true', () => {
       valid({
         code: `let el = <div onclick={onclick} />`,
@@ -70,7 +95,9 @@ describe('event-handlers', () => {
     });
   });
   describe('invalid', () => {
-    test('detects custom event names passed as boolean attributes', () => {
+    // Solid 2.0에서 on* boolean prop은 일반 attribute로 렌더링된다.
+    // 기존 detected-attr 기대를 기록용으로 보존한다.
+    test.skip('detects custom event names passed as boolean attributes', () => {
       invalid({
         code: `let el = <div only />`,
         errors: [
@@ -125,7 +152,9 @@ describe('event-handlers', () => {
         output: `let el = <div onClick={() => {}} />`,
       });
     });
-    test('detects camelCase custom event names passed as boolean attributes', () => {
+    // Solid 2.0에서 on* boolean prop은 일반 attribute로 렌더링된다.
+    // 기존 detected-attr 기대를 기록용으로 보존한다.
+    test.skip('detects camelCase custom event names passed as boolean attributes', () => {
       invalid({
         code: `let el = <div onLy />`,
         errors: [
@@ -136,7 +165,9 @@ describe('event-handlers', () => {
         ],
       });
     });
-    test('detects camelCase custom event names passed as string attributes', () => {
+    // Solid 2.0에서 on* 문자열 prop은 일반 attribute로 렌더링된다.
+    // 기존 detected-attr 기대를 기록용으로 보존한다.
+    test.skip('detects camelCase custom event names passed as string attributes', () => {
       invalid({
         code: `let el = <div onLy="string" />`,
         errors: [
@@ -147,7 +178,9 @@ describe('event-handlers', () => {
         ],
       });
     });
-    test('detects camelCase custom event names passed as number attributes', () => {
+    // Solid 2.0에서 on* 숫자 prop은 일반 attribute로 렌더링된다.
+    // 기존 detected-attr 기대를 기록용으로 보존한다.
+    test.skip('detects camelCase custom event names passed as number attributes', () => {
       invalid({
         code: `let el = <div onLy={5} />`,
         errors: [
@@ -158,7 +191,9 @@ describe('event-handlers', () => {
         ],
       });
     });
-    test('detects camelCase custom event names passed as string expression attributes', () => {
+    // Solid 2.0에서 on* 문자열 prop은 일반 attribute로 렌더링된다.
+    // 기존 detected-attr 기대를 기록용으로 보존한다.
+    test.skip('detects camelCase custom event names passed as string expression attributes', () => {
       invalid({
         code: `let el = <div onLy={"string"} />`,
         errors: [
@@ -169,7 +204,9 @@ describe('event-handlers', () => {
         ],
       });
     });
-    test('detects camelCase custom event names bound to string variables', () => {
+    // Solid 2.0에서 on* 문자열 prop은 일반 attribute로 렌더링된다.
+    // 기존 detected-attr 기대를 기록용으로 보존한다.
+    test.skip('detects camelCase custom event names bound to string variables', () => {
       invalid({
         code: `
           const string = 'string';
@@ -219,7 +256,9 @@ describe('event-handlers', () => {
         output: `let el = <div onDblClick={() => {}} />;`,
       });
     });
-    test('warns when standard event handlers are spread into DOM elements if warnOnSpread is true', () => {
+    // Solid 2.0에서는 spread된 event handler가 정상 동작한다.
+    // Solid 1.x warnOnSpread 옵션의 기대를 기록용으로 보존한다.
+    test.skip('warns when standard event handlers are spread into DOM elements if warnOnSpread is true', () => {
       invalid({
         code: `
           const handleClick = () => 42;
@@ -233,7 +272,9 @@ describe('event-handlers', () => {
         `,
       });
     });
-    test('warns when standard event handlers are spread alongside other properties if warnOnSpread is true', () => {
+    // Solid 2.0에서는 spread된 event handler가 정상 동작한다.
+    // Solid 1.x warnOnSpread 옵션의 기대를 기록용으로 보존한다.
+    test.skip('warns when standard event handlers are spread alongside other properties if warnOnSpread is true', () => {
       invalid({
         code: `
           const handleClick = () => 42;
@@ -247,7 +288,9 @@ describe('event-handlers', () => {
         `,
       });
     });
-    test('warns when standard event handlers are the only properties spread if warnOnSpread is true', () => {
+    // Solid 2.0에서는 spread된 event handler가 정상 동작한다.
+    // Solid 1.x warnOnSpread 옵션의 기대를 기록용으로 보존한다.
+    test.skip('warns when standard event handlers are the only properties spread if warnOnSpread is true', () => {
       invalid({
         code: `
           const handleClick = () => 42;
