@@ -4,19 +4,38 @@ import { isDOMElementName } from '../utils.js';
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 
-const knownNamespaces = ['on', 'oncapture', 'use', 'prop', 'attr', 'bool'];
-const styleNamespaces = new Set(['style', 'class']);
+// Solid 2.0 가이드는 prop:의 지원 여부를 명시하지 않는다. compiler/JSX type 확인 전까지
+// 기존 동작을 보존하고, migration 기록 문서에 이 보류 결정을 남긴다.
+const supportedNamespaces = ['prop'];
 const otherNamespaces = new Set(['xmlns', 'xlink']);
 
-type MessageIds = 'unknown' | 'style' | 'component' | 'component-suggest';
+const removedNamespaces = new Map([
+  ['use', 'Use a ref directive factory such as ref={tooltip(options)} instead'],
+  [
+    'attr',
+    'Use the corresponding standard HTML attribute instead (for example, aria-label={label})',
+  ],
+  [
+    'bool',
+    'Use the corresponding standard boolean attribute instead (for example, disabled={isDisabled()})',
+  ],
+  ['on', 'Use a camelCase handler such as onClick={handler} instead'],
+  [
+    'oncapture',
+    'Use ref with addEventListener when native listener options such as capture are required',
+  ],
+  ['class', 'Use the class prop with an object or array value instead'],
+  ['style', 'Use the style prop with an object value instead'],
+]);
+
+type MessageIds = 'unknown' | 'legacy' | 'component' | 'component-suggest';
 type Options = [{ allowedNamespaces?: Array<string> }?];
 
 export default createRule<Options, MessageIds>({
   meta: {
     type: 'problem',
     docs: {
-      description:
-        "Enforce using only Solid-specific namespaced attribute names (i.e. `'on:'` in `<div on:click={...} />`).",
+      description: 'Disallow unsupported and removed JSX namespace attributes.',
       url: 'https://github.com/solidjs-community/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/no-unknown-namespaces.md',
     },
     hasSuggestions: true,
@@ -40,11 +59,10 @@ export default createRule<Options, MessageIds>({
     ],
     defaultOptions: [{}],
     messages: {
-      'unknown': `'{{namespace}}:' is not one of Solid's special prefixes for JSX attributes (${knownNamespaces
+      'unknown': `'{{namespace}}:' is not a supported JSX namespace (${supportedNamespaces
         .map((n) => `'${n}:'`)
         .join(', ')}).`,
-      'style':
-        "Using the '{{namespace}}:' special prefix is potentially confusing, prefer the '{{namespace}}' prop instead.",
+      'legacy': "'{{namespace}}:' was removed in Solid 2.0. {{replacement}}.",
       'component': 'Namespaced props have no effect on components.',
       'component-suggest': 'Replace {{namespace}}:{{name}} with {{name}}.',
     },
@@ -56,6 +74,18 @@ export default createRule<Options, MessageIds>({
     return {
       'JSXAttribute > JSXNamespacedName': (node: T.JSXNamespacedName) => {
         const openingElement = node.parent!.parent as T.JSXOpeningElement;
+        const namespace = node.namespace.name;
+        const replacement = removedNamespaces.get(namespace);
+
+        if (replacement) {
+          context.report({
+            node,
+            messageId: 'legacy',
+            data: { namespace, replacement },
+          });
+          return;
+        }
+
         if (
           openingElement.name.type === 'JSXIdentifier' &&
           !isDOMElementName(openingElement.name.name)
@@ -75,27 +105,18 @@ export default createRule<Options, MessageIds>({
           return;
         }
 
-        const namespace = node.namespace?.name;
         if (
           !(
-            knownNamespaces.includes(namespace) ||
+            supportedNamespaces.includes(namespace) ||
             otherNamespaces.has(namespace) ||
             explicitlyAllowedNamespaces?.includes(namespace)
           )
         ) {
-          if (styleNamespaces.has(namespace)) {
-            context.report({
-              node,
-              messageId: 'style',
-              data: { namespace },
-            });
-          } else {
-            context.report({
-              node,
-              messageId: 'unknown',
-              data: { namespace },
-            });
-          }
+          context.report({
+            node,
+            messageId: 'unknown',
+            data: { namespace },
+          });
         }
       },
     };

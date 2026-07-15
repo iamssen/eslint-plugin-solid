@@ -1,53 +1,60 @@
 # no-unknown-namespaces
 
-JSX namespace prop의 오타와 Solid가 특별히 처리하는 namespace의 잘못된 사용을 검사합니다. `attr:`, `class:`, `style:`, `use:`, `prop:`, `on:`, `oncapture:` 등 Solid가 인식하는 형태를 기준으로 합니다.
+Solid 2.0에서 지원하지 않거나 제거된 JSX namespace attribute를 검사합니다. 이 규칙은 제거된 Solid 1.x namespace가 의도와 다르게 일반 attribute로 남는 것을 막고, JSX namespace의 오타도 찾습니다.
 
-## namespace는 단순한 이름 규칙이 아니다
+## 제거된 Solid namespace
 
-`on:click`은 일반 prop 이름에 콜론을 넣은 것이 아니라 native listener를 선택하는 compiler/runtime 지시입니다. `attr:value`는 attribute 쓰기를, `prop:value`는 DOM property 쓰기를, `class:active`는 class token 토글을, `use:directive`는 directive 함수를 연결합니다. 따라서 `bind:` 같은 다른 프레임워크의 namespace를 섞으면 문법은 파싱되더라도 Solid에서 기대한 동작이 되지 않습니다.
-
-```tsx
-// 잘못된 예
-<div atrr:id="main" />
-<input bind:value={value} />
-
-// namespace가 필요 없으면 일반 prop을 사용
-<div id="main" />
-```
-
-컴포넌트에 `attr:` 또는 알 수 없는 namespace를 사용한 경우에는 namespace를 제거하는 수정 제안이 제공될 수 있습니다. 프로젝트 고유 namespace는 `{ allowedNamespaces: ['my'] }`로 허용합니다. namespace의 실제 의미와 지원 여부는 Solid JSX 컴파일러 설정도 함께 확인해야 합니다.
-
-## 예제로 보는 동작
-
-Solid가 의미를 아는 namespace는 valid입니다.
+`use:`, `attr:`, `bool:`, `on:`, `oncapture:`, `class:`, `style:`는 Solid 2.0 공개 JSX 모델에서 제거되었습니다. 이 규칙은 각각의 namespace에 맞는 migration 오류와 대체 방향을 보고하지만, 문맥에 따라 의미가 달라져 자동 수정은 하지 않습니다.
 
 ```tsx
-// 모두 valid
-<input attr:aria-label="검색" />
-<div class:active={selected()} />
-<div style:width="10rem" />
+// invalid: use: directive
+<button use:tooltip={{ content: 'Save' }} />
+
+// ref directive factory를 사용
+<button ref={tooltip({ content: 'Save' })} />
+
+// invalid: delegated event namespace
 <button on:click={save} />
-<div use:focusTrap />
+
+// 일반 Solid event handler를 사용
+<button onClick={save} />
 ```
 
-다른 프레임워크의 namespace를 가져오거나 오타를 내면 invalid입니다.
+native listener의 `capture` 등 옵션이 필요하면 `ref`에서 `addEventListener`를 사용합니다.
 
 ```tsx
-// invalid: `attr:`의 오타
-<div atrr:id="main" />
+const listen = (type, handler, options) => (element) =>
+  element.addEventListener(type, handler, options);
 
-// invalid: Svelte식 namespace는 Solid directive가 아님
-<input bind:value={value} />
+<button ref={listen('click', save, { capture: true })} />;
 ```
 
-`class:`와 `style:`의 값은 boolean toggle이 아니라 CSS 값을 직접 넣는 namespace입니다. 따라서 아래는 invalid이며, 일반 `style` object를 사용해야 합니다.
+`attr:`/`bool:`는 일반 HTML attribute로, `class:`/`style:`는 객체·배열을 받는 `class`/`style` prop으로 바꿉니다.
 
 ```tsx
 // invalid
-<div class:mt-4 />
+<div attr:aria-label="검색" class:active={selected()} style:width="10rem" />
 
 // valid
-<div class="mt-4" />
+<div
+  aria-label="검색"
+  class={{ active: selected() }}
+  style={{ width: '10rem' }}
+/>
 ```
 
-프로젝트가 별도 JSX transform을 통해 `foo:bar`를 지원한다면 `{ allowedNamespaces: ['foo'] }`로 허용할 수 있습니다. component에 `attr:label`을 쓴 경우 rule은 `<Widget label="..." />` suggestion을 낼 수 있지만, component API에 맞는지 확인해야 합니다.
+## 허용 namespace와 보류 항목
+
+SVG/XML의 `xmlns:`와 `xlink:`는 허용합니다. 별도 JSX transform이 필요한 프로젝트는 `allowedNamespaces` 옵션으로 namespace를 추가할 수 있습니다.
+
+```js
+{
+  '@ssen/solid/no-unknown-namespaces': ['error', {
+    allowedNamespaces: ['foo']
+  }]
+}
+```
+
+`prop:`은 Solid 2.0 migration guide에서 지원 여부가 명확하지 않아 현재 허용하지만, 이는 호환성 보류 상태입니다. 확인이 끝나면 기본 허용 목록에서 제거하거나 문서화된 지원 범위로 제한할 예정입니다. 변경 근거와 보류 이유는 [no-unknown-namespaces-migration.md](./no-unknown-namespaces-migration.md)에 기록합니다.
+
+컴포넌트에 붙은 알려지지 않은 namespace는 효과가 없으므로, namespace를 제거하는 suggestion을 제공합니다. 제거된 Solid namespace는 이 suggestion 대신 migration 오류를 우선 보고합니다.
