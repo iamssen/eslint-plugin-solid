@@ -27,7 +27,6 @@ interface PropertyInfo {
   real: T.Literal | T.Identifier | T.Expression;
   var: string;
   computed: boolean;
-  init: T.Expression | undefined;
 }
 
 // Given ({ 'hello-world': helloWorld = 5 }), returns { real: Literal('hello-world'), var: 'helloWorld', computed: false, init: Literal(5) }
@@ -38,10 +37,6 @@ const getPropertyInfo = (prop: T.Property): PropertyInfo | null => {
         real: prop.key,
         var: valueName,
         computed: prop.computed,
-        init:
-          prop.value.type === 'AssignmentPattern'
-            ? prop.value.right
-            : undefined,
       }
     : null;
 };
@@ -89,10 +84,20 @@ export default createRule({
           // Props are destructured in the function params, not the body. We actually don't
           // need to handle the case where props are destructured in the body, because that
           // will be a violation of "solid/reactivity".
+          const hasDefault = props.properties.some(
+            (property) =>
+              property.type === 'Property' &&
+              property.value.type === 'AssignmentPattern',
+          );
           context.report({
             node: props,
             messageId: 'noDestructure',
-            fix: (fixer) => fixDestructure(node, props, fixer),
+            // `merge` lets an explicit `undefined` overwrite a default, unlike
+            // parameter destructuring. Keep these reports unfixed rather than
+            // changing the component's public prop semantics.
+            fix: hasDefault
+              ? undefined
+              : (fixer) => fixDestructure(node, props, fixer),
           });
         }
       }
@@ -124,10 +129,8 @@ export default createRule({
         }
       }
 
-      const hasDefaults = propertyInfo.some((info) => info.init);
-
-      // Replace destructured props with a `props` identifier (`_props` in case of rest params/defaults)
-      const origProps = !(hasDefaults || rest) ? propsName : '_' + propsName;
+      // Replace destructured props with a `props` identifier (`_props` with rest params).
+      const origProps = rest ? '_' + propsName : propsName;
       if (props.typeAnnotation) {
         // in `{ prop1, prop2 }: Props`, leave `: Props` alone
         const range = [props.range[0], props.typeAnnotation.range[0]] as const;
@@ -138,39 +141,29 @@ export default createRule({
 
       const sourceCode = getSourceCode(context);
 
-      const defaultsObjectString = () =>
-        propertyInfo
-          .filter((info) => info.init)
-          .map(
-            (info) =>
-              `${info.computed ? '[' : ''}${sourceCode.getText(info.real)}${
-                info.computed ? ']' : ''
-              }: ${sourceCode.getText(info.init)}`,
-          )
-          .join(', ');
-      const splitPropsArray = () =>
-        `[${propertyInfo
+      const omitCall = () => {
+        if (propertyInfo.length === 0) {
+          return `omit(${propsName})`;
+        }
+
+        const keys = propertyInfo
           .map((info) =>
             info.real.type === 'Identifier'
               ? JSON.stringify(info.real.name)
               : sourceCode.getText(info.real),
           )
-          .join(', ')}]`;
+          .join(', ');
+        return `omit(${propsName}, ${keys})`;
+      };
 
       let lineToInsert = '';
-      if (hasDefaults && rest) {
-        // Insert a line that assigns _props
-        lineToInsert = `  const [${propsName}, ${
-          (rest.argument.type === 'Identifier' && rest.argument.name) || 'rest'
-        }] = splitProps(mergeProps({ ${defaultsObjectString()} }, ${origProps}), ${splitPropsArray()});`;
-      } else if (hasDefaults) {
-        // Insert a line that assigns _props merged with defaults to props
-        lineToInsert = `  const ${propsName} = mergeProps({ ${defaultsObjectString()} }, ${origProps});\n`;
-      } else if (rest) {
-        // Insert a line that keeps named props and extracts the rest into a new reactive rest object
-        lineToInsert = `  const [${propsName}, ${
-          (rest.argument.type === 'Identifier' && rest.argument.name) || 'rest'
-        }] = splitProps(${origProps}, ${splitPropsArray()});\n`;
+      if (rest) {
+        lineToInsert += `  const ${propsName} = ${origProps};\n`;
+      }
+      if (rest) {
+        const restName =
+          (rest.argument.type === 'Identifier' && rest.argument.name) || 'rest';
+        lineToInsert += `  const ${restName} = ${omitCall()};\n`;
       }
 
       if (lineToInsert) {

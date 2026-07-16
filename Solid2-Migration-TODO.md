@@ -87,10 +87,9 @@ npm run test:rule -- src/rules/no-destructure/rule.test.ts
 
 ### `no-destructure`
 
-- [ ] default prop fixer를 `merge(defaults, props)`로 바꾼다.
-- [ ] rest prop fixer를 `omit(props, ...keys)` 기반의 별도 문장으로 바꾼다.
-- [ ] default + rest, implicit return, computed key, alias의 기존 test case를 하나씩 다시 활성화한다.
-- [ ] `merge`의 `undefined` overwrite 의미 때문에 fix가 안전하지 않은 경우 report-only로 제한한다.
+- [x] rest prop fixer를 `omit(props, ...keys)` 기반의 별도 문장으로 바꾼다. key가 없으면 `omit(props)`를 사용한다.
+- [x] default + rest, implicit return, computed key, alias의 기존 test case를 하나씩 다시 활성화한다.
+- [x] `merge`의 `undefined` overwrite 의미 때문에 default prop은 report-only로 제한한다. `merge(defaults, props)` fixer는 만들지 않는다.
 
 ### `no-react-deps`
 
