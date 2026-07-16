@@ -89,7 +89,7 @@ describe('imports', () => {
       });
     });
 
-    test('merges migrated imports into an existing Solid 2.0 import', () => {
+    test('merges migrated imports into an existing value import without an explicit importKind', () => {
       invalid({
         code: `
           import { createStore, snapshot } from "solid-js/store";

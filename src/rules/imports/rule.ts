@@ -203,11 +203,13 @@ export default createRule({
                   ? (fixer) => {
                       const sourceCode = getSourceCode(context);
                       const program: T.Program = sourceCode.ast;
+                      const targetImportKind = isType ? 'type' : 'value';
                       const correctDeclaration = program.body.find(
-                        (node) =>
-                          node.type === 'ImportDeclaration' &&
-                          node.source.value === correctSource &&
-                          node.importKind === (isType ? 'type' : 'value'),
+                        (candidate) =>
+                          candidate.type === 'ImportDeclaration' &&
+                          candidate.source.value === correctSource &&
+                          (candidate.importKind ?? 'value') ===
+                            targetImportKind,
                       ) as T.ImportDeclaration | undefined;
 
                       if (correctDeclaration) {
