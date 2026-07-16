@@ -1143,7 +1143,7 @@ export default createRule<Options, MessageIds>({
               // `source` first argument may be a signal
               pushTrackedScope(arg0, 'function');
             } else if (
-              matchImport(['onMount', 'onCleanup', 'onError'], callee.name) ||
+              matchImport(['onSettled', 'onCleanup', 'onError'], callee.name) ||
               [
                 // Timers
                 'setInterval',

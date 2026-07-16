@@ -293,14 +293,13 @@ describe('reactivity', () => {
       });
     });
     describe(`Async tracking scope exceptions`, () => {
-      // Solid 2.0에서 onMount는 onSettled로 대체된다.
-      // 비동기 lifecycle tracking의 2.0 모델을 구현한 뒤 새 API로 다시 작성한다.
-      test.skip('fetch with await before state setter is valid', () => {
+      test('onSettled allows asynchronous work, setter writes, and cleanup return', () => {
         valid(`
           const [photos, setPhotos] = createSignal([]);
-          onMount(async () => {
+          onSettled(async () => {
             const res = await fetch("https://jsonplaceholder.typicode.com/photos?_limit=20");
             setPhotos(await res.json());
+            return () => console.log('cleanup');
           });
         `);
       });

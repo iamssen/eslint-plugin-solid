@@ -78,7 +78,7 @@ npm run test:rule -- src/rules/no-destructure/rule.test.ts
   - [x] apply 단계의 write와 cleanup 반환은 허용한다.
   - [x] `EffectBundle`의 `effect`/`error` callback도 called-function scope로 지원한다.
 - [ ] 기본 microtask batch를 반영한다. `batch` sync callback 가정과 test를 제거 API migration으로 전환한다.
-- [ ] `onMount` → `onSettled` tracked scope 및 cleanup 반환을 처리한다.
+- [x] `onSettled`를 called-function tracked scope로 처리하고, async work·setter write·cleanup 반환을 regression/prototype으로 확인한다. `onMount`는 migration rule 대상이다.
 - [x] `For keyed={false}` callback의 item accessor·숫자 index를 정확히 추적한다.
 - [ ] `Index`, `indexArray`, `createResource`, `createMutable`, `observable` 등 1.x 전용 분기를 제거하거나 migration rule로 옮긴다.
 - [ ] 컴포넌트 최상위 reactive read와 `untrack` 의도 표기를 회귀 test로 강화한다.

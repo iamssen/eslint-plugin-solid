@@ -86,6 +86,16 @@ createEffect(
 );
 ```
 
+컴포넌트가 DOM에 반영된 뒤 한 번 실행해야 하는 작업에는 제거된 `onMount` 대신 `onSettled`를 사용합니다. 이 callback은 실행 시점 읽기와 async setter 작업을 허용하며, 반환한 cleanup도 component가 dispose될 때 실행됩니다.
+
+```ts
+onSettled(() => {
+  const onResize = () => measureLayout();
+  window.addEventListener('resize', onResize);
+  return () => window.removeEventListener('resize', onResize);
+});
+```
+
 프로젝트의 custom primitive가 callback을 reactive scope로 실행한다면 옵션에 등록합니다.
 
 ```ts
