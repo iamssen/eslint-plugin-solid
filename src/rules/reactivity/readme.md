@@ -94,3 +94,11 @@ createQuery(() => count()); // valid with the option
 ```
 
 이 rule은 event listener, observer, 일부 `create*`/`use*` hook을 의도적으로 허용합니다. 진단을 고칠 때는 먼저 그 callback이 UI 갱신을 위해 dependency를 **등록**해야 하는지, 단지 실행 시점의 최신 값을 **읽기만** 하면 되는지 구분하세요.
+
+`isPending(() => expression)`의 callback도 dependency를 등록하는 compute callback으로 처리합니다. 목록 callback은 `<For>`의 keyed mode에 따라 형태가 다릅니다. 기본 `<For>`는 `(item, indexAccessor)`이고, `<For keyed={false}>`는 `(itemAccessor, indexNumber)`입니다.
+
+```tsx
+<For each={items()} keyed={false}>
+  {(item, index) => <li>{index}: {item().name}</li>}
+</For>
+```

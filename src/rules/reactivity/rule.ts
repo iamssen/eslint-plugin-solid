@@ -1128,6 +1128,7 @@ export default createRule<Options, MessageIds>({
                   'createDeferred',
                   'createComputed',
                   'createSelector',
+                  'isPending',
                   'untrack',
                   'mapArray',
                   'indexArray',
@@ -1415,15 +1416,26 @@ export default createRule<Options, MessageIds>({
 
         if (element.openingElement.name.type === 'JSXIdentifier') {
           const tagName = element.openingElement.name.name;
-          if (
-            matchImport('For', tagName) &&
-            node.params.length === 2 &&
-            node.params[1].type === 'Identifier'
-          ) {
-            // Mark `index` in `<For>{(item, index) => <div /></For>` as a signal
-            const index = findVariable(context, node.params[1]);
-            if (index) {
-              scopeStack.pushSignal(index, currentScope().node);
+          if (matchImport('For', tagName)) {
+            const keyedFalse = element.openingElement.attributes.some(
+              (attribute) =>
+                attribute.type === 'JSXAttribute' &&
+                attribute.name.type === 'JSXIdentifier' &&
+                attribute.name.name === 'keyed' &&
+                attribute.value?.type === 'JSXExpressionContainer' &&
+                attribute.value.expression.type === 'Literal' &&
+                attribute.value.expression.value === false,
+            );
+            const accessorParameter = keyedFalse
+              ? node.params[0]
+              : node.params[1];
+            if (accessorParameter?.type === 'Identifier') {
+              // The default <For> exposes an index accessor. With keyed={false},
+              // the item becomes an accessor and the index is a plain number.
+              const accessor = findVariable(context, accessorParameter);
+              if (accessor) {
+                scopeStack.pushSignal(accessor, currentScope().node);
+              }
             }
           } else if (
             matchImport('Index', tagName) &&

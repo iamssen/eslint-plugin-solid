@@ -117,6 +117,13 @@ describe('reactivity', () => {
         }
       `);
     });
+    test('using a signal in isPending compute callback is tracked', () => {
+      valid(`
+        const [tab] = createSignal(0);
+        const pending = () => isPending(() => tab());
+        const Component = () => <div class={{ pending: pending() }} />;
+      `);
+    });
     test('using signal in on callback is valid', () => {
       valid(`
         const [value, setValue] = createSignal();
@@ -461,6 +468,28 @@ describe('reactivity', () => {
             const [signal] = createSignal();
             return <SomeContext.Provider value={signal}>{props.children}</SomeContext.Provider>;
           }
+        `);
+      });
+    });
+    describe(`<For /> callback shapes`, () => {
+      test('keyed=false uses an item accessor and a numeric index', () => {
+        valid(`
+          const [items] = createSignal([{ id: 'first' }]);
+          const Component = () => (
+            <For each={items()} keyed={false}>
+              {(item, index) => <div>{index}:{item().id}</div>}
+            </For>
+          );
+        `);
+      });
+      test('default For uses a value item and an index accessor', () => {
+        valid(`
+          const [items] = createSignal([{ id: 'first' }]);
+          const Component = () => (
+            <For each={items()}>
+              {(item, index) => <div>{index()}:{item.id}</div>}
+            </For>
+          );
         `);
       });
     });
