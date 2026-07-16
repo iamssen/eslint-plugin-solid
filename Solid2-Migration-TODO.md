@@ -110,7 +110,7 @@ npm run test:rule -- src/rules/no-destructure/rule.test.ts
 - [x] `no-solid-1-apis` migration rule을 도입하고 recommended에 warning으로 포함한다.
 - [x] import alias와 namespace import를 포함해 다음 API를 탐지한다.
   - [x] `createResource`, `Suspense`, `SuspenseList`, `ErrorBoundary`
-  - [x] `useTransition`, `startTransition`, `batch`, `on`, `createComputed`
+  - [x] `useTransition`, `startTransition`, `batch`, `on`, `onMount`, `createComputed`, `createReactive`
   - [x] `createMutable`, `modifyMutable`, `from`, `observable`, `createDeferred`
   - [x] `Index`, `indexArray`, `Context.Provider`
 - [x] 대체가 단일하지 않은 API는 autofix하지 않고 `Loading`, `Reveal`, `action`, `isPending`, async iterator 등 문맥별 대체 방향만 메시지에 제시한다.

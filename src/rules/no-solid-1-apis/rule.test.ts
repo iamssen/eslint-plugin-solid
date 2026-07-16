@@ -108,5 +108,32 @@ describe('no-solid-1-apis', () => {
         ],
       });
     });
+
+    test('reports removed lifecycle and tracking helpers', () => {
+      invalid({
+        code: `
+          import { createReactive, onMount } from 'solid-js';
+          const track = createReactive();
+          onMount(() => track(() => {}));
+        `,
+        errors: [
+          {
+            messageId: 'removedApi',
+            data: {
+              api: 'createReactive',
+              replacement:
+                'Use createReaction when an explicit tracking callback is needed',
+            },
+          },
+          {
+            messageId: 'removedApi',
+            data: {
+              api: 'onMount',
+              replacement: 'Use onSettled for work that runs after the DOM settles',
+            },
+          },
+        ],
+      });
+    });
   });
 });
