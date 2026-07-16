@@ -94,7 +94,7 @@ npm run test:rule -- src/rules/no-destructure/rule.test.ts
 
 ### `no-react-deps`
 
-- [ ] `createEffect(fn, initialValue)`와 `createMemo(fn, initialValue)`를 2.0 제거 API로 진단할지, 별도 migration rule로 맡길지 결정한다.
+- [x] `createEffect(fn, initialValue)`와 `createMemo(fn, initialValue)`의 명확한 primitive initial value를 이 rule에서 Solid 2 제거 API로 진단한다. `undefined`는 생략과 같으므로 허용한다.
 - [ ] compute/apply effect와 `defer` options를 valid 사례로 추가한다.
 - [ ] dependency array 검사 자체는 유지한다.
 

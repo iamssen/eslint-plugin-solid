@@ -15,7 +15,9 @@ export default createRule({
     schema: [],
     messages: {
       noUselessDep:
-        "In Solid, `{{name}}` doesn't accept a dependency array because it automatically tracks its dependencies. If you really need to override the list of dependencies, use `on`.",
+        "In Solid, `{{name}}` doesn't accept a dependency array because it automatically tracks its dependencies.",
+      legacyInitialValue:
+        "Solid 2 removed the initial value argument from `{{name}}`. Use a default parameter in the compute function or the API's current options form instead.",
     },
   },
   // defaultOptions: [],
@@ -40,11 +42,7 @@ export default createRule({
         // grab both arguments, tracing any variables to their actual values if possible
         const [arg0, arg1] = node.arguments.map((arg) => trace(arg, context));
 
-        if (
-          isFunctionNode(arg0) &&
-          arg0.params.length === 0 &&
-          arg1.type === 'ArrayExpression'
-        ) {
+        if (isFunctionNode(arg0) && arg1.type === 'ArrayExpression') {
           // A second argument that looks like a dependency array was passed to
           // createEffect/createMemo, and the inline function doesn't accept a parameter, so it
           // can't just be an initial value.
@@ -59,6 +57,16 @@ export default createRule({
               arg1 === node.arguments[1]
                 ? (fixer) => fixer.remove(arg1)
                 : undefined,
+          });
+        } else if (
+          isFunctionNode(arg0) &&
+          arg1.type === 'Literal' &&
+          arg1.value !== undefined
+        ) {
+          context.report({
+            node: node.arguments[1],
+            messageId: 'legacyInitialValue',
+            data: { name: node.callee.name },
           });
         }
       },

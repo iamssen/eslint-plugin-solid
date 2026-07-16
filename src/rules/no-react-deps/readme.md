@@ -14,15 +14,18 @@ createEffect(() => console.log(count()), [count]);
 createEffect(() => console.log(count()));
 ```
 
-특정 의존성을 명시하고 나머지 읽기를 추적하지 않으려면 Solid의 `on` 유틸리티를 사용합니다.
+Solid 2에서는 effect의 계산과 적용을 분리합니다. 특정 값만 계산 단계에서 읽어 의존성을 제한하고, 적용 함수에서 부수 효과를 수행합니다.
 
 ```ts
-createEffect(on(count, (value) => console.log(value, other())));
+createEffect(
+  () => count(),
+  (value) => console.log(value, other()),
+);
 ```
 
 이 규칙은 dependency array의 내용이 올바른지 검사하는 것이 아니라, 두 번째 인자로 전달된 배열을 제거하도록 안내합니다.
 
-Solid API의 두 번째 인자가 항상 dependency array인 것은 아닙니다. 예를 들어 `createEffect`의 두 번째 인자는 이전 실행 결과의 초기값으로 사용될 수 있으므로, 이 규칙은 배열 표현식만 React식 dependency로 간주해 보고합니다.
+Solid 2에서 `createEffect`의 두 번째 인자는 apply 함수이고, `createMemo`의 두 번째 인자는 options입니다. 1.x의 initial value 인수는 제거되었으므로 숫자·문자열·boolean 같은 명확한 legacy value도 보고합니다. `undefined`는 생략한 인수와 같으므로 보고하지 않습니다.
 
 ## 예제로 보는 동작
 

@@ -14,14 +14,16 @@ describe('no-react-deps', () => {
         });
       `);
     });
-    // Solid 2.0에서 createEffect의 두 번째 인수는 initialValue가 아니라 apply 함수다.
-    test.skip('createEffect with initial value is valid', () => {
-      valid(`
+    test('detects createEffect with a removed initial value', () => {
+      invalid({
+        code: `
         createEffect((prev) => {
           console.log(signal());
           return prev + 1;
         }, 0);
-      `);
+      `,
+        errors: [{ messageId: 'legacyInitialValue', data: { name: 'createEffect' } }],
+      });
     });
     test('createEffect with logical OR initial value is valid', () => {
       valid(`
@@ -31,8 +33,7 @@ describe('no-react-deps', () => {
         });
       `);
     });
-    // Solid 2.0에서 createEffect의 두 번째 인수는 initialValue가 아니라 apply 함수다.
-    test.skip('createEffect with undefined initial value is valid', () => {
+    test('createEffect with an undefined second argument is valid', () => {
       valid(`
         createEffect((prev) => {
           console.log(signal());
@@ -43,9 +44,11 @@ describe('no-react-deps', () => {
     test('createMemo without dependency array is valid', () => {
       valid(`const value = createMemo(() => computeExpensiveValue(a(), b()));`);
     });
-    // Solid 2.0에서 createMemo initialValue 인수는 제거됐다.
-    test.skip('createMemo with initial value is valid', () => {
-      valid(`const sum = createMemo((prev) => input() + prev, 0);`);
+    test('detects createMemo with a removed initial value', () => {
+      invalid({
+        code: `const sum = createMemo((prev) => input() + prev, 0);`,
+        errors: [{ messageId: 'legacyInitialValue', data: { name: 'createMemo' } }],
+      });
     });
     test('createEffect with spread arguments is valid', () => {
       valid(`
