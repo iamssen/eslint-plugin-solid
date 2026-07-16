@@ -80,7 +80,7 @@ npm run test:rule -- src/rules/no-destructure/rule.test.ts
 - [x] 기본 microtask batch와 `flush()`의 읽기 시점을 prototype으로 확인한다. `batch` sync callback 가정을 제거하고 migration rule 대상으로 남긴다.
 - [x] `onSettled`를 called-function tracked scope로 처리하고, async work·setter write·cleanup 반환을 regression/prototype으로 확인한다. `onMount`는 migration rule 대상이다.
 - [x] `For keyed={false}` callback의 item accessor·숫자 index를 정확히 추적한다.
-- [ ] `Index`, `indexArray`, `createResource`, `createMutable`, `observable` 등 1.x 전용 분기를 제거하거나 migration rule로 옮긴다.
+- [x] `Index`, `indexArray`, `createResource`, `createMutable`, `observable` 등 1.x 전용 분기를 제거하고 `no-solid-1-apis` migration rule로 진단을 옮긴다.
 - [ ] 컴포넌트 최상위 reactive read와 `untrack` 의도 표기를 회귀 test로 강화한다.
 
 ## 5. props/store fixer와 보조 reactivity rule

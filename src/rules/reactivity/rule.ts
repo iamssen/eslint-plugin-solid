@@ -779,7 +779,7 @@ export default createRule<Options, MessageIds>({
               }
             }
           }
-        } else if (matchImport(['mapArray', 'indexArray'], node.callee.name)) {
+        } else if (matchImport('mapArray', node.callee.name)) {
           const arg1 = node.arguments[1];
           if (isFunctionNode(arg1)) {
             scopeStack.syncCallbacks.add(arg1);
@@ -802,7 +802,7 @@ export default createRule<Options, MessageIds>({
       // Mark return values of certain functions as reactive
       if (init.type === 'CallExpression' && init.callee.type === 'Identifier') {
         const { callee } = init;
-        if (matchImport(['createSignal', 'useTransition'], callee.name)) {
+        if (matchImport('createSignal', callee.name)) {
           const signal = id && getNthDestructuredVar(id, 0, context);
           if (signal) {
             scopeStack.pushSignal(signal, currentScope().node);
@@ -847,17 +847,6 @@ export default createRule<Options, MessageIds>({
           } else {
             warnShouldAssign(id ?? init);
           }
-        } else if (matchImport('createResource', callee.name)) {
-          // createResource return value has reactive .loading and .error
-          const resourceReturn = id && getNthDestructuredVar(id, 0, context);
-          if (resourceReturn) {
-            scopeStack.pushProps(resourceReturn, currentScope().node);
-          }
-        } else if (matchImport('createMutable', callee.name)) {
-          const mutable = id && getReturnedVar(id, context);
-          if (mutable) {
-            scopeStack.pushProps(mutable, currentScope().node);
-          }
         } else if (matchImport('mapArray', callee.name)) {
           const arg1 = init.arguments[1];
           if (
@@ -868,18 +857,6 @@ export default createRule<Options, MessageIds>({
             const indexSignal = findVariable(context, arg1.params[1]);
             if (indexSignal) {
               scopeStack.pushSignal(indexSignal);
-            }
-          }
-        } else if (matchImport('indexArray', callee.name)) {
-          const arg1 = init.arguments[1];
-          if (
-            isFunctionNode(arg1) &&
-            arg1.params.length > 0 &&
-            arg1.params[0].type === 'Identifier'
-          ) {
-            const valueSignal = findVariable(context, arg1.params[0]);
-            if (valueSignal) {
-              scopeStack.pushSignal(valueSignal);
             }
           }
         }
@@ -1125,22 +1102,15 @@ export default createRule<Options, MessageIds>({
                   'children',
                   'createEffect',
                   'createRenderEffect',
-                  'createDeferred',
-                  'createComputed',
                   'createSelector',
                   'isPending',
                   'untrack',
                   'mapArray',
-                  'indexArray',
-                  'observable',
                 ],
                 callee.name,
-              ) ||
-              (matchImport('createResource', callee.name) &&
-                node.arguments.length >= 2)
+              )
             ) {
-              // createEffect, createMemo, etc. fn arg, and createResource optional
-              // `source` first argument may be a signal
+              // createEffect, createMemo, etc. take a tracked callback.
               pushTrackedScope(arg0, 'function');
             } else if (
               matchImport(['onSettled', 'onCleanup', 'onError'], callee.name) ||
@@ -1436,16 +1406,6 @@ export default createRule<Options, MessageIds>({
               if (accessor) {
                 scopeStack.pushSignal(accessor, currentScope().node);
               }
-            }
-          } else if (
-            matchImport('Index', tagName) &&
-            node.params.length > 0 &&
-            node.params[0].type === 'Identifier'
-          ) {
-            // Mark `item` in `<Index>{(item, index) => <div />}</Index>` as a signal
-            const item = findVariable(context, node.params[0]);
-            if (item) {
-              scopeStack.pushSignal(item, currentScope().node);
             }
           }
         }

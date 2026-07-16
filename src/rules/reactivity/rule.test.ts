@@ -612,20 +612,6 @@ describe('reactivity', () => {
           }
         `);
       });
-      // Solid 2.0에서 indexArray는 제거됐다. For keyed={false}의 accessor 모델로 대체한다.
-      test.skip('indexArray first argument is a tracked scope', () => {
-        valid(`
-          function createCustomStore() {
-            const [store, updateStore] = createStore({});
-
-            return indexArray(
-              // the first argument to mapArray is a tracked scope
-              () => store.path.to.field,
-              (item) => ({})
-            );
-          }
-        `);
-      });
     });
     describe(`type casting`, () => {
       test('createMemo with type casting is valid', () => {
@@ -686,23 +672,6 @@ describe('reactivity', () => {
             const staticValue = () => props.value;
             const value = staticValue();
           }
-        `);
-      });
-    });
-    // Solid 2.0에서 observable()은 제거됐다. createEffect 기반 adapter test로 대체한다.
-    describe.skip(`observable`, () => {
-      test('observable from props is a tracked scope', () => {
-        valid(`
-          function Component(props) {
-            const count$ = observable(() => props.count);
-            return <div />;
-          }
-        `);
-      });
-      test('observable from signal is a tracked scope', () => {
-        valid(`
-          const [signal, setSignal] = createSignal(0);
-          const value$ = observable(signal);
         `);
       });
     });
@@ -1330,18 +1299,6 @@ describe('reactivity', () => {
             const [array] = createSignal([]);
             const result = mapArray(array, (item, i) => {
               i()
-            });
-          `,
-          errors: [{ messageId: 'untrackedReactive', line: 4 }],
-        });
-      });
-      // Solid 2.0에서 indexArray는 제거됐다. For keyed={false} 분석으로 대체한다.
-      test.skip('detects untracked signal access in indexArray second argument', () => {
-        invalid({
-          code: `
-            const [array] = createSignal([]);
-            const result = indexArray(array, (item) => {
-              item()
             });
           `,
           errors: [{ messageId: 'untrackedReactive', line: 4 }],
