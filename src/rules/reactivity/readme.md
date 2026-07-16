@@ -67,6 +67,25 @@ createEffect(() => {
 });
 ```
 
+Solid 2의 `createEffect`는 compute/apply 형태입니다. 첫 callback만 dependency를 등록하며, 두 번째 apply callback(또는 `{ effect, error }` bundle)은 계산된 값을 적용하고 setter를 호출하거나 cleanup을 반환할 수 있습니다. compute callback 안에서 signal/store setter를 호출하면 순환적인 갱신이 되므로 이 rule이 보고합니다.
+
+```ts
+// invalid: compute 단계에서 state를 다시 씀
+createEffect(
+  () => {
+    setCount(1);
+    return count();
+  },
+  (value) => console.log(value),
+);
+
+// valid: apply 단계에서 결과를 반영
+createEffect(
+  () => count(),
+  (value) => setDisplay(value),
+);
+```
+
 프로젝트의 custom primitive가 callback을 reactive scope로 실행한다면 옵션에 등록합니다.
 
 ```ts

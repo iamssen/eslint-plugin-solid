@@ -328,6 +328,8 @@ export default createRule<Options, MessageIds>({
       context.report({ node, messageId: 'shouldAssign' });
 
     const sourceCode = getSourceCode(context);
+    const effectComputeFunctions = new Set<FunctionNode>();
+    const effectSetters = new Set<Variable>();
 
     /** Represents the lexical function stack and relevant information for each function */
     const scopeStack = new ScopeStack();
@@ -807,6 +809,10 @@ export default createRule<Options, MessageIds>({
           } else {
             warnShouldDestructure(id ?? init, 'first');
           }
+          const setter = id && getNthDestructuredVar(id, 1, context);
+          if (setter) {
+            effectSetters.add(setter);
+          }
         } else if (matchImport(['createMemo', 'createSelector'], callee.name)) {
           const memo = id && getReturnedVar(id, context);
           // memos act like signals
@@ -822,6 +828,10 @@ export default createRule<Options, MessageIds>({
             scopeStack.pushProps(store, currentScope().node);
           } else {
             warnShouldDestructure(id ?? init, 'first');
+          }
+          const setter = id && getNthDestructuredVar(id, 1, context);
+          if (setter) {
+            effectSetters.add(setter);
           }
         } else if (matchImport('merge', callee.name)) {
           const merged = id && getReturnedVar(id, context);
@@ -872,6 +882,29 @@ export default createRule<Options, MessageIds>({
               scopeStack.pushSignal(valueSignal);
             }
           }
+        }
+      }
+    };
+
+    const reportEffectComputeWrites = (setter: Variable) => {
+      for (const reference of setter.references) {
+        const { identifier } = reference;
+        if (
+          reference.init ||
+          !reference.isRead() ||
+          identifier.parent?.type !== 'CallExpression' ||
+          identifier.parent.callee !== identifier
+        ) {
+          continue;
+        }
+
+        const containingFunction = findParent(identifier, isFunctionNode);
+        if (containingFunction && effectComputeFunctions.has(containingFunction)) {
+          context.report({
+            node: identifier,
+            messageId: 'noWrite',
+            data: { name: identifier.name },
+          });
         }
       }
     };
@@ -1048,7 +1081,44 @@ export default createRule<Options, MessageIds>({
               callee,
               arguments: { 0: arg0, 1: arg1 },
             } = node;
+            const effectBundleCallbacks =
+              arg1?.type === 'ObjectExpression'
+                ? arg1.properties.flatMap((property) =>
+                    property.type === 'Property' &&
+                    !property.computed &&
+                    property.key.type === 'Identifier' &&
+                    (property.key.name === 'effect' ||
+                      property.key.name === 'error') &&
+                    isFunctionNode(property.value)
+                      ? [property.value]
+                      : [],
+                  )
+                : [];
+            const effectCallback = isFunctionNode(arg1)
+              ? arg1
+              : effectBundleCallbacks.find(
+                  (callback) =>
+                    callback.parent?.type === 'Property' &&
+                    callback.parent.key.type === 'Identifier' &&
+                    callback.parent.key.name === 'effect',
+                );
             if (
+              matchImport('createEffect', callee.name) &&
+              isFunctionNode(arg0) &&
+              effectCallback
+            ) {
+              // Solid 2 effects split reactive computation from side effects.
+              // The compute callback establishes dependencies; the apply callback
+              // runs with the computed value and may write state or return cleanup.
+              effectComputeFunctions.add(arg0);
+              pushTrackedScope(arg0, 'function');
+              const callbacks = effectBundleCallbacks.length > 0
+                ? effectBundleCallbacks
+                : [effectCallback];
+              for (const callback of callbacks) {
+                pushTrackedScope(callback, 'called-function');
+              }
+            } else if (
               matchImport(
                 [
                   'createMemo',
@@ -1377,7 +1447,12 @@ export default createRule<Options, MessageIds>({
       'FunctionExpression:exit': onFunctionExit,
       'ArrowFunctionExpression:exit': onFunctionExit,
       'FunctionDeclaration:exit': onFunctionExit,
-      'Program:exit': onFunctionExit,
+      'Program:exit'(node) {
+        for (const setter of effectSetters) {
+          reportEffectComputeWrites(setter);
+        }
+        onFunctionExit(node);
+      },
 
       /* Detect JSX for adding props */
       'JSXElement'() {

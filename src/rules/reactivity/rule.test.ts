@@ -22,6 +22,32 @@ describe('reactivity', () => {
         createEffect(() => console.log(\`\${first()} \${last()}\`));
       `);
     });
+    test('createEffect apply callback may read signals and write state', () => {
+      valid(`
+        const [count, setCount] = createSignal(0);
+        const [applied, setApplied] = createSignal(0);
+        createEffect(
+          () => count(),
+          (value) => {
+            setApplied(value + count());
+            return () => {};
+          },
+        );
+      `);
+    });
+    test('createEffect EffectBundle callbacks are called-function scopes', () => {
+      valid(`
+        const [count] = createSignal(0);
+        const [applied, setApplied] = createSignal(0);
+        createEffect(
+          () => count(),
+          {
+            effect: (value) => setApplied(value),
+            error: (error) => console.error(error, count(), applied()),
+          },
+        );
+      `);
+    });
     test('using props inside component body is valid if wrapped in tracking scope', () => {
       valid(`
         let Component = props => {
@@ -677,6 +703,36 @@ describe('reactivity', () => {
   });
   describe('invalid', () => {
     describe(`Untracked signals`, () => {
+      test('detects a signal setter write in a createEffect compute callback', () => {
+        invalid({
+          code: `
+            const [count, setCount] = createSignal(0);
+            createEffect(
+              () => {
+                setCount(1);
+                return count();
+              },
+              () => {},
+            );
+          `,
+          errors: [{ messageId: 'noWrite', data: { name: 'setCount' } }],
+        });
+      });
+      test('detects a store setter write in a createEffect compute callback', () => {
+        invalid({
+          code: `
+            const [state, setState] = createStore({ count: 0 });
+            createEffect(
+              () => {
+                setState((draft) => { draft.count++; });
+                return state.count;
+              },
+              () => {},
+            );
+          `,
+          errors: [{ messageId: 'noWrite', data: { name: 'setState' } }],
+        });
+      });
       test('detects untracked signal usage in component body', () => {
         invalid({
           code: `
