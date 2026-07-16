@@ -1,6 +1,6 @@
 # Solid 2.0 event handler 검증 코드
 
-이 문서는 `solidjs2-web-prototype/apps/app/valid`에서 실제 실행해 확인한 Solid.js 2.0 event handler 동작을 기록한다. `event-handlers` 규칙을 변경할 때 이 문서의 런타임 결과를 우선한다.
+이 문서는 `solidjs2-web-prototype/apps/app/runtime-checks`에서 Playwright로 실제 실행해 확인한 Solid.js 2.0 event handler 동작을 기록한다. `event-handlers` 규칙을 변경할 때 이 문서의 런타임 결과를 우선한다.
 
 ## 일반 HTML element의 배열 handler
 
