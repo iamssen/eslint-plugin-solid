@@ -45,6 +45,12 @@ const initial = count(); // invalid: 일반 변수에 고정
 const doubled = createMemo(() => count() * 2); // valid: createMemo가 추적
 ```
 
+초기 snapshot이 의도된 경우에는 `untrack` callback으로 그 의도를 명시합니다. 이 값은 이후 변경을 반영하지 않으므로, 렌더링에 쓸 값이라면 JSX나 memo로 읽어야 합니다.
+
+```tsx
+const initial = untrack(() => count()); // valid: 의도적인 한 번 읽기
+```
+
 이벤트 handler는 나중에 실행되는 “읽기”이며 dependency를 등록할 목적이 아니므로 valid입니다.
 
 ```tsx

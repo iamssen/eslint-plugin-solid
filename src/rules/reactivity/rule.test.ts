@@ -89,15 +89,23 @@ describe('reactivity', () => {
         };
       `);
     });
-    test('using untrack prevents tracking', () => {
+    test('using untrack documents an intentional signal snapshot', () => {
       valid(`
         let Component = () => {
           const [a, setA] = createSignal(1);
           const [b, setB] = createSignal(1);
           createEffect(() => {
-            console.log(a(), untrack(b));
+            console.log(a(), untrack(() => b()));
           });
         };
+      `);
+    });
+    test('using untrack documents an intentional prop snapshot', () => {
+      valid(`
+        function Component(props) {
+          const initialName = untrack(() => props.name);
+          return <div>{initialName}</div>;
+        }
       `);
     });
     test('using signal in JSX is tracked', () => {
@@ -749,6 +757,18 @@ describe('reactivity', () => {
               const [signal] = createSignal(5);
               console.log(signal());
               return <div>{signal()}</div>
+            }
+          `,
+          errors: [{ messageId: 'untrackedReactive', line: 4 }],
+        });
+      });
+      test('detects a signal snapshot assigned before JSX rendering', () => {
+        invalid({
+          code: `
+            function Component() {
+              const [count] = createSignal(0);
+              const initialCount = count();
+              return <div>{initialCount}</div>;
             }
           `,
           errors: [{ messageId: 'untrackedReactive', line: 4 }],
