@@ -94,7 +94,7 @@ export default [
     },
   },
   {
-    files: ['src/rules/*.ts'],
+    files: ['src/rules/*/rule.ts'],
     ignores: ['**/*.test.ts'],
     languageOptions: {
       globals: globals.node,
@@ -111,13 +111,9 @@ export default [
         'error',
         { pattern: '^(Enforce|Require|Disallow)' },
       ],
-      'eslint-plugin/require-meta-docs-url': [
-        'error',
-        {
-          pattern:
-            'https://github.com/solidjs-community/eslint-plugin-solid/blob/main/packages/eslint-plugin-solid/docs/{{name}}.md',
-        },
-      ],
+      // Rule files now share the basename `rule.ts`; the rule name is encoded by
+      // their parent directory, which this ESLint rule cannot interpolate.
+      'eslint-plugin/require-meta-docs-url': 'error',
     },
   },
   {

@@ -24,7 +24,11 @@ TypeScript로 관리합니다.
 
 ## 주요 디렉터리와 파일
 
-- `src/rules/`: ESLint 규칙 구현(`*.ts`), 규칙 테스트(`*.test.ts`), 규칙 문서(`*.md`)
+- `src/rules/`: ESLint 규칙 구현
+  - 규칙은 `src/rules/{rule-name}/`와 같이 디렉터리로 분리합니다.
+  - 각 디렉터리에는 구현(`rule.ts`), 단위 테스트(`rule.test.ts`), 개발자 문서(`readme.md`)를 둡니다.
+  - 마이그레이션 근거나 유효 예제 같은 보조 문서도 해당 규칙 디렉터리에 둡니다.
+  - 공용 RuleTester 헬퍼는 `src/rules/ruleTester.ts`에 둡니다.
 - `src/plugin.ts`: 규칙을 플러그인에 등록하는 진입점
 - `src/index.ts`: 플러그인과 단일 `recommended` flat config를 공개하는 진입점
 - `src/utils.ts`, `src/compat.ts`: 여러 규칙에서 공유하는 유틸리티와 호환성 코드
@@ -55,14 +59,14 @@ npm run test:all
 ## 문서 언어
 
 - `README.md`는 패키지 사용자용 문서이므로 영어로 작성합니다.
-- `src/rules/*.md`는 규칙 구현을 설명하는 개발자용 문서이므로 한국어로 작성합니다.
+- `src/rules/{rule-name}/readme.md`와 같은 규칙별 개발자 문서는 한국어로 작성합니다.
 
 ## 규칙을 추가하거나 수정할 때
 
-1. 규칙 구현은 `src/rules/<rule-name>.ts`에 작성합니다.
-2. 규칙은 `src/plugin.ts`의 `allRules`에 등록합니다.
-3. 정상 동작과 오류 동작을 모두 `src/rules/<rule-name>.test.ts`에 추가합니다.
-4. 사용자-facing 규칙 설명은 같은 이름의 `src/rules/<rule-name>.md`에 추가하거나 갱신합니다.
+1. 규칙 구현은 `src/rules/<rule-name>/rule.ts`에 작성합니다.
+2. 규칙은 `src/plugin.ts`의 `allRules`에 등록하고, import는 `./rules/<rule-name>/rule.js`를 가리킵니다.
+3. 정상 동작과 오류 동작을 모두 `src/rules/<rule-name>/rule.test.ts`에 추가합니다. 공용 헬퍼는 `../ruleTester.js`에서 가져옵니다.
+4. 사용자-facing 규칙 설명은 `src/rules/<rule-name>/readme.md`에 추가하거나 갱신합니다. 보조 문서가 필요하면 같은 디렉터리에 둡니다.
 5. 규칙 메타데이터, 메시지, 옵션 스키마 및 문서 URL은 `eslint.config.mjs`의 플러그인 규칙을
    만족해야 합니다.
 6. 규칙 동작이 여러 파일의 실제 ESLint 처리와 관련되면 `cases/` 통합 테스트도 보강합니다.

@@ -6,7 +6,7 @@
 # 실행할 rule 이름 또는 테스트 파일 경로를 반드시 뒤에 전달한다.
 npm run test:rule -- imports
 npm run test:rule -- reactivity
-npm run test:rule -- src/rules/no-destructure.test.ts
+npm run test:rule -- src/rules/no-destructure/rule.test.ts
 ```
 
 ## 완료 기준
@@ -132,7 +132,7 @@ npm run test:rule -- src/rules/no-destructure.test.ts
 - [ ] skip된 test를 가능한 한 2.0 test로 되살리고, 남은 skip은 외부 API 불확실성만 남긴다.
 - [ ] `cases/`를 빌드된 plugin으로 실행해 fixture 전체를 점검한다.
 - [ ] `README.md`에는 영어로 2.0 사용법과 `jsxImportSource: "@solidjs/web"`을 기록한다.
-- [ ] 각 `src/rules/*.md`에는 한국어로 2.0 동작과 migration 주의점을 기록한다.
+- [ ] 각 `src/rules/{rule-name}/readme.md`에는 한국어로 2.0 동작과 migration 주의점을 기록한다.
 - [ ] rule metadata URL을 이 하드 포크의 실제 GitHub 경로로 정정한다.
 
 ## 최종 검증
