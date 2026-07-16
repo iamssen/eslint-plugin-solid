@@ -122,10 +122,10 @@ npm run test:rule -- src/rules/no-destructure/rule.test.ts
 
 - [x] `src/index.ts`의 recommended 설정을 Solid 2.0 전용으로 갱신하고 migration rule 정책을 config test로 고정한다.
 - [x] Solid 1.x 전용 skip test를 제거하거나 2.0 사례로 대체해, 남은 skip 없이 전체 parser 조합을 실행한다.
-- [ ] `cases/`를 빌드된 plugin으로 실행해 fixture 전체를 점검한다.
+- [x] `cases/`를 빌드된 plugin으로 실행해 fixture 전체를 점검한다.
 - [x] `README.md`에는 영어로 2.0 사용법과 `jsxImportSource: "@solidjs/web"`을 기록한다.
-- [ ] 각 `src/rules/{rule-name}/readme.md`에는 한국어로 2.0 동작과 migration 주의점을 기록한다.
-- [ ] rule metadata URL을 이 하드 포크의 실제 GitHub 경로로 정정한다.
+- [x] 각 `src/rules/{rule-name}/readme.md`에는 한국어로 2.0 동작과 migration 주의점을 기록한다.
+- [x] 19개 rule metadata URL을 이 하드 포크의 실제 GitHub 경로로 정정한다.
 
 ## 최종 검증
 
