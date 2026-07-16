@@ -1,86 +1,104 @@
-# Solid 2.0 `<For>` 런타임 검증 코드
+# `<For>` 런타임 검증
 
 [English](./valid.md)
 
-이 문서는 `solidjs2-web-prototype/apps/app/runtime-checks/for-list.tsx`와
-`index.spec.ts`에서 Playwright로 실제 실행해 확인한 Solid.js 2.0의 `<For>`
-동작을 기록한다. `prefer-for` 규칙의 메시지, 문서, 자동 수정 범위를 정할 때
-이 문서의 런타임 결과를 우선한다.
+다음 전체 Playwright fixture는 `prefer-for`의 메시지와 fixer 범위에 사용하는
+Solid 2 `<For>` 동작을 기록한다.
 
-검증 명령은 다음과 같다.
-
-```sh
-npm run test:e2e
-```
-
-## `each={undefined}`는 빈 목록으로 렌더링
-
-`each`에 `undefined`를 전달한 기본 `<For>`는 오류를 내지 않고 자식을 렌더링하지
-않았다.
+## Fixture source
 
 ```tsx
-const [items] = createSignal<readonly Item[]>();
+import type { Element } from 'solid-js';
+import { createSignal, For } from 'solid-js';
 
-<ul>
-  <For each={items()}>{(item) => <li>{item.label}</li>}</For>
-</ul>;
+type Item = {
+  id: string;
+  label: string;
+};
+
+const loadedItems: readonly Item[] = [
+  { id: 'first', label: '첫 번째' },
+  { id: 'second', label: '두 번째' },
+];
+
+export function ForList(): Element {
+  const [items, setItems] = createSignal<readonly Item[]>();
+  const [slots, setSlots] = createSignal<readonly string[]>([
+    '첫 번째 슬롯',
+    '두 번째 슬롯',
+  ]);
+  let nextMountId = 0;
+
+  const markSlotMount = (element: HTMLLIElement) => {
+    element.dataset.mountId = String(nextMountId++);
+  };
+
+  return (
+    <section>
+      <h2>For keyed modes</h2>
+      <p>
+        기본 For는 item 값과 index accessor를, keyed=false는 item accessor와
+        숫자 index를 전달합니다.
+      </p>
+
+      <button
+        type="button"
+        data-testid="for-load-items-button"
+        onClick={() => setItems(loadedItems)}
+      >
+        기본 For 항목 불러오기
+      </button>
+      <ul data-testid="for-default-list">
+        <For each={items()}>
+          {(item, index) => (
+            <li data-testid={`for-default-item-${item.id}`}>
+              {item.label}:{index()}
+            </li>
+          )}
+        </For>
+      </ul>
+
+      <button
+        type="button"
+        data-testid="for-replace-first-slot-button"
+        onClick={() =>
+          setSlots((current) =>
+            current.map((slot, index) =>
+              index === 0 ? '교체된 첫 번째 슬롯' : slot,
+            ),
+          )
+        }
+      >
+        첫 번째 위치의 값 교체
+      </button>
+      <ul data-testid="for-keyed-false-list">
+        <For each={slots()} keyed={false}>
+          {(item, index) => (
+            <li
+              data-testid={`for-keyed-false-slot-${index}`}
+              ref={markSlotMount}
+            >
+              {index}:{item()}
+            </li>
+          )}
+        </For>
+      </ul>
+    </section>
+  );
+}
 ```
 
-따라서 `items?.map((item) => <Row item={item} />)`을 기본 `<For>` 형태로
-이전할 때 `items`가 아직 없는 상태 자체는 `<For each={items}>`로 처리할 수 있다.
-다만 이 결과가 모든 optional-chain map 식의 자동 수정을 보장하지는 않는다. map의
-receiver가 실제 배열인지, callback 외의 optional-chain 문맥이 있는지는 AST만으로
-확인해야 한다.
+## 관찰 결과
 
-## 기본 `<For>` child 인수
+`each={undefined}`는 목록 항목을 렌더링하지 않았고 throw하지 않았다. items를
+불러온 뒤 기본 `<For>`는 `첫 번째:0`, `두 번째:1`을 렌더링했다. 즉 child는
+item 값과 index accessor를 받는다. `keyed={false}`에서 위치 0을 바꾸면 텍스트는
+`0:첫 번째 슬롯`에서 `0:교체된 첫 번째 슬롯`으로 바뀌었지만 `data-mount-id`는
+유지됐다. 이 mode의 child는 item accessor와 숫자 index를 받는다.
 
-기본 `<For>`는 첫 번째 child 인수로 item **값**을, 두 번째 인수로 index
-**accessor**를 전달했다.
+## Rule 결정
 
-```tsx
-<For each={items()}>
-  {(item, index) => (
-    <li>
-      {item.label}:{index()}
-    </li>
-  )}
-</For>
-```
-
-Playwright 검증에서 두 항목은 각각 `첫 번째:0`, `두 번째:1`로 렌더링되었다.
-그러므로 item 인수 하나만 쓰는 `array.map((item) => jsx)`는 기본 `<For>`로
-자동 수정할 수 있다. 반면 JavaScript `map`의 두 번째 인수는 숫자지만 기본
-`<For>`의 두 번째 인수는 accessor이므로 `(item, index) => ...`를 기계적으로
-`<For>`로 바꾸면 `index` 사용을 `index()`로 함께 고쳐야 한다. 이 경우에는
-자동 수정을 제공하지 않는다.
-
-## `<For keyed={false}>` child 인수와 DOM 재사용
-
-`keyed={false}`에서는 첫 번째 child 인수가 item **accessor**이고 두 번째 인수는
-안정적인 숫자 index였다.
-
-```tsx
-<For each={slots()} keyed={false}>
-  {(item, index) => <li>{index}:{item()}</li>}
-</For>
-```
-
-첫 번째 위치의 값만 교체한 뒤에도 다음을 확인했다.
-
-- 표시 텍스트가 `0:첫 번째 슬롯`에서 `0:교체된 첫 번째 슬롯`으로 바뀌었다.
-- mount 시 부여한 `data-mount-id`가 그대로여서 해당 위치의 DOM node가 재사용됐다.
-
-이는 제거된 `<Index>`의 대체가 `<For keyed={false}>`라는 migration guide의
-설명과 일치한다. 다만 일반 `array.map((item, index) => ...)`의 `item`은 값이므로,
-규칙이 단순히 `keyed={false}`를 자동 삽입하면 `item` 사용을 `item()`으로 바꿔야
-한다. 자료 구조의 identity/position 의도와 callback 본문을 함께 분석하지 않는 한
-`keyed={false}`를 자동 수정으로 선택해서는 안 된다.
-
-## 아직 검증하지 않은 범위
-
-다음은 현재 runtime fixture의 범위 밖이므로 `prefer-for` fixer를 넓히기 전에
-별도로 확인한다.
-
-- 인수가 없는 `array.map(() => jsx)`를 기본 `<For>`로 바꾸는 경우
-- 배열의 삽입·삭제·재정렬 시 기본 `<For>`와 `keyed={false}`의 DOM identity 차이
-- `keyed={(item) => key}` callback의 child 인수 형태
+인수가 하나인 `array.map((item) => jsx)`만 기본 `<For>`로 고칠 수 있다. 두
+인수 map은 `index()` 변경이 필요하고 `keyed={false}`는 `item()` 변경이
+필요하므로 기계적으로 fix하지 않는다. fixer를 넓히기 전에는 인수 없는 map, 목록
+삽입·삭제·재정렬, keyed callback 인수 형태를 검증한다.

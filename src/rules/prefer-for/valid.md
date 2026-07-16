@@ -2,73 +2,104 @@
 
 [한국어](./valid.kr.md)
 
-This document records Solid 2 behavior observed by running Playwright against
-`solidjs2-web-prototype/apps/app/runtime-checks/for-list.tsx` and
-`index.spec.ts`. These runtime results take priority when defining
-`prefer-for` messages, documentation, and fixer scope.
+This complete Playwright fixture records the Solid 2 `<For>` behavior used to
+set `prefer-for` messages and fixer scope.
 
-```sh
-npm run test:e2e
-```
-
-## `each={undefined}` renders an empty list
-
-A default `<For>` with `undefined` for `each` did not throw and rendered no
-children.
+## Fixture source
 
 ```tsx
-const [items] = createSignal<readonly Item[]>();
+import type { Element } from 'solid-js';
+import { createSignal, For } from 'solid-js';
 
-<ul>
-  <For each={items()}>{(item) => <li>{item.label}</li>}</For>
-</ul>;
+type Item = {
+  id: string;
+  label: string;
+};
+
+const loadedItems: readonly Item[] = [
+  { id: 'first', label: '첫 번째' },
+  { id: 'second', label: '두 번째' },
+];
+
+export function ForList(): Element {
+  const [items, setItems] = createSignal<readonly Item[]>();
+  const [slots, setSlots] = createSignal<readonly string[]>([
+    '첫 번째 슬롯',
+    '두 번째 슬롯',
+  ]);
+  let nextMountId = 0;
+
+  const markSlotMount = (element: HTMLLIElement) => {
+    element.dataset.mountId = String(nextMountId++);
+  };
+
+  return (
+    <section>
+      <h2>For keyed modes</h2>
+      <p>
+        기본 For는 item 값과 index accessor를, keyed=false는 item accessor와
+        숫자 index를 전달합니다.
+      </p>
+
+      <button
+        type="button"
+        data-testid="for-load-items-button"
+        onClick={() => setItems(loadedItems)}
+      >
+        기본 For 항목 불러오기
+      </button>
+      <ul data-testid="for-default-list">
+        <For each={items()}>
+          {(item, index) => (
+            <li data-testid={`for-default-item-${item.id}`}>
+              {item.label}:{index()}
+            </li>
+          )}
+        </For>
+      </ul>
+
+      <button
+        type="button"
+        data-testid="for-replace-first-slot-button"
+        onClick={() =>
+          setSlots((current) =>
+            current.map((slot, index) =>
+              index === 0 ? '교체된 첫 번째 슬롯' : slot,
+            ),
+          )
+        }
+      >
+        첫 번째 위치의 값 교체
+      </button>
+      <ul data-testid="for-keyed-false-list">
+        <For each={slots()} keyed={false}>
+          {(item, index) => (
+            <li
+              data-testid={`for-keyed-false-slot-${index}`}
+              ref={markSlotMount}
+            >
+              {index}:{item()}
+            </li>
+          )}
+        </For>
+      </ul>
+    </section>
+  );
+}
 ```
 
-Thus `items?.map((item) => <Row item={item} />)` can become the default
-`<For each={items}>` form when `items` is temporarily absent. This does not by
-itself make every optional-chain map safe to fix: the receiver must really be
-an array and surrounding optional-chain context still requires AST analysis.
+## Observations
 
-## Default `<For>` child arguments
+`each={undefined}` rendered no list items and did not throw. After loading the
+items, default `<For>` rendered `첫 번째:0` and `두 번째:1`: its child receives an
+item value and an index accessor. With `keyed={false}`, replacing position zero
+changed the text from `0:첫 번째 슬롯` to `0:교체된 첫 번째 슬롯` while preserving
+its `data-mount-id`; its child receives an item accessor and numeric index.
 
-Default `<For>` passed the item **value** first and an index **accessor**
-second.
+## Rule decision
 
-```tsx
-<For each={items()}>
-  {(item, index) => <li>{item.label}:{index()}</li>}
-</For>
-```
-
-The two observed items rendered as `first:0` and `second:1`. A one-item
-`array.map((item) => jsx)` callback can therefore be fixed to default `<For>`.
-JavaScript `map` supplies a numeric second argument, however, so converting
-`(item, index) => ...` mechanically would also require rewriting `index` to
-`index()`. The rule deliberately provides no fix there.
-
-## `<For keyed={false}>` arguments and DOM reuse
-
-With `keyed={false}`, the first child argument was an item **accessor** and the
-second was a stable numeric index.
-
-```tsx
-<For each={slots()} keyed={false}>
-  {(item, index) => <li>{index}:{item()}</li>}
-</For>
-```
-
-After replacing only the value at the first position, its displayed text changed
-from `0:first slot` to `0:replaced first slot`, while its mount-time
-`data-mount-id` stayed the same. The DOM node for that position was reused.
-This matches the migration guide's `<For keyed={false}>` replacement for
-removed `<Index>`. A standard map item is a value, though, so blindly adding
-`keyed={false}` would also require changing every item use to `item()`. The
-rule must not guess this mode or rewrite a multi-parameter callback.
-
-## Not yet validated
-
-Before widening the fixer, validate separately:
-
-- a no-argument `array.map(() => jsx)` converted to default `<For>`;
-- DOM identity during insertions, removals, and reordering for each mode; and
-- child argument shapes for a `keyed={(item) => key}` callback.
+A one-argument `array.map((item) => jsx)` can be fixed to default `<For>`.
+Do not mechanically fix a two-argument map (the index needs `index()`) or add
+`keyed={false}` (the item needs `item()`). Before widening the fixer, validate
+zero-argument maps, list insertion/removal/reordering, and keyed callback
+argument shapes.

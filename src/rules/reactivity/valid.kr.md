@@ -2,53 +2,201 @@
 
 [English](./valid.md)
 
-이 문서는 `solidjs2-web-prototype/apps/app/runtime-checks`와
-`index.spec.ts`를 Playwright로 실행해 확인한 Solid 2 반응성 모델을 기록한다.
-`reactivity` rule의 tracked scope, effect callback, setter 경고 범위를 바꿀 때 이
-결과를 우선한다.
+아래 전체 Playwright fixture는 이 rule의 tracked scope, effect callback, setter
+report에 대한 runtime 근거다.
 
-## microtask batching과 `flush()`
+## Fixture source: batching과 `flush()`
 
-`batching.tsx`에서 setter 직후 accessor를 읽으면 이전 값 `0`이었고, 다음
-microtask에서는 `1`이었다. `setCount(2)` 뒤 `flush()`를 호출한 경우에는 같은
-handler 안의 읽기가 `2`였다.
+```tsx
+import type { Element } from 'solid-js';
+import { createSignal, flush } from 'solid-js';
 
-같은 fixture는 setter 뒤 `queueMicrotask` callback에서 `count()`를 읽는다. 이
-callback은 갱신된 값을 관찰했으며, dependency를 수집하는 reactive scope가 아니라
-실행 시점 읽기다.
+export function Batching(): Element {
+  const [count, setCount] = createSignal(0);
+  const [immediate, setImmediate] = createSignal('not run');
+  const [microtask, setMicrotask] = createSignal('not run');
+  const [afterFlush, setAfterFlush] = createSignal('not run');
 
-따라서 Solid 1의 `batch()` callback을 동기 tracked scope로 취급하지 않는다.
-일반 setter write는 자동 batching에 맡기고, 명령형 경계에서 즉시 읽기가 필요한
-경우만 `flush()`를 사용한다. 제거된 `batch` 호출은 `no-solid-1-apis`가 진단한다.
+  const updateWithoutFlush = () => {
+    setCount(1);
+    setImmediate(String(count()));
+    queueMicrotask(() => setMicrotask(String(count())));
+  };
 
-## `createEffect` compute/apply와 defer
+  const updateWithFlush = () => {
+    setCount(2);
+    flush();
+    setAfterFlush(String(count()));
+  };
 
-`effects.tsx`에서 `createEffect(() => count(), apply)`는 최초에
-`undefined->0`, count 증가 뒤 `0->1`을 표시했다. `defer: true` effect는 최초에는
-실행되지 않아 `not run`이었고, count 변경 뒤 `1`을 표시했다. 같은 fixture의
-`createMemo(() => count() * 2, { lazy: false })`는 `0`에서 `2`로 갱신됐다.
+  return (
+    <section>
+      <h2>microtask batching</h2>
+      <button
+        type="button"
+        data-testid="batch-update-button"
+        onClick={updateWithoutFlush}
+      >
+        update
+      </button>
+      <button
+        type="button"
+        data-testid="batch-flush-button"
+        onClick={updateWithFlush}
+      >
+        update and flush
+      </button>
+      <output data-testid="batch-immediate-result">{immediate()}</output>
+      <output data-testid="batch-microtask-result">{microtask()}</output>
+      <output data-testid="batch-flush-result">{afterFlush()}</output>
+    </section>
+  );
+}
+```
 
-compute callback만 dependency를 수집하므로 rule은 그 안의 setter write를 보고한다.
-apply callback은 계산 결과를 적용하는 위치이므로 read, setter write, cleanup 반환을
-허용한다. 이 근거는 `no-react-deps`의 effect initial value/defer 문서와도 공유한다.
+## Fixture source: compute/apply effect
 
-## `onSettled` lifecycle
+```tsx
+import type { Element } from 'solid-js';
+import { createEffect, createMemo, createSignal } from 'solid-js';
 
-`on-settled.tsx`는 mount 뒤 `settled`를 기록하고, child unmount 뒤 callback이 반환한
-cleanup으로 `settled,cleanup`을 기록했다. 그러므로 `onSettled` callback은 실행 시점
-읽기와 cleanup을 허용하는 called-function scope로 취급한다. 제거된 `onMount`는
-`no-solid-1-apis`가 `onSettled` 방향으로 진단한다.
+export function Effects(): Element {
+  const [count, setCount] = createSignal(0);
+  const [effectResult, setEffectResult] = createSignal('pending');
+  const [deferredResult, setDeferredResult] = createSignal('not run');
+  const doubled = createMemo(() => count() * 2, { lazy: false });
 
-## `merge`와 `omit`
+  createEffect(
+    () => count(),
+    (value, previous) => {
+      setEffectResult(`${previous ?? 'undefined'}->${value}`);
+    },
+  );
 
-`merge-omit.tsx`에서 `merge(defaults, source)`의 source가 `{ label: undefined }`를
-반환하면 default를 보존하지 않고 label이 `undefined`가 됐다. `omit(props, 'label')`은
-`retained`를 유지했고, 인수 없는 `omit(props)`은 모든 prop을 유지했다.
+  createEffect(
+    count,
+    (value) => {
+      setDeferredResult(String(value));
+    },
+    { defer: true },
+  );
 
-source는 JSX가 `props.label`을 소비할 때 `override()`를 lazy하게 읽고, fixture는
-렌더링된 label이 `provided`에서 `undefined`로 바뀌는 것을 확인했다. 따라서 function
-source는 이를 소비하는 tracked scope의 일부로 허용해야 한다.
+  return (
+    <section>
+      <h2>separated effects and memos</h2>
+      <button
+        type="button"
+        data-testid="effects-increment-button"
+        onClick={() => setCount((value) => value + 1)}
+      >
+        increment
+      </button>
+      <output data-testid="effects-apply-result">{effectResult()}</output>
+      <output data-testid="effects-defer-result">{deferredResult()}</output>
+      <output data-testid="effects-memo-result">{doubled()}</output>
+    </section>
+  );
+}
+```
 
-따라서 `merge`/`omit` 결과는 reactive props로 추적한다. 한편 default prop
-destructuring을 `merge(defaults, props)`로 자동 수정하면 `undefined` 의미가 달라질 수
-있으므로 `no-destructure`는 그 경우 report-only다.
+## Fixture source: `onSettled`
+
+```tsx
+import type { Element } from 'solid-js';
+import { createSignal, onSettled, Show } from 'solid-js';
+
+type SettledChildProps = {
+  onCleanup: () => void;
+  onSettled: () => void;
+};
+
+function SettledChild(props: SettledChildProps): Element {
+  onSettled(() => {
+    props.onSettled();
+    return props.onCleanup;
+  });
+
+  return <span>mounted</span>;
+}
+
+export function OnSettled(): Element {
+  const [visible, setVisible] = createSignal(true);
+  const [events, setEvents] = createSignal<string[]>([]);
+  const record = (event: string) => setEvents((current) => [...current, event]);
+
+  return (
+    <section>
+      <h2>onSettled lifecycle</h2>
+      <button
+        type="button"
+        data-testid="on-settled-unmount-button"
+        onClick={() => setVisible(false)}
+      >
+        unmount
+      </button>
+      <Show when={visible()}>
+        <SettledChild
+          onSettled={() => record('settled')}
+          onCleanup={() => record('cleanup')}
+        />
+      </Show>
+      <output data-testid="on-settled-events">{events().join(',')}</output>
+    </section>
+  );
+}
+```
+
+## Fixture source: `merge`와 `omit`
+
+```tsx
+import type { Element } from 'solid-js';
+import { createSignal, merge, omit } from 'solid-js';
+
+export function MergeOmit(): Element {
+  const [override, setOverride] = createSignal<string | undefined>('provided');
+  const props = merge({ label: 'default', retained: 'yes' }, () => ({
+    label: override(),
+  }));
+  const rest = omit(props, 'label');
+  const allProps = omit(props);
+
+  return (
+    <section>
+      <h2>merge and omit</h2>
+      <button
+        type="button"
+        data-testid="merge-set-undefined-button"
+        onClick={() => setOverride(undefined)}
+      >
+        set undefined
+      </button>
+      <output data-testid="merge-label-result">
+        {props.label ?? 'undefined'}
+      </output>
+      <output data-testid="omit-retained-result">{rest.retained}</output>
+      <output data-testid="omit-all-label-result">
+        {allProps.label ?? 'undefined'}
+      </output>
+    </section>
+  );
+}
+```
+
+## 관찰 결과와 rule 결정
+
+`flush()` 없이 immediate read는 `0`, microtask read는 `1`이었다.
+`setCount(2); flush()` 뒤 같은 handler의 read는 `2`였다. 따라서 microtask
+read는 dependency를 수집하는 tracked scope가 아닌 실행 시점 작업이며, Solid 1
+`batch()`를 동기 tracked scope로 모델링하지 않는다.
+
+compute/apply effect는 `undefined->0`, 이어서 `0->1`을 기록했다. deferred
+effect는 `not run`, 이어서 `1`을 기록했고 memo는 `0`에서 `2`가 됐다.
+dependency는 compute callback만 수집하므로 setter write는 그 안에서 report하고,
+apply callback의 read·write·cleanup return은 허용한다.
+
+`onSettled`는 mount 뒤 `settled`, unmount 뒤 `settled,cleanup`을 기록했다.
+따라서 callback은 execution-time read와 cleanup을 허용하는 called-function scope다.
+`merge` source는 JSX가 `props.label`을 소비할 때 `override()`를 lazy하게
+읽어 표시를 `provided`에서 `undefined`로 바꿨다. 따라서 `merge`/`omit`
+결과를 reactive prop으로 추적한다. `no-destructure`와 마찬가지로 default prop
+rewrite는 이 `undefined` 의미를 바꾸므로 report-only다.

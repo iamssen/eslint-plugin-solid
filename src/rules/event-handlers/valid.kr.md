@@ -1,73 +1,223 @@
-# Solid 2.0 event handler 검증 코드
+# event-handlers 런타임 검증
 
 [English](./valid.md)
 
-이 문서는 `solidjs2-web-prototype/apps/app/runtime-checks`에서 Playwright로 실제 실행해 확인한 Solid.js 2.0 event handler 동작을 기록한다. `event-handlers` 규칙을 변경할 때 이 문서의 런타임 결과를 우선한다.
+아래 전체 Playwright fixture는 이 rule이 사용하는 Solid 2 event 동작의 runtime
+근거다. prototype checkout 없이도 관찰을 확인할 수 있도록 소스를 함께 기록한다.
 
-## 일반 HTML element의 배열 handler
-
-일반 HTML element에서 `[handler, value]` 배열 handler는 계속 동작한다. 아래 버튼을 클릭하면 `increment`의 첫 번째 인수로 `2`가 전달되어 count가 2씩 증가한다.
-
-```tsx
-<button type="button" onClick={[increment, 2]}>
-  {count()}
-</button>
-```
-
-따라서 `event-handlers`는 배열 handler를 오류로 보고해서는 안 된다. 이 사실은 `no-array-handlers`의 Solid 2 전환에서도 반영해야 한다.
-
-## `on*` 문자열 attribute
-
-`onCustomAttribute="attribute-value"`는 일반 HTML attribute로 렌더링된다. HTML DOM은 attribute 이름을 소문자로 정규화하므로 다음 검증에서 `getAttribute('oncustomattribute')`는 `"attribute-value"`를 반환했다.
+## Fixture source: 배열 handler
 
 ```tsx
-<div data-control="enabled" onCustomAttribute="attribute-value" />;
+import type { Element } from 'solid-js';
+import { createSignal } from 'solid-js';
 
-element.getAttribute('data-control'); // "enabled"
-element.getAttribute('oncustomattribute'); // "attribute-value"
-```
+export function ArrayHandler(): Element {
+  const [count, setCount] = createSignal(1);
+  const increment = (i: number) => setCount((prev) => prev + i);
 
-`onLy`처럼 소문자로 정규화했을 때 다른 attribute와 같은 이름이 되는 사례는 검증에 사용하지 않는다. 예를 들어 `onLy`와 `only`는 HTML DOM에서 모두 `only`가 된다.
-
-문자열·숫자·boolean 값을 함께 검사한 실제 JSON은 다음 기대값과 일치했다.
-
-```json
-{
-  "dataControl": "enabled",
-  "onCustomAttribute": "attribute-value",
-  "onCustomNumber": "1",
-  "onCustomBoolean": {
-    "present": true,
-    "value": ""
-  }
+  return (
+    <section>
+      <h2>array event handler</h2>
+      <p>클릭할 때마다 배열의 두 번째 값(2)만큼 카운터가 증가해야 합니다.</p>
+      <button
+        type="button"
+        data-testid="array-handler-button"
+        onClick={[increment, 2]}
+      >
+        {count()}
+      </button>
+    </section>
+  );
 }
 ```
 
-따라서 문자열·숫자·boolean 값을 가진 `on*` prop을 `attr:on...`으로 바꾸도록 요구해서는 안 된다. `attr:`는 Solid 2에서 제거된 문법이다. `event-handlers`의 `detected-attr` 분기와 `attr:` suggestion은 제거한다.
-
-## native custom event handler
-
-일반 HTML button에서 `onCustom` handler와 배열 형태 `onCustom={[handler, 2]}` 모두 동작한다. 버튼의 `onClick`에서 `CustomEvent('custom')`를 dispatch했을 때 일반 handler는 1씩, 배열 handler는 2씩 카운터를 증가시켰다.
+## Fixture source: `on*` attribute
 
 ```tsx
-<button onCustom={incrementDirect} onClick={dispatchCustom} />
-<button onCustom={[incrementArray, 2]} onClick={dispatchCustom} />
-```
+import type { Element } from 'solid-js';
+import { createSignal } from 'solid-js';
 
-현재 `@solidjs/web`의 기본 JSX 타입은 `onCustom`과 검증용 `onCustom*` attribute를 선언하지 않는다. prototype fixture는 `declare module '@solidjs/web'`의 조건부 declaration merging으로 `<div>`와 `<button>`에만 필요한 prop을 허용한다. 이는 fixture의 type error를 막기 위한 국소적인 보완이며, runtime에서 동작한다는 사실과 기본 타입 선언의 지원 범위는 별개다. ESLint rule은 이 type error를 대신 진단하지 않는다.
+declare module '@solidjs/web' {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
+  namespace JSX {
+    interface HTMLAttributes<T> {
+      onCustomAttribute?: T extends HTMLDivElement ? string : never;
+      onCustomNumber?: T extends HTMLDivElement ? number : never;
+      onCustomBoolean?: T extends HTMLDivElement ? boolean : never;
+    }
+  }
+}
 
-## spread event handler
-
-spread object로 전달한 event handler도 동작한다. 아래 버튼을 클릭하면 `count`가 1씩 증가한다.
-
-```tsx
-const handlers = {
-  onClick: () => setCount((count) => count + 1),
+const expectedAttributes = {
+  dataControl: 'enabled',
+  onCustomAttribute: 'attribute-value',
+  onCustomNumber: '1',
+  onCustomBoolean: {
+    present: true,
+    value: '',
+  },
 };
+const expectedJson = JSON.stringify(expectedAttributes, null, 2);
 
-<button type="button" {...handlers}>
-  spread handler
-</button>;
+export function OnAttributes(): Element {
+  const [actualJson, setActualJson] = createSignal<string>();
+  const [matchesExpected, setMatchesExpected] = createSignal<boolean>();
+
+  const inspectAttributes = (element: HTMLDivElement) => {
+    const actualAttributes = {
+      // eslint-disable-next-line unicorn/prefer-dom-node-dataset
+      dataControl: element.getAttribute('data-control'),
+      onCustomAttribute: element.getAttribute('oncustomattribute'),
+      onCustomNumber: element.getAttribute('oncustomnumber'),
+      onCustomBoolean: {
+        present: element.hasAttribute('oncustomboolean'),
+        value: element.getAttribute('oncustomboolean'),
+      },
+    };
+    const json = JSON.stringify(actualAttributes, null, 2);
+
+    setActualJson(json);
+    setMatchesExpected(json === expectedJson);
+  };
+
+  return (
+    <section>
+      <h2>on* 문자열 attribute</h2>
+      <p>
+        검사 버튼을 누르면 실제 DOM attribute를 JSON으로 표시하고 기대값과
+        비교합니다.
+      </p>
+      <h3>기대 JSON</h3>
+      <pre>{expectedJson}</pre>
+      <div
+        data-testid="on-attributes-target"
+        data-control="enabled"
+        onCustomAttribute="attribute-value"
+        onCustomNumber={1}
+        onCustomBoolean={true}
+      />
+      <button
+        type="button"
+        data-testid="on-attributes-inspect-button"
+        onClick={(event) =>
+          inspectAttributes(
+            event.currentTarget.previousElementSibling as HTMLDivElement,
+          )
+        }
+      >
+        attribute 검사
+      </button>
+      {actualJson() && (
+        <>
+          <h3>실제 JSON</h3>
+          <pre>{actualJson()}</pre>
+          <output data-testid="on-attributes-result">
+            {matchesExpected() ? '기대값과 일치' : '기대값과 불일치'}
+          </output>
+        </>
+      )}
+    </section>
+  );
+}
 ```
 
-Solid 2 전용 플러그인에서는 spread event handler를 오류로 보고하거나 JSX attribute로 풀어내는 fixer를 제공하면 안 된다. 기존 `warnOnSpread` 옵션은 Solid 1.x 호환성 목적이므로 제거 또는 deprecated 처리 대상이다.
+## Fixture source: native custom event
+
+```tsx
+import type { Element } from 'solid-js';
+import { createSignal } from 'solid-js';
+
+declare module '@solidjs/web' {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
+  namespace JSX {
+    interface EventHandlersElement<T> {
+      onCustom?: T extends HTMLButtonElement
+        ? EventHandlerUnion<T, CustomEvent>
+        : never;
+    }
+  }
+}
+
+const dispatchCustom = (element: HTMLButtonElement) =>
+  element.dispatchEvent(new CustomEvent('custom'));
+
+export function CustomEventHandlers(): Element {
+  const [directCount, setDirectCount] = createSignal(0);
+  const [arrayCount, setArrayCount] = createSignal(0);
+
+  const incrementDirect = () => setDirectCount((count) => count + 1);
+  const incrementArray = (amount: number) =>
+    setArrayCount((count) => count + amount);
+
+  return (
+    <section>
+      <h2>custom event handler</h2>
+      <p>
+        각 버튼을 클릭하면 `custom` event가 dispatch되고, 일반 handler는 1씩,
+        배열 handler는 2씩 증가해야 합니다.
+      </p>
+      <button
+        type="button"
+        data-testid="custom-event-direct-button"
+        onCustom={incrementDirect}
+        onClick={(event) => dispatchCustom(event.currentTarget)}
+      >
+        일반 handler: {directCount()}
+      </button>
+      <button
+        type="button"
+        data-testid="custom-event-array-button"
+        onCustom={[incrementArray, 2]}
+        onClick={(event) => dispatchCustom(event.currentTarget)}
+      >
+        배열 handler: {arrayCount()}
+      </button>
+    </section>
+  );
+}
+```
+
+## Fixture source: spread handler
+
+```tsx
+import type { Element } from 'solid-js';
+import { createSignal } from 'solid-js';
+
+export function SpreadEventHandler(): Element {
+  const [count, setCount] = createSignal(0);
+  const handlers = {
+    onClick: () => setCount((previous) => previous + 1),
+  };
+
+  return (
+    <section>
+      <h2>spread event handler</h2>
+      <p>
+        버튼을 클릭할 때마다 spread된 `onClick` handler가 실행되어 카운터가 1씩
+        증가해야 합니다.
+      </p>
+      <button
+        type="button"
+        data-testid="spread-event-handler-button"
+        {...handlers}
+      >
+        spread handler: {count()}
+      </button>
+    </section>
+  );
+}
+```
+
+## 관찰 결과와 rule 결정
+
+배열 handler는 `1`을 `3`, 다시 `5`로 바꿨다. `on*` fixture는
+`data-control="enabled"`, `oncustomattribute="attribute-value"`,
+`oncustomnumber="1"`, 존재하는 `oncustomboolean=""`를 관찰했다. HTML은
+attribute 이름을 소문자로 정규화하므로 정규화 뒤 충돌하는 `onLy` 같은 이름은
+의도적으로 사용하지 않았다. custom event는 직접·배열 handler의 count를 각각
+`1`, `2`로 바꿨고, spread handler는 count를 `0`에서 `1`, `2`로 바꿨다.
+
+`event-handlers`는 이 형태들을 report하거나 spread를 펼치면 안 된다. `on*`
+값에 제거된 Solid 1 `attr:` namespace를 요구해서도 안 되며, 이전
+`detected-attr` 분기와 suggestion은 제거한다. 국소 declaration merging은 임의의
+custom prop을 type-check하기 위한 것일 뿐 runtime 동작이나 ESLint 진단과 무관하다.

@@ -2,27 +2,84 @@
 
 [한국어](./valid.kr.md)
 
-The Solid 2 prototype runs `store-draft.tsx` and `merge-omit.tsx` through
-Playwright. This rule conservatively identifies APIs that can create a Proxy;
-it does not prove that an application is entirely Proxy-free.
+These complete Playwright fixtures clarify the Solid 2 forms that this rule
+must distinguish. They do not prove that an application is entirely Proxy-free.
 
-## Store draft setters
+## Fixture source: store draft setter
 
 ```tsx
-setState((draft) => {
-  draft.count++;
-  draft.item = 'updated';
-});
+import type { Element } from 'solid-js';
+import { createStore } from 'solid-js';
+
+export function StoreDraft(): Element {
+  const [state, setState] = createStore({ count: 0, item: 'first' });
+
+  return (
+    <section>
+      <h2>store draft setter</h2>
+      <button
+        type="button"
+        data-testid="store-draft-increment-button"
+        onClick={() =>
+          setState((draft) => {
+            draft.count++;
+            draft.item = 'updated';
+          })
+        }
+      >
+        update draft
+      </button>
+      <output data-testid="store-draft-result">
+        {state.count}:{state.item}
+      </output>
+    </section>
+  );
+}
 ```
 
-The checked UI changed from `0:first` to `1:updated`. A draft only exists
-during the setter callback, so the rule does not report this Solid 2 pattern.
-It is not the same model as externally mutable `createMutable` state.
+## Fixture source: `merge` function source
 
-## `merge` sources
+```tsx
+import type { Element } from 'solid-js';
+import { createSignal, merge, omit } from 'solid-js';
 
-Function and already-proxied sources passed to `merge` may create a Proxy, so
-the rule reports them conservatively. The fixture confirms reactive
-`merge`/`omit` behavior but does not establish that stores or merges are safe
-in environments where Proxy support is forbidden. Use signals and explicit
-value updates for that requirement.
+export function MergeOmit(): Element {
+  const [override, setOverride] = createSignal<string | undefined>('provided');
+  const props = merge({ label: 'default', retained: 'yes' }, () => ({
+    label: override(),
+  }));
+  const rest = omit(props, 'label');
+  const allProps = omit(props);
+
+  return (
+    <section>
+      <h2>merge and omit</h2>
+      <button
+        type="button"
+        data-testid="merge-set-undefined-button"
+        onClick={() => setOverride(undefined)}
+      >
+        set undefined
+      </button>
+      <output data-testid="merge-label-result">
+        {props.label ?? 'undefined'}
+      </output>
+      <output data-testid="omit-retained-result">{rest.retained}</output>
+      <output data-testid="omit-all-label-result">
+        {allProps.label ?? 'undefined'}
+      </output>
+    </section>
+  );
+}
+```
+
+## Observations and rule decision
+
+The store UI changed from `0:first` to `1:updated`, so a draft exists only
+during its setter callback. The rule must not report this Solid 2 pattern; it
+is not externally mutable `createMutable` state.
+
+The second fixture confirms that a function source is consumed reactively by
+`merge`. Function and already-proxied `merge` sources can create a Proxy, so
+the rule reports them conservatively. For a strict no-Proxy requirement, use
+signals and explicit value updates instead.

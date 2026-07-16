@@ -31,9 +31,11 @@
 - `*.md`와 `*.kr.md` 파일들은 상호간에 전환될 수 있도록 상단에 언어 선택 링크를 둔다.
 - `docs/`의 문서들은 사용자에게 제공되는 문서가 아니므로 번역하지 않는다.
 - rule의 runtime 의미를 prototype에서 확인했다면 해당 rule의 `valid.md`에 다음을 기록한다.
-  - fixture와 E2E 명령 또는 spec 경로
+  - 해당 fixture 파일의 내용 (문서에서 코드 확인이 가능해야 합니다.)
   - 관찰한 결과
   - 그 결과가 rule의 허용·진단·autofix 범위에 미친 이유
+  - 이 문서만으로 fixture의 내용을 알 수 있어야 함. fixture의 위치는 문서를 읽는 사람에게 중요하지 않음.
+  - `valid.kr.md` 번역 문서 업데이트도 잊지 않는다.
 - 원본 프로젝트 문구·URL을 복사하지 않는다. package는 `@ssen/eslint-plugin-solid`이고
   metadata 및 문서 링크는 이 하드 포크의 GitHub 경로를 사용한다.
 

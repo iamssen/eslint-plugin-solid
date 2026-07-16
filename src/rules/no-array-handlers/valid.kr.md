@@ -2,36 +2,107 @@
 
 [English](./valid.md)
 
-이 문서는 `solidjs2-web-prototype/apps/app/runtime-checks/array-handler.tsx`와
-`custom-event-handlers.tsx`를 Playwright로 실행한 결과를 기록한다. 이 rule은
-Solid 2에서 지원되는 문법을 팀 스타일로 제한하는 선택적 정책이므로, runtime
-결과가 recommended 설정과 문서의 근거가 된다.
+아래 Playwright fixture는 Solid 2가 배열 event handler를 지원한다는 runtime 근거다.
+prototype checkout 없이도 검증 내용을 확인할 수 있도록 전체 소스를 함께 기록한다.
 
-## 검증한 동작
+## Fixture source: 일반 DOM event
 
-일반 DOM event에 `[handler, value]`를 전달하면 두 번째 배열 항목이 handler의
-첫 번째 인수로 전달된다.
+`array-handler.tsx`의 내용:
 
 ```tsx
-<button onClick={[increment, 2]}>{count()}</button>
+import type { Element } from 'solid-js';
+import { createSignal } from 'solid-js';
+
+export function ArrayHandler(): Element {
+  const [count, setCount] = createSignal(1);
+  const increment = (i: number) => setCount((prev) => prev + i);
+
+  return (
+    <section>
+      <h2>array event handler</h2>
+      <p>클릭할 때마다 배열의 두 번째 값(2)만큼 카운터가 증가해야 합니다.</p>
+      <button
+        type="button"
+        data-testid="array-handler-button"
+        onClick={[increment, 2]}
+      >
+        {count()}
+      </button>
+    </section>
+  );
+}
 ```
 
-초기 count `1`에서 Playwright click 두 번 뒤 값은 차례로 `3`, `5`였다.
+## Fixture source: native custom event
 
-native custom event도 일반 handler와 배열 handler를 모두 지원한다.
+`custom-event-handlers.tsx`의 내용:
 
 ```tsx
-<button onCustom={incrementDirect} />
-<button onCustom={[incrementArray, 2]} />
+import type { Element } from 'solid-js';
+import { createSignal } from 'solid-js';
+
+declare module '@solidjs/web' {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
+  namespace JSX {
+    interface EventHandlersElement<T> {
+      onCustom?: T extends HTMLButtonElement
+        ? EventHandlerUnion<T, CustomEvent>
+        : never;
+    }
+  }
+}
+
+const dispatchCustom = (element: HTMLButtonElement) =>
+  element.dispatchEvent(new CustomEvent('custom'));
+
+export function CustomEventHandlers(): Element {
+  const [directCount, setDirectCount] = createSignal(0);
+  const [arrayCount, setArrayCount] = createSignal(0);
+
+  const incrementDirect = () => setDirectCount((count) => count + 1);
+  const incrementArray = (amount: number) =>
+    setArrayCount((count) => count + amount);
+
+  return (
+    <section>
+      <h2>custom event handler</h2>
+      <p>
+        각 버튼을 클릭하면 `custom` event가 dispatch되고, 일반 handler는 1씩,
+        배열 handler는 2씩 증가해야 합니다.
+      </p>
+      <button
+        type="button"
+        data-testid="custom-event-direct-button"
+        onCustom={incrementDirect}
+        onClick={(event) => dispatchCustom(event.currentTarget)}
+      >
+        일반 handler: {directCount()}
+      </button>
+      <button
+        type="button"
+        data-testid="custom-event-array-button"
+        onCustom={[incrementArray, 2]}
+        onClick={(event) => dispatchCustom(event.currentTarget)}
+      >
+        배열 handler: {arrayCount()}
+      </button>
+    </section>
+  );
+}
 ```
 
-`CustomEvent('custom')`를 dispatch했을 때 일반 handler는 `1`만큼, 배열 handler는
-`2`만큼 증가했다. 다만 `@solidjs/web` 기본 JSX 타입은 임의의 `onCustom` prop을
-선언하지 않으므로 prototype은 필요한 element에만 declaration merging을 적용했다.
+## 관찰 결과
 
-## rule 결정
+일반 DOM event에서는 tuple의 두 번째 항목이 handler의 첫 번째 인수로 전달됐다.
+두 번 클릭하면 count가 `1`에서 `3`, 다시 `5`가 됐다. `CustomEvent('custom')`을
+dispatch하면 직접 handler의 count는 `1`, 배열 handler의 count는 `2`가 됐다.
 
-배열 handler는 Solid 2 runtime에서 유효하므로 `no-array-handlers`는 recommended에서
-`off`다. 이 rule을 켜는 것은 runtime 호환성 진단이 아니라 배열 문법을 피하려는 팀의
-스타일 선택이다. 제거된 `on:`/`oncapture:` namespace는 이 rule이 아니라
-`no-unknown-namespaces`가 진단한다.
+`@solidjs/web`은 기본적으로 임의의 `onCustom` prop을 선언하지 않는다. 따라서
+fixture의 declaration merging은 type-check만 가능하게 하며 runtime 동작에는 영향을
+주지 않는다.
+
+## Rule 결정
+
+배열 handler는 Solid 2에서 유효하므로 이 rule은 `recommended`에서 `off`다.
+이 rule은 선택적인 팀 스타일 규칙이다. 제거된 `on:` 및 `oncapture:` namespace는
+이 rule이 아니라 `no-unknown-namespaces`가 진단한다.

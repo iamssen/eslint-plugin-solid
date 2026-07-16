@@ -47,6 +47,13 @@ reports them as removed Solid 2 syntax. Use camel-cased handlers for ordinary
 events and configure native capture/options listeners from a `ref` callback
 with `addEventListener`.
 
+## Test preservation policy
+
+Remove or replace tests that assume Solid 1-only `attr:`/`on:` syntax,
+`warnOnSpread`, or a `detected-attr` report with cases that verify Solid 2
+behavior. Do not leave an invalid premise behind as `test.skip()`, because that
+would hide a regression.
+
 ## Type declaration limitation
 
 The default `@solidjs/web` JSX types do not declare native `onCustom` handlers
