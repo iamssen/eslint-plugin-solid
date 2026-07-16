@@ -132,18 +132,6 @@ describe('reactivity', () => {
         const Component = () => <div class={{ pending: pending() }} />;
       `);
     });
-    test('using signal in on callback is valid', () => {
-      valid(`
-        const [value, setValue] = createSignal();
-        on(value, () => console.log('hello'));
-      `);
-    });
-    test('using signal array in on callback is valid', () => {
-      valid(`
-        const [value, setValue] = createSignal();
-        on([value], () => console.log('hello'));
-      `);
-    });
     describe(`spreading props`, () => {
       test('spreading props in JSX is tracked', () => {
         valid(`
@@ -311,13 +299,6 @@ describe('reactivity', () => {
           });
         `);
       });
-      test('awaiting delay in on callback before setter is valid', () => {
-        valid(`
-          const [a, setA] = createSignal(1);
-          const [b] = createSignal(2);
-          on(b, async () => { await delay(1000); setA(a() + 1) });
-        `);
-      });
     });
     describe(`Custom hooks`, () => {
       test('custom hooks like createComposedRefs create tracked scopes', () => {
@@ -432,15 +413,6 @@ describe('reactivity', () => {
           function Component() {
             const [signal, setSignal] = createSignal(1);
             return <div onClick={signal} />;
-          }
-        `);
-      });
-      // Solid 2.0에서 on: namespace는 제거됐다. onClick handler로 재작성할 때 활성화한다.
-      test.skip('using signal in JSX on:click is valid', () => {
-        valid(`
-          function Component() {
-            const [signal, setSignal] = createSignal(1);
-            return <div on:click={() => console.log(signal())} />;
           }
         `);
       });
@@ -679,17 +651,6 @@ describe('reactivity', () => {
           function Component() {
             const staticValue = () => props.value;
             const value = staticValue();
-          }
-        `);
-      });
-    });
-    // Solid 2.0에서 use: directive는 제거됐다. ref directive factory 분석으로 대체한다.
-    describe.skip(`use: functions`, () => {
-      test('use: directive is a tracked scope', () => {
-        valid(`
-          let someHook;
-          function Component(props) {
-            return <div use:someHook={() => props.count} />;
           }
         `);
       });

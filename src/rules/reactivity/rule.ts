@@ -1128,24 +1128,6 @@ export default createRule<Options, MessageIds>({
               // to poll the current value. Consider them called-function tracked
               // scopes for our purposes.
               pushTrackedScope(arg0, 'called-function');
-            } else if (matchImport('on', callee.name)) {
-              // on accepts a signal or an array of signals as its first argument,
-              // and a tracking function as its second
-              if (arg0) {
-                if (arg0.type === 'ArrayExpression') {
-                  for (const element of arg0.elements) {
-                    if (element && element?.type !== 'SpreadElement') {
-                      pushTrackedScope(element, 'function');
-                    }
-                  }
-                } else {
-                  pushTrackedScope(arg0, 'function');
-                }
-              }
-              if (arg1) {
-                // Since dependencies are known, function can be async
-                pushTrackedScope(arg1, 'called-function');
-              }
             } else if (
               matchImport('createStore', callee.name) &&
               arg0?.type === 'ObjectExpression'
@@ -1240,8 +1222,8 @@ export default createRule<Options, MessageIds>({
           break;
         }
         case 'VariableDeclarator': {
-          // Solid 1.3 createReactive (renamed createReaction?) returns a track
-          // function, a tracked scope expecting a reactive function. All of the
+          // createReaction returns a track function, a tracked scope expecting
+          // a reactive function. All of the
           // track function's references where it's called push a tracked scope.
           if (
             node.init?.type === 'CallExpression' &&
@@ -1249,7 +1231,7 @@ export default createRule<Options, MessageIds>({
           ) {
             if (
               matchImport(
-                ['createReactive', 'createReaction'],
+                'createReaction',
                 node.init.callee.name,
               )
             ) {
