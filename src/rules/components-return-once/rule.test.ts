@@ -249,27 +249,6 @@ describe('components-return-once', () => {
           `,
         });
       });
-      // FIXME: RuleTester uses Prettier for formatting,
-      // which incorrectly strips the single JSX fragment needed for Solid.js conditional return rules.
-      test.skip('returning a logical OR expression is invalid', () => {
-        invalid({
-          code: `
-            // prettier-ignore
-            function Component(props) {
-              return props.primary || <div>{props.secondaryText}</div>;
-            }
-          `,
-          errors: [{ messageId: 'noConditionalReturn' }],
-          output: `
-            // prettier-ignore
-            function Component(props) {
-              return <>
-                {props.primary || <div>{props.secondaryText}</div>}
-              </>
-            }
-          `,
-        });
-      });
     });
     describe(`HOCs`, () => {
       test('early return inside higher-order components breaks reactivity', () => {
