@@ -41,8 +41,30 @@ describe('no-react-deps', () => {
         }, undefined);
       `);
     });
+    test('createEffect with separate compute and apply functions is valid', () => {
+      valid(`
+        createEffect(
+          () => count(),
+          (value, previous) => console.log(previous, value, label()),
+        );
+      `);
+    });
+    test('createEffect with a defer option is valid', () => {
+      valid(`
+        createEffect(
+          count,
+          (value) => console.log(value),
+          { defer: true },
+        );
+      `);
+    });
     test('createMemo without dependency array is valid', () => {
       valid(`const value = createMemo(() => computeExpensiveValue(a(), b()));`);
+    });
+    test('createMemo with an options object is valid', () => {
+      valid(
+        `const value = createMemo(() => computeExpensiveValue(a(), b()), { lazy: false });`,
+      );
     });
     test('detects createMemo with a removed initial value', () => {
       invalid({

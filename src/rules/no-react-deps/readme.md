@@ -41,13 +41,18 @@ createEffect(() => console.log(count()));
 createMemo(() => filter(items(), query()));
 ```
 
-특정 값만 effect를 다시 실행시키고, callback 안의 다른 읽기는 추적하지 않게 하려면 `on`을 사용합니다.
+특정 값만 effect를 다시 실행시키고, apply callback 안의 다른 읽기는 추적하지 않게 하려면 compute/apply 형태를 사용합니다.
 
 ```ts
-// valid: count만 dependency로 명시
-createEffect(on(count, (value) => {
+// valid: compute 단계에서 count만 의존성으로 선언
+createEffect(count, (value) => {
   console.log(value, debugLabel());
-}));
+});
+
+// valid: 첫 실행을 건너뛰고 이후 변경만 적용
+createEffect(count, (value) => {
+  console.log('changed to', value);
+}, { defer: true });
 ```
 
 배열의 내용이 accessor인지 `count()` 호출 결과인지는 중요하지 않습니다. `createEffect(fn, [...])`처럼 두 번째 인자가 배열이면 React dependency array로 보고합니다. 반면 다른 함수의 일반 배열 인자까지 금지하지는 않습니다.
