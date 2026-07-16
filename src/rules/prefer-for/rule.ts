@@ -17,16 +17,19 @@ export default createRule({
     schema: [],
     messages: {
       preferFor:
-        "Use Solid's `<For />` component for efficiently rendering lists. Array#map causes DOM elements to be recreated.",
-      preferForOrIndex:
-        "Use Solid's `<For />` component or `<Index />` component for rendering lists. Array#map causes DOM elements to be recreated.",
+        "Use Solid's `<For />` component for reactive list rendering.",
+      preferForNeedsManualMigration:
+        "Use Solid's `<For />` component and choose a keyed mode that preserves this callback's parameter semantics.",
     },
   },
   // defaultOptions: [],
   create(context) {
-    const reportPreferFor = (node: T.CallExpression) => {
+    const reportPreferFor = (
+      node: T.CallExpression,
+      expression: T.CallExpression | T.ChainExpression,
+    ) => {
       const jsxExpressionContainerNode =
-        node.parent as T.JSXExpressionContainer;
+        expression.parent as T.JSXExpressionContainer;
       const arrayNode = (node.callee as T.MemberExpression).object;
       const mapFnNode = node.arguments[0];
       context.report({
@@ -75,15 +78,18 @@ export default createRule({
               mapFnNode.params.length === 1 &&
               mapFnNode.params[0].type !== 'RestElement'
             ) {
-              // The map fn doesn't take an index param, so it can't possibly be an index-keyed list. Use <For />.
+              // A single item parameter has the same value semantics as the
+              // default <For> child callback.
               // The returned JSX, if it's coming from React, will have an unnecessary `key` prop to be removed in
               // the useless-keys rule.
-              reportPreferFor(node);
+              reportPreferFor(node, callOrChain);
             } else {
-              // Too many possible solutions to make a suggestion or fix
+              // `map` and <For> use different callback parameter shapes when
+              // an index or keyed={false} is involved. Do not guess a mode or
+              // rewrite identifier uses such as `index` to `index()`.
               context.report({
                 node,
-                messageId: 'preferForOrIndex',
+                messageId: 'preferForNeedsManualMigration',
               });
             }
           }

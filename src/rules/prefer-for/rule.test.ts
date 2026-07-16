@@ -12,6 +12,11 @@ describe('prefer-for', () => {
         `let Component = (props) => <ol><For each={props.data}>{d => <li>{d.text}</li>}</For></ol>;`,
       );
     });
+    test('using For keyed=false with an item accessor is valid', () => {
+      valid(
+        `let Component = (props) => <ol><For each={props.data} keyed={false}>{(item, index) => <li>{index}: {item().text}</li>}</For></ol>;`,
+      );
+    });
     test('using map outside JSX is valid', () => {
       valid(`let abc = x.map(y => y + z);`);
     });
@@ -73,7 +78,7 @@ describe('prefer-for', () => {
             errors: [{ messageId: 'preferFor' }],
             output: `
               function Component(props) {
-                return <ol>{<For each={props.data}>{d => <li>{d.text}</li>}</For>}</ol>;
+                return <ol><For each={props.data}>{d => <li>{d.text}</li>}</For></ol>;
               }
             `,
           },
@@ -85,13 +90,19 @@ describe('prefer-for', () => {
       test('detects array map with empty callback arguments', () => {
         invalid({
           code: `let Component = (props) => <ol>{props.data.map(() => <li />)}</ol>;`,
-          errors: [{ messageId: 'preferForOrIndex' }],
+          errors: [{ messageId: 'preferForNeedsManualMigration' }],
+        });
+      });
+      test('does not rewrite a map callback with an index parameter', () => {
+        invalid({
+          code: `let Component = (props) => <ol>{props.data.map((item, index) => <li>{index}: {item.text}</li>)}</ol>;`,
+          errors: [{ messageId: 'preferForNeedsManualMigration' }],
         });
       });
       test('detects array map with rest operator in callback', () => {
         invalid({
           code: `let Component = (props) => <ol>{props.data.map((...args) => <li>{args[0].text}</li>)}</ol>;`,
-          errors: [{ messageId: 'preferForOrIndex' }],
+          errors: [{ messageId: 'preferForNeedsManualMigration' }],
         });
       });
     });

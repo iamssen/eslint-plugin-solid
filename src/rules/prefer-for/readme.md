@@ -1,6 +1,6 @@
 # prefer-for
 
-JSX 안에서 배열의 `.map()`으로 목록을 렌더링하는 대신 Solid의 `<For>` 또는 `<Index>`를 사용하도록 안내합니다. Solid의 제어 흐름 컴포넌트는 목록 업데이트에 맞는 세밀한 반응성 모델을 제공합니다.
+JSX 안에서 배열의 `.map()`으로 목록을 렌더링하는 대신 Solid의 `<For>`를 사용하도록 안내합니다. Solid의 제어 흐름 컴포넌트는 목록 업데이트에 맞는 세밀한 반응성 모델을 제공합니다.
 
 ## 왜 `.map()`과 다를까?
 
@@ -12,9 +12,7 @@ import { For } from 'solid-js';
 <For each={props.items}>{(item) => <li>{item.name}</li>}</For>
 ```
 
-콜백에서 항목을 사용하면 `<For>`로, 항목을 사용하지 않고 인덱스 기반 렌더링이 적합하면 `<For>` 또는 `<Index>`를 선택하라는 메시지가 표시될 수 있습니다. 이 규칙은 모든 JavaScript `.map()`을 금지하지 않고 JSX 자식으로 사용되는 목록 패턴을 대상으로 합니다.
-
-객체 배열처럼 항목의 identity를 기준으로 렌더링하려면 보통 `<For>`를 사용합니다. 위치가 유지되고 각 위치의 값만 바뀌는 배열을 인덱스 중심으로 렌더링하려면 `<Index>`가 더 적합할 수 있습니다. 이 규칙은 자료 구조의 의도까지 알 수 없으므로 최종 선택은 개발자가 해야 합니다.
+Solid 2.0에서 `<Index>`는 제거되었습니다. 객체 배열처럼 항목의 identity를 기준으로 렌더링하려면 기본 `<For>`를 사용합니다. 위치가 유지되고 각 위치의 값만 바뀌는 배열에는 `<For keyed={false}>`를 사용합니다. 이 규칙은 자료 구조의 의도까지 알 수 없으므로 keyed mode의 최종 선택은 개발자가 해야 합니다.
 
 ## 예제로 보는 동작
 
@@ -35,11 +33,29 @@ JSX 안에서 목록을 만들기 위한 `.map()`은 invalid입니다.
 const titles = props.todos.map((todo) => todo.title.toUpperCase());
 ```
 
-callback이 item을 전혀 사용하지 않으면 `<For>`와 `<Index>` 중 어느 것이 맞는지 rule이 결정할 수 없습니다.
+## callback 인수와 자동 수정 경계
+
+기본 `<For>`는 item 값과 index accessor를 전달합니다.
 
 ```tsx
-// invalid: rule은 “<For> 또는 <Index>를 사용”하라고 안내
-{props.slots.map(() => <Skeleton />)}
+<For each={props.todos}>
+  {(todo, index) => <li>{index()}: {todo.title}</li>}
+</For>
 ```
 
-객체 item의 identity를 유지하면서 렌더링하면 보통 `<For>`를 선택합니다. 배열의 각 **위치**가 고정돼 있고 그 위치의 값만 바뀌는 UI라면 `<Index>`가 더 맞을 수 있습니다. 자동 수정은 callback body를 보존하므로 React의 `key={...}`가 남아 있다면 `no-react-specific-props`도 함께 확인하세요.
+`keyed={false}`는 item accessor와 숫자 index를 전달합니다. 이는 제거된 `<Index>`의 대체입니다.
+
+```tsx
+<For each={props.slots} keyed={false}>
+  {(slot, index) => <li>{index}: {slot()}</li>}
+</For>
+```
+
+그래서 이 rule은 item 인수가 하나인 `.map((item) => jsx)`만 기본 `<For>`로 자동 수정합니다. `map`의 두 번째 인수는 숫자지만 기본 `<For>`의 두 번째 인수는 accessor이고, `keyed={false}`에서는 첫 번째 인수까지 accessor가 됩니다. 인수가 없거나 두 개 이상인 callback은 자료 구조의 의도와 identifier 사용을 검토해야 하므로 오류만 보고하고 수정하지 않습니다.
+
+```tsx
+// invalid: index를 index()로 바꿀지, keyed={false}와 item()을 쓸지 검토 필요
+{props.todos.map((todo, index) => <li>{index}: {todo.title}</li>)}
+```
+
+`items?.map((item) => jsx)`처럼 배열이 아직 없을 수 있는 한 인자 map도 `<For each={items}>`로 수정합니다. `<For>`는 `each={undefined}`를 빈 목록으로 렌더링합니다. 자동 수정은 callback body를 보존하므로 React의 `key={...}`가 남아 있다면 `no-react-specific-props`도 함께 확인하세요. 자세한 runtime 근거는 [valid.md](./valid.md)를 참고하세요.

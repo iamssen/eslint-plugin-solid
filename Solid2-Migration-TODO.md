@@ -64,9 +64,9 @@ npm run test:rule -- src/rules/no-destructure/rule.test.ts
 
 ### `prefer-for`
 
-- [ ] 메시지와 문서에서 `<Index>` 선택지를 제거한다.
-- [ ] 위치 기반 목록은 `<For keyed={false}>`를 사용하도록 설명한다.
-- [ ] item accessor와 index 값의 callback 형태 차이를 test한다.
+- [x] 메시지와 문서에서 `<Index>` 선택지를 제거한다.
+- [x] 위치 기반 목록은 `<For keyed={false}>`를 사용하도록 설명한다.
+- [x] item accessor와 index 값의 callback 형태 차이를 runtime test와 문서로 고정한다.
 
 ## 4. 반응성 핵심: `reactivity`
 
