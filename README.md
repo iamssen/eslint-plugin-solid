@@ -51,6 +51,19 @@ export default [
 ];
 ```
 
+For a web JSX project using Solid 2, set TypeScript's JSX import source to
+`@solidjs/web`.
+
+```json
+// tsconfig.json
+{
+  "compilerOptions": {
+    "jsx": "preserve",
+    "jsxImportSource": "@solidjs/web"
+  }
+}
+```
+
 The config does not define environment globals. Add `languageOptions.globals` in your application config when needed.
 
 ## Rules
@@ -64,7 +77,7 @@ The config does not define environment globals. Add `languageOptions.globals` in
 | :---: | :---: | :--- | :--- |
 | ✔ | 🔧 | [solid/components-return-once](https://github.com/iamssen/eslint-plugin-solid/blob/main/src/rules/components-return-once/readme.md) | Disallow early returns in components. Solid components only run once, so conditionals should be inside JSX. |
 | ✔ | 🔧 | [solid/event-handlers](https://github.com/iamssen/eslint-plugin-solid/blob/main/src/rules/event-handlers/readme.md) | Enforce consistent DOM event-handler names and prevent Solid from misinterpreting props as event handlers. |
-| ✔ | 🔧 | [solid/imports](https://github.com/iamssen/eslint-plugin-solid/blob/main/src/rules/imports/readme.md) | Enforce consistent imports from `solid-js`, `solid-js/web`, and `solid-js/store`. |
+| ✔ | 🔧 | [solid/imports](https://github.com/iamssen/eslint-plugin-solid/blob/main/src/rules/imports/readme.md) | Enforce Solid 2 imports from `solid-js` and `@solidjs/*` renderer packages. |
 | ✔ |  | [solid/jsx-no-duplicate-props](https://github.com/iamssen/eslint-plugin-solid/blob/main/src/rules/jsx-no-duplicate-props/readme.md) | Disallow passing the same prop twice in JSX. |
 | ✔ |  | [solid/jsx-no-script-url](https://github.com/iamssen/eslint-plugin-solid/blob/main/src/rules/jsx-no-script-url/readme.md) | Disallow `javascript:` URLs. |
 | ✔ | 🔧 | [solid/jsx-no-undef](https://github.com/iamssen/eslint-plugin-solid/blob/main/src/rules/jsx-no-undef/readme.md) | Disallow undefined JSX component references. |
@@ -74,6 +87,7 @@ The config does not define environment globals. Add `languageOptions.globals` in
 |  |  | [solid/no-proxy-apis](https://github.com/iamssen/eslint-plugin-solid/blob/main/src/rules/no-proxy-apis/readme.md) | Disallow APIs that require ES6 Proxy support. |
 | ✔ | 🔧 | [solid/no-react-deps](https://github.com/iamssen/eslint-plugin-solid/blob/main/src/rules/no-react-deps/readme.md) | Disallow React-style dependency arrays in `createEffect` and `createMemo`. |
 | ✔ | 🔧 | [solid/no-react-specific-props](https://github.com/iamssen/eslint-plugin-solid/blob/main/src/rules/no-react-specific-props/readme.md) | Disallow React-specific `className` and `htmlFor` props. |
+| ✔ |  | [solid/no-solid-1-apis](https://github.com/iamssen/eslint-plugin-solid/blob/main/src/rules/no-solid-1-apis/readme.md) | Report APIs removed from Solid 2 and explain their migration direction. |
 | ✔ |  | [solid/no-unknown-namespaces](https://github.com/iamssen/eslint-plugin-solid/blob/main/src/rules/no-unknown-namespaces/readme.md) | Allow only Solid-specific namespaced JSX attributes. |
 | ✔ | 🔧 | [solid/prefer-for](https://github.com/iamssen/eslint-plugin-solid/blob/main/src/rules/prefer-for/readme.md) | Prefer `<For />` to array mapping in JSX. |
 |  | 🔧 | [solid/prefer-show](https://github.com/iamssen/eslint-plugin-solid/blob/main/src/rules/prefer-show/readme.md) | Prefer `<Show />` for conditional JSX. |
@@ -92,3 +106,6 @@ npm run build
 ```
 
 Run `npm run test:all` to test supported parser combinations.
+
+To focus on one rule while developing, run `npm run test:rule -- <rule-name>`;
+for example, `npm run test:rule -- reactivity`.
