@@ -38,8 +38,6 @@ const recommended = {
     '@ssen/solid/prefer-show': 'off',
     // only necessary for resource-constrained environments
     '@ssen/solid/no-proxy-apis': 'off',
-    // deprecated
-    '@ssen/solid/prefer-classlist': 'off',
   },
 } satisfies Linter.Config;
 

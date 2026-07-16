@@ -75,7 +75,6 @@ The config does not define environment globals. Add `languageOptions.globals` in
 | ✔ | 🔧 | [solid/no-react-deps](https://github.com/iamssen/eslint-plugin-solid/blob/main/src/rules/no-react-deps/readme.md) | Disallow React-style dependency arrays in `createEffect` and `createMemo`. |
 | ✔ | 🔧 | [solid/no-react-specific-props](https://github.com/iamssen/eslint-plugin-solid/blob/main/src/rules/no-react-specific-props/readme.md) | Disallow React-specific `className` and `htmlFor` props. |
 | ✔ |  | [solid/no-unknown-namespaces](https://github.com/iamssen/eslint-plugin-solid/blob/main/src/rules/no-unknown-namespaces/readme.md) | Allow only Solid-specific namespaced JSX attributes. |
-|  | 🔧 | [solid/prefer-classlist](https://github.com/iamssen/eslint-plugin-solid/blob/main/src/rules/prefer-classlist/readme.md) | Prefer the `classList` prop over a `classnames` helper. |
 | ✔ | 🔧 | [solid/prefer-for](https://github.com/iamssen/eslint-plugin-solid/blob/main/src/rules/prefer-for/readme.md) | Prefer `<For />` to array mapping in JSX. |
 |  | 🔧 | [solid/prefer-show](https://github.com/iamssen/eslint-plugin-solid/blob/main/src/rules/prefer-show/readme.md) | Prefer `<Show />` for conditional JSX. |
 | ✔ |  | [solid/reactivity](https://github.com/iamssen/eslint-plugin-solid/blob/main/src/rules/reactivity/readme.md) | Ensure reactive values are used in tracked contexts. |

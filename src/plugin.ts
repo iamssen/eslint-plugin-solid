@@ -11,7 +11,6 @@ import noProxyApis from './rules/no-proxy-apis/rule.js';
 import noReactDeps from './rules/no-react-deps/rule.js';
 import noReactSpecificProps from './rules/no-react-specific-props/rule.js';
 import noUnknownNamespaces from './rules/no-unknown-namespaces/rule.js';
-import preferClasslist from './rules/prefer-classlist/rule.js';
 import preferFor from './rules/prefer-for/rule.js';
 import preferShow from './rules/prefer-show/rule.js';
 import reactivity from './rules/reactivity/rule.js';
@@ -42,7 +41,6 @@ const allRules = {
   'no-react-deps': noReactDeps,
   'no-react-specific-props': noReactSpecificProps,
   'no-unknown-namespaces': noUnknownNamespaces,
-  'prefer-classlist': preferClasslist,
   'prefer-for': preferFor,
   'prefer-show': preferShow,
   reactivity,

@@ -62,13 +62,6 @@ npm run test:rule -- src/rules/no-destructure/rule.test.ts
 
 ## 3. JSX class와 목록 제어 흐름
 
-### `prefer-classlist`
-
-- [ ] rule의 공개 이름을 유지할지, `prefer-class`로 교체할지 결정한다.
-- [ ] `classList` fixer를 `class={{ ... }}` 또는 `class={[staticClass, { ... }]}` 출력으로 바꾼다.
-- [ ] spread·복수 class prop·복잡한 expression에서는 fix를 하지 않는 경계를 테스트한다.
-- [ ] 기존 `describe.skip` test를 2.0 class object/array expectation으로 다시 활성화한다.
-
 ### `prefer-for`
 
 - [ ] 메시지와 문서에서 `<Index>` 선택지를 제거한다.
