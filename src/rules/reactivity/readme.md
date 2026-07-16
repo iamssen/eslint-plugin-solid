@@ -1,82 +1,102 @@
 # reactivity
 
-Solid signal, memo, props, store 등의 반응형 값을 추적되지 않는 위치에서 읽거나 잘못된 방식으로 다루는 패턴을 검사합니다. Solid는 반응형 값을 추적 스코프에서 읽을 때 의존성을 등록하므로, 일반 컴포넌트 본문에서 값을 미리 읽어 변수에 고정하면 이후 변경을 놓칠 수 있습니다.
+[한국어](./readme.kr.md)
 
-## Solid의 핵심 실행 모델
+Report patterns that read signals, memos, props, or stores outside tracked
+locations, or otherwise handle reactive values incorrectly. Solid records a
+dependency when a reactive value is read; copying it into an ordinary variable
+during component setup can freeze a value that later changes.
 
-React의 의존성 배열은 “다음 렌더에서 이 값을 비교할 것”을 선언합니다. Solid는 대신 `count()`나 `props.value`처럼 반응형 값을 **읽는 순간** 현재 실행 중인 reactive computation에 의존성을 등록합니다. 그래서 같은 값이라도 JSX expression, `createEffect` callback 안에서 읽으면 추적되지만, 컴포넌트 초기화 시 일반 변수에 복사하면 추적되지 않습니다.
+## Solid's execution model
+
+React's dependency array declares which values to compare on a later render.
+Solid instead registers a dependency at the moment a reactive value such as
+`count()` or `props.value` is read by a running reactive computation. A JSX
+expression or `createEffect` callback is tracked; a normal variable assignment
+during component initialization is not.
 
 ```tsx
-// 주의: props.value를 컴포넌트 실행 시점에 고정
+// Avoid: this snapshots props.value when the component runs.
 const value = props.value;
 return <div>{value}</div>;
 
-// 권장: 반응형 읽기를 JSX 안에 둠
+// Preferred: JSX tracks the reactive prop read.
 return <div>{props.value}</div>;
 ```
 
-규칙은 반응형 값의 쓰기, 이름 없는 파생 값, 비동기/콜백 추적 스코프, JSX·연산식·템플릿 리터럴에서의 읽기 등을 상황별로 검사합니다. 사용자 정의 reactive 함수는 `{ customReactiveFunctions: ['customQuery'] }`로 등록할 수 있습니다.
+The rule handles writes, unnamed derived values, callback and async scopes, and
+reads in JSX, expressions, and template literals. Register project primitives
+that execute a callback reactively with
+`{ customReactiveFunctions: ['customQuery'] }`.
 
-모든 콜백에서 signal을 읽는 것이 오류라는 뜻은 아닙니다. 이벤트 핸들러나 `setTimeout`처럼 실행 시점에 최신 값을 읽는 것이 의도된 코드는 규칙의 진단과 실제 추적 필요성을 함께 검토해야 합니다.
+Not every callback read is an error. An event handler or `setTimeout` callback
+may intentionally read the newest value at execution time; it does not register
+a UI dependency. An async callback does not automatically create a new tracked
+computation, so code that must update reactively should read the dependency in
+an effect or update a separate reactive value with a setter.
 
-비동기 callback 안의 읽기는 callback이 나중에 실행될 때 새로운 추적 computation을 자동으로 만들지 않습니다. callback이 반응형 UI를 갱신해야 한다면 effect 안에서 값을 읽어 dependency를 등록하거나, callback에서 setter를 호출해 별도의 반응형 값을 갱신하는 식으로 의도를 분명히 해야 합니다.
+## Examples
 
-## 예제로 보는 동작
-
-가장 흔한 오류는 반응형 값을 컴포넌트 초기화 중에 일반 변수로 고정하는 것입니다.
+The common mistake is storing a reactive prop in a normal variable during
+component initialization.
 
 ```tsx
 function Profile(props) {
-  const name = props.name; // invalid: 현재 값을 한 번만 읽음
+  const name = props.name; // invalid: read only once
   return <h1>{name}</h1>;
 }
 
 function Profile(props) {
-  return <h1>{props.name}</h1>; // valid: JSX가 props.name을 추적
+  return <h1>{props.name}</h1>; // valid: JSX tracks this read
 }
 ```
 
-signal도 같은 원리입니다. signal accessor를 JSX나 reactive callback 안에서 호출해야 합니다.
+Signal accessors follow the same rule.
 
 ```tsx
 const [count, setCount] = createSignal(0);
 
-const initial = count(); // invalid: 일반 변수에 고정
-const doubled = createMemo(() => count() * 2); // valid: createMemo가 추적
+const initial = count(); // invalid: ordinary snapshot
+const doubled = createMemo(() => count() * 2); // valid: tracked memo
 ```
 
-초기 snapshot이 의도된 경우에는 `untrack` callback으로 그 의도를 명시합니다. 이 값은 이후 변경을 반영하지 않으므로, 렌더링에 쓸 값이라면 JSX나 memo로 읽어야 합니다.
+When a snapshot is deliberate, document it with `untrack`. Do not use that
+snapshot for UI that should later update.
 
 ```tsx
-const initial = untrack(() => count()); // valid: 의도적인 한 번 읽기
+const initial = untrack(() => count()); // valid intentional one-time read
 ```
 
-이벤트 handler는 나중에 실행되는 “읽기”이며 dependency를 등록할 목적이 아니므로 valid입니다.
+An event handler reads the latest value when the event occurs and is valid.
 
 ```tsx
-// valid: 클릭 시점의 최신 count를 읽음
-<button onClick={() => console.log(count())}>현재 값</button>
+<button onClick={() => console.log(count())}>Current value</button>
 ```
 
-반대로 effect가 비동기 경계를 건너 읽은 값은 effect dependency가 되지 않습니다.
+Reading only across an async boundary does not register the effect dependency.
 
 ```ts
-// invalid: count()는 setTimeout callback에서 읽혀 effect가 count를 추적하지 않음
+// invalid: count() is read inside the later callback
 createEffect(() => {
   setTimeout(() => console.log(count()), 100);
 });
 
-// valid: effect 실행 중에 count를 읽어 dependency를 등록
+// valid: the effect reads count() while collecting dependencies
 createEffect(() => {
   const current = count();
   setTimeout(() => console.log(current), 100);
 });
 ```
 
-Solid 2의 `createEffect`는 compute/apply 형태입니다. 첫 callback만 dependency를 등록하며, 두 번째 apply callback(또는 `{ effect, error }` bundle)은 계산된 값을 적용하고 setter를 호출하거나 cleanup을 반환할 수 있습니다. compute callback 안에서 signal/store setter를 호출하면 순환적인 갱신이 되므로 이 rule이 보고합니다.
+## Solid 2 effect phases and lifecycle
+
+Solid 2 `createEffect` separates a dependency-collecting compute callback from
+an apply callback (or `{ effect, error }` bundle). The compute callback must not
+write a signal or store because that creates a circular update; the apply phase
+may apply the result, call setters, or return cleanup.
 
 ```ts
-// invalid: compute 단계에서 state를 다시 씀
+// invalid: writes while computing dependencies
 createEffect(
   () => {
     setCount(1);
@@ -85,14 +105,16 @@ createEffect(
   (value) => console.log(value),
 );
 
-// valid: apply 단계에서 결과를 반영
+// valid: apply the computed value separately
 createEffect(
   () => count(),
   (value) => setDisplay(value),
 );
 ```
 
-컴포넌트가 DOM에 반영된 뒤 한 번 실행해야 하는 작업에는 제거된 `onMount` 대신 `onSettled`를 사용합니다. 이 callback은 실행 시점 읽기와 async setter 작업을 허용하며, 반환한 cleanup도 component가 dispose될 때 실행됩니다.
+For work that runs once after the component is reflected in the DOM, use
+`onSettled` rather than removed `onMount`. Its callback may read at execution
+time, perform async setter work, and return cleanup.
 
 ```ts
 onSettled(() => {
@@ -102,29 +124,38 @@ onSettled(() => {
 });
 ```
 
-Solid 2의 setter는 기본적으로 microtask 단위로 배치됩니다. 따라서 setter 직후 accessor를 읽으면 이전 값을 볼 수 있습니다. 여러 쓰기를 감싸던 1.x `batch`는 사용하지 않으며, 명령형 코드에서 즉시 최신 값이 꼭 필요한 경우에만 `flush()`를 명시적으로 호출합니다.
+Solid 2 batches setters by microtask. Reading an accessor immediately after a
+setter can observe the old value; use `flush()` only for an imperative boundary
+that truly needs the new value synchronously, not the removed 1.x `batch`.
 
 ```ts
 setFirstName('Ada');
 setLastName('Lovelace');
-// 다음 microtask 뒤 자동 반영
+// automatically reflected after the next microtask
 
-flush(); // 드문 동기 read가 필요한 경우에만
+flush(); // only for a rare synchronous imperative read
 ```
 
-프로젝트의 custom primitive가 callback을 reactive scope로 실행한다면 옵션에 등록합니다.
+Custom primitives can be registered as tracked scopes:
 
 ```ts
 // { customReactiveFunctions: ['createQuery'] }
 createQuery(() => count()); // valid with the option
 ```
 
-이 rule은 event listener, observer, 일부 `create*`/`use*` hook을 의도적으로 허용합니다. 진단을 고칠 때는 먼저 그 callback이 UI 갱신을 위해 dependency를 **등록**해야 하는지, 단지 실행 시점의 최신 값을 **읽기만** 하면 되는지 구분하세요.
-
-`isPending(() => expression)`의 callback도 dependency를 등록하는 compute callback으로 처리합니다. 목록 callback은 `<For>`의 keyed mode에 따라 형태가 다릅니다. 기본 `<For>`는 `(item, indexAccessor)`이고, `<For keyed={false}>`는 `(itemAccessor, indexNumber)`입니다.
+The rule intentionally permits event listeners, observers, and selected
+`create*`/`use*` hooks. When addressing a report, first decide whether the
+callback must **register** a dependency for UI updates or merely **read** the
+latest value when it executes. `isPending(() => expression)` is treated as a
+dependency-collecting compute callback. `<For>` callbacks follow the keyed-mode
+contracts: default is `(item, indexAccessor)`, while `keyed={false}` is
+`(itemAccessor, indexNumber)`.
 
 ```tsx
 <For each={items()} keyed={false}>
   {(item, index) => <li>{index}: {item().name}</li>}
 </For>
 ```
+
+See [runtime validation](./valid.md) for the observed batching, effects,
+lifecycle, and `merge`/`omit` behavior.

@@ -1,13 +1,12 @@
-# no-proxy-apis 런타임 검증
+# no-proxy-apis runtime validation
 
-이 문서는 `solidjs2-web-prototype/apps/app/runtime-checks/store-draft.tsx`와
-`merge-omit.tsx`를 Playwright로 실행한 결과를 기록한다. 이 rule은 runtime Proxy의
-완전한 부재를 보장하는 rule이 아니라, Proxy를 만들 수 있는 API 사용을 보수적으로
-표시하는 rule이다.
+[한국어](./valid.kr.md)
 
-## store draft setter
+The Solid 2 prototype runs `store-draft.tsx` and `merge-omit.tsx` through
+Playwright. This rule conservatively identifies APIs that can create a Proxy;
+it does not prove that an application is entirely Proxy-free.
 
-Solid 2 store는 setter callback에 draft를 전달한다.
+## Store draft setters
 
 ```tsx
 setState((draft) => {
@@ -16,14 +15,14 @@ setState((draft) => {
 });
 ```
 
-초기 `0:first`는 click 뒤 `1:updated`가 됐다. 따라서 draft setter 자체는 이 rule이
-보고하지 않는다. `createMutable`처럼 component 밖에서 직접 변경하는 mutable proxy와
-동일한 모델이 아니다.
+The checked UI changed from `0:first` to `1:updated`. A draft only exists
+during the setter callback, so the rule does not report this Solid 2 pattern.
+It is not the same model as externally mutable `createMutable` state.
 
-## `merge` source
+## `merge` sources
 
-`merge-omit.tsx`는 function source와 `merge`/`omit`의 반응형 prop 동작을 확인한다.
-함수 또는 이미 Proxy인 source를 전달한 `merge`는 Proxy를 생성할 수 있으므로
-`no-proxy-apis`는 이를 보수적으로 진단한다. 반면 이 fixture가 store/merge가 Proxy를
-전혀 만들지 않음을 증명하는 것은 아니며, Proxy 금지 환경에서는 signal과 명시적 값
-갱신을 선택해야 한다.
+Function and already-proxied sources passed to `merge` may create a Proxy, so
+the rule reports them conservatively. The fixture confirms reactive
+`merge`/`omit` behavior but does not establish that stores or merges are safe
+in environments where Proxy support is forbidden. Use signals and explicit
+value updates for that requirement.

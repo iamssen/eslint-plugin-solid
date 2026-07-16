@@ -1,26 +1,30 @@
 # no-solid-1-apis
 
-Solid 2에서 제거된 Solid 1.x API의 사용을 금지합니다. 이 규칙은 `solid-js`와 `solid-js/store`의 named import, alias, namespace import 및 `createContext()`로 만든 `Context.Provider`를 추적합니다.
+[한국어](./readme.kr.md)
 
-자동 수정은 제공하지 않습니다. API마다 대체 방식이 데이터 흐름과 UI 구조에 따라 달라, 기계적인 이름 치환이 안전하지 않기 때문입니다.
+Disallow Solid 1 APIs removed in Solid 2. The rule resolves named imports,
+aliases, namespace imports, and `Context.Provider` created by `createContext`.
 
-## 제거된 API와 대체 방향
+It reports without autofixing because replacement choices depend on data flow
+and UI structure. A mechanical rename would not be safe.
 
-| Solid 1.x API | Solid 2 대체 방향 |
+## Removed APIs and migration directions
+
+| Solid 1 API | Solid 2 direction |
 | --- | --- |
-| `createResource`, `<Suspense>`, `<SuspenseList>` | `Loading`, `Reveal` 및 명시적인 async 상태 |
+| `createResource`, `<Suspense>`, `<SuspenseList>` | `Loading`, `Reveal`, and explicit async state |
 | `<ErrorBoundary>` | `<Errored>` |
-| `useTransition`, `startTransition` | `isPending` 또는 optimistic state |
-| `batch` | 기본 microtask batching. 필요한 명령형 경계에서만 `flush()` |
-| `on`, `createComputed` | 의존성을 직접 읽는 effect/memo/signal |
-| `onMount` | DOM settle 뒤 실행할 작업에는 `onSettled` |
-| `createReactive` | 명시적인 추적 callback에는 `createReaction` |
-| `createMutable`, `modifyMutable` | `createStore`의 draft setter |
-| `from`, `observable`, `createDeferred` | effect, async iterator, 명시적인 deferred state |
+| `useTransition`, `startTransition` | `isPending` or optimistic state |
+| `batch` | Default microtask batching; use `flush()` only at a necessary imperative boundary |
+| `on`, `createComputed` | Effects, memos, or signals that directly read dependencies |
+| `onMount` | `onSettled` for work after the DOM settles |
+| `createReactive` | `createReaction` for an explicit tracking callback |
+| `createMutable`, `modifyMutable` | A `createStore` draft setter |
+| `from`, `observable`, `createDeferred` | Effects, async iterators, or explicit deferred state |
 | `<Index>`, `indexArray` | `<For keyed={false}>`, `mapArray` |
 | `<Context.Provider>` | `<Context value={...}>` |
 
-## 예시
+## Examples
 
 ```tsx
 // invalid
@@ -37,6 +41,9 @@ import { createContext, flush } from 'solid-js';
 
 const Context = createContext();
 setCount(1);
-flush(); // imperative boundary where an immediate read is required
+flush(); // only at an imperative boundary that requires an immediate read
 const App = () => <Context value="value" />;
 ```
+
+Choose the replacement from the table based on the component's data flow and UI
+lifetime. The rule intentionally leaves that migration decision to the author.

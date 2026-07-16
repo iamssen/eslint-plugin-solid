@@ -1,11 +1,15 @@
 # @ssen/eslint-plugin-solid
 
+[한국어](./README.kr.md)
+
 Solid.js-specific ESLint rules for reactivity, JSX, event handlers, and common React-pattern mistakes.
+This package supports Solid.js 2.0 and later only.
 
 ## Requirements
 
 - Node.js 22+
 - ESLint 10+
+- Solid.js 2.0+
 
 ## Installation
 
@@ -76,7 +80,7 @@ The config does not define environment globals. Add `languageOptions.globals` in
 | ✔ | 🔧 | Rule | Description |
 | :---: | :---: | :--- | :--- |
 | ✔ | 🔧 | [solid/components-return-once](https://github.com/iamssen/eslint-plugin-solid/blob/main/src/rules/components-return-once/readme.md) | Disallow early returns in components. Solid components only run once, so conditionals should be inside JSX. |
-| ✔ | 🔧 | [solid/event-handlers](https://github.com/iamssen/eslint-plugin-solid/blob/main/src/rules/event-handlers/readme.md) | Enforce consistent DOM event-handler names and prevent Solid from misinterpreting props as event handlers. |
+| ✔ | 🔧 | [solid/event-handlers](https://github.com/iamssen/eslint-plugin-solid/blob/main/src/rules/event-handlers/readme.md) | Enforce consistent names for standard DOM event handlers. |
 | ✔ | 🔧 | [solid/imports](https://github.com/iamssen/eslint-plugin-solid/blob/main/src/rules/imports/readme.md) | Enforce Solid 2 imports from `solid-js` and `@solidjs/*` renderer packages. |
 | ✔ |  | [solid/jsx-no-duplicate-props](https://github.com/iamssen/eslint-plugin-solid/blob/main/src/rules/jsx-no-duplicate-props/readme.md) | Disallow passing the same prop twice in JSX. |
 | ✔ |  | [solid/jsx-no-script-url](https://github.com/iamssen/eslint-plugin-solid/blob/main/src/rules/jsx-no-script-url/readme.md) | Disallow `javascript:` URLs. |
@@ -88,13 +92,16 @@ The config does not define environment globals. Add `languageOptions.globals` in
 | ✔ | 🔧 | [solid/no-react-deps](https://github.com/iamssen/eslint-plugin-solid/blob/main/src/rules/no-react-deps/readme.md) | Disallow React-style dependency arrays in `createEffect` and `createMemo`. |
 | ✔ | 🔧 | [solid/no-react-specific-props](https://github.com/iamssen/eslint-plugin-solid/blob/main/src/rules/no-react-specific-props/readme.md) | Disallow React-specific `className` and `htmlFor` props. |
 | ✔ |  | [solid/no-solid-1-apis](https://github.com/iamssen/eslint-plugin-solid/blob/main/src/rules/no-solid-1-apis/readme.md) | Report APIs removed from Solid 2 and explain their migration direction. |
-| ✔ |  | [solid/no-unknown-namespaces](https://github.com/iamssen/eslint-plugin-solid/blob/main/src/rules/no-unknown-namespaces/readme.md) | Allow only Solid-specific namespaced JSX attributes. |
+| ✔ |  | [solid/no-unknown-namespaces](https://github.com/iamssen/eslint-plugin-solid/blob/main/src/rules/no-unknown-namespaces/readme.md) | Report removed and unknown JSX namespaces in Solid 2. |
 | ✔ | 🔧 | [solid/prefer-for](https://github.com/iamssen/eslint-plugin-solid/blob/main/src/rules/prefer-for/readme.md) | Prefer `<For />` to array mapping in JSX. |
 |  | 🔧 | [solid/prefer-show](https://github.com/iamssen/eslint-plugin-solid/blob/main/src/rules/prefer-show/readme.md) | Prefer `<Show />` for conditional JSX. |
 | ✔ |  | [solid/reactivity](https://github.com/iamssen/eslint-plugin-solid/blob/main/src/rules/reactivity/readme.md) | Ensure reactive values are used in tracked contexts. |
 | ✔ | 🔧 | [solid/self-closing-comp](https://github.com/iamssen/eslint-plugin-solid/blob/main/src/rules/self-closing-comp/readme.md) | Require self-closing tags for components without children. |
 | ✔ | 🔧 | [solid/style-prop](https://github.com/iamssen/eslint-plugin-solid/blob/main/src/rules/style-prop/readme.md) | Validate CSS property names and values in the `style` prop. |
 <!-- end-doc-gen -->
+
+<details>
+<summary>Contributing</summary>
 
 ## Development
 
@@ -109,3 +116,5 @@ Run `npm run test:all` to test supported parser combinations.
 
 To focus on one rule while developing, run `npm run test:rule -- <rule-name>`;
 for example, `npm run test:rule -- reactivity`.
+
+</details>
