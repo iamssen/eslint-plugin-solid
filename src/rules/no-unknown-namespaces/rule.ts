@@ -4,8 +4,9 @@ import { isDOMElementName } from '../../utils.js';
 
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 
-// Solid 2.0 가이드는 prop:의 지원 여부를 명시하지 않는다. compiler/JSX type 확인 전까지
-// 기존 동작을 보존하고, migration 기록 문서에 이 보류 결정을 남긴다.
+// Solid 2 @solidjs/web JSX types expose `prop:*` for writable native and
+// custom-element properties. Components remain invalid below because props
+// namespaces have no runtime meaning there.
 const supportedNamespaces = ['prop'];
 const otherNamespaces = new Set(['xmlns', 'xlink']);
 

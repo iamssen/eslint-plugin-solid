@@ -18,9 +18,7 @@ const legacyReplacement = {
 
 describe('no-unknown-namespaces', () => {
   describe('valid', () => {
-    // TODO(Solid 2): 가이드는 prop: namespace의 지원 여부를 명시하지 않는다.
-    // @solidjs/web JSX 타입과 compiler 동작을 확인할 때까지 기존 사례를 유지한다.
-    test('allows the unresolved prop: namespace', () => {
+    test('allows the supported prop: namespace on native elements', () => {
       valid(`let el = <div prop:scrollTop="0px" />;`);
     });
 

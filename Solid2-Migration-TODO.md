@@ -44,7 +44,7 @@ npm run test:rule -- src/rules/no-destructure/rule.test.ts
 
 - [x] `use:`, `attr:`, `bool:`, `on:`, `oncapture:`를 Solid 2.0 제거 문법으로 진단한다.
 - [x] `class:`/`style:`도 일반 `class`/`style` 값으로 유도한다.
-- [ ] `prop:`의 지원 여부는 `@solidjs/web` JSX 타입과 compiler를 확인한 뒤 결정한다. 확인 전 TODO test를 유지한다.
+- [x] `prop:`은 `@solidjs/web` JSX 타입에서 native/custom element의 writable DOM property 설정으로 지원됨을 확인했다.
 - [x] XML/SVG namespace의 지원 범위를 보존한다.
 
 ### `event-handlers`와 `no-array-handlers`
