@@ -11,14 +11,14 @@ import {
 const createRule = ESLintUtils.RuleCreator.withoutDocs;
 
 // Currently all of the control flow components are from 'solid-js'.
-const AUTO_COMPONENTS = new Set(['Show', 'For', 'Index', 'Switch', 'Match']);
+const AUTO_COMPONENTS = new Set(['Show', 'For', 'Switch', 'Match']);
 const SOURCE_MODULE = 'solid-js';
 
 /*
  * This rule is adapted from eslint-plugin-react's jsx-no-undef rule under
  * the MIT license. Thank you for your work!
  */
-type MessageIds = 'undefined' | 'customDirectiveUndefined' | 'autoImport';
+type MessageIds = 'undefined' | 'autoImport';
 type Options = [
   {
     allowGlobals?: boolean;
@@ -31,7 +31,7 @@ export default createRule<Options, MessageIds>({
     type: 'problem',
     docs: {
       description:
-        'Disallow references to undefined variables in JSX. Handles custom directives.',
+        'Disallow references to undefined variables in JSX.',
       url: 'https://github.com/iamssen/eslint-plugin-solid/blob/main/src/rules/jsx-no-undef/readme.md',
     },
     fixable: 'code',
@@ -66,8 +66,6 @@ export default createRule<Options, MessageIds>({
     ],
     messages: {
       undefined: "'{{identifier}}' is not defined.",
-      customDirectiveUndefined:
-        "Custom directive '{{identifier}}' is not defined.",
       autoImport: "{{imports}} should be imported from '{{source}}'.",
     },
   },
@@ -86,10 +84,7 @@ export default createRule<Options, MessageIds>({
      */
     function checkIdentifierInJSX(
       node: T.Identifier | T.JSXIdentifier,
-      {
-        isComponent,
-        isCustomDirective,
-      }: { isComponent?: boolean; isCustomDirective?: boolean } = {},
+      { isComponent }: { isComponent?: boolean } = {},
     ) {
       // Ignore 'this' keyword (also maked as JSXIdentifier when used in JSX)
       if (node.name === 'this') {
@@ -132,14 +127,6 @@ export default createRule<Options, MessageIds>({
       ) {
         // track which names are undefined
         missingComponentsSet.add(node.name);
-      } else if (isCustomDirective) {
-        context.report({
-          node,
-          messageId: 'customDirectiveUndefined',
-          data: {
-            identifier: node.name,
-          },
-        });
       } else if (!isTypeScriptEnabled) {
         context.report({
           node,
@@ -174,16 +161,6 @@ export default createRule<Options, MessageIds>({
           default: {
             break;
           }
-        }
-      },
-      'JSXAttribute > JSXNamespacedName': (node: T.JSXNamespacedName) => {
-        // <Element use:X /> applies the `X` custom directive to the element, where `X` must be an identifier in scope.
-        if (
-          node.namespace?.type === 'JSXIdentifier' &&
-          node.namespace.name === 'use' &&
-          node.name?.type === 'JSXIdentifier'
-        ) {
-          checkIdentifierInJSX(node.name, { isCustomDirective: true });
         }
       },
       'Program:exit': (programNode: T.Program) => {

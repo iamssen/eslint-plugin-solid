@@ -56,9 +56,9 @@ npm run test:rule -- src/rules/no-destructure/rule.test.ts
 
 ### `jsx-no-undef`
 
-- [ ] `use:X` directive 식별자 전용 분기를 제거한다.
-- [ ] ref directive factory는 일반 JavaScript expression으로 취급하는지 확인한다.
-- [ ] 기존 custom directive test를 2.0 ref factory 또는 제거 API migration test로 바꾼다.
+- [x] `use:X` directive 식별자 전용 분기를 제거한다.
+- [x] ref directive factory는 일반 JavaScript expression으로 취급한다.
+- [x] 기존 custom directive test를 2.0 ref factory 사례로 바꾼다.
 
 ## 3. JSX class와 목록 제어 흐름
 

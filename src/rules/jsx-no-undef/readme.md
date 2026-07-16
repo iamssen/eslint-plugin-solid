@@ -1,19 +1,18 @@
 # jsx-no-undef
 
-JSX에서 참조하는 컴포넌트, 변수, Solid 제어 흐름 컴포넌트 및 `use:` directive가 현재 스코프에 정의되어 있는지 검사합니다.
+JSX에서 참조하는 컴포넌트와 Solid 제어 흐름 컴포넌트가 현재 스코프에 정의되어 있는지 검사합니다.
 
 ## JSX에서 이름이 해석되는 방식
 
-`<Button />`은 HTML 문자열이 아니라 JavaScript 식별자 `Button`을 참조하는 JSX 표현식입니다. 따라서 import가 빠지거나 이름을 잘못 입력하면 브라우저에서 렌더링할 때까지 발견되지 않을 수 있습니다. `use:tooltip`의 `tooltip`도 컴파일러가 호출할 함수이므로 동일한 scope 검사가 필요합니다.
+`<Button />`은 HTML 문자열이 아니라 JavaScript 식별자 `Button`을 참조하는 JSX 표현식입니다. 따라서 import가 빠지거나 이름을 잘못 입력하면 브라우저에서 렌더링할 때까지 발견되지 않을 수 있습니다.
 
 ```tsx
 import { For } from 'solid-js';
-import { clickOutside } from './directives';
 
-<For each={items}>{(item) => <div use:clickOutside={item} />}</For>
+<For each={items}>{(item) => <li>{item.name}</li>}</For>
 ```
 
-정의되지 않은 대문자 컴포넌트나 directive는 오류가 됩니다. `typescriptEnabled`, `allowGlobals`, `allow` 등의 옵션으로 TypeScript 전용 전역 및 예외를 조정할 수 있습니다. 이 규칙은 TypeScript의 전체 타입 검사나 import 해석기를 대체하지 않습니다.
+정의되지 않은 대문자 컴포넌트는 오류가 됩니다. `typescriptEnabled`와 `allowGlobals` 옵션으로 TypeScript 전용 검사 및 전역 scope 허용 방식을 조정할 수 있습니다. 이 규칙은 TypeScript의 전체 타입 검사나 import 해석기를 대체하지 않습니다.
 
 ## 예제로 보는 동작
 
@@ -39,15 +38,19 @@ import { For } from 'solid-js';
 <For each={items}>{(item) => <li>{item}</li>}</For>
 ```
 
-`use:` 뒤의 이름도 directive 함수 참조입니다.
+## Solid 2.0의 `ref` directive factory
 
 ```tsx
-// invalid: clickOutside가 선언되지 않음
-<div use:clickOutside={close} />
-
-// valid
+// ref 값은 일반 JavaScript expression입니다.
 import { clickOutside } from './directives';
-<div use:clickOutside={close} />
+
+<div ref={clickOutside(close)} />
+
+const autofocus = (element) => element.focus();
+const validate = () => (element) => element.checkValidity();
+<input ref={[autofocus, validate()]} />
 ```
 
-`allow`에는 프로젝트 전역 component 이름을, `allowGlobals: true`에는 전역 값 허용을 설정할 수 있습니다. 일부 알려진 Solid component 오류는 import 추가 suggestion을 제공합니다. 이 rule은 경로가 실제 파일을 가리키는지나 TypeScript 타입이 맞는지는 검사하지 않습니다.
+Solid 2.0에서는 `use:` directive가 제거되었습니다. `ref={factory(options)}` 내부의 `factory`와 `options`는 일반 JavaScript 식별자이므로, 이 규칙이 별도의 directive scope로 검사하지 않습니다. 해당 식별자의 미정의 여부는 기본 `no-undef` 또는 TypeScript가 검사합니다. 제거된 `use:` namespace는 `no-unknown-namespaces`가 진단합니다.
+
+`allowGlobals: true`를 설정하면 전역 값도 허용합니다. 일부 알려진 Solid component 오류는 import 추가 suggestion을 제공합니다. 이 rule은 경로가 실제 파일을 가리키는지나 TypeScript 타입이 맞는지는 검사하지 않습니다.
