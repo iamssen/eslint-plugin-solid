@@ -21,8 +21,8 @@ npm run test:rule -- src/rules/no-destructure/rule.test.ts
 
 먼저 여러 rule이 공유하는 import 추적을 Solid 2.0 경로까지 인식하게 만든다. 이 단계를 뒤로 미루면 `@solidjs/web` import alias를 사용하는 대부분의 rule 테스트가 잘못된 원인으로 실패한다.
 
-- [ ] `src/utils.ts`의 `trackImports()` 기본 source 범위를 `solid-js`뿐 아니라 `@solidjs/web` 등 필요한 `@solidjs/*` 경로까지 확장한다.
-- [ ] core, renderer, type-only import, alias import의 추적 범위를 명시적으로 테스트한다.
+- [x] `src/utils.ts`의 `trackImports()` 기본 source 범위를 `solid-js`뿐 아니라 `@solidjs/web` 등 필요한 `@solidjs/*` 경로까지 확장한다.
+- [x] core, renderer, type-only import, alias import의 추적 범위를 명시적으로 테스트한다.
 - [ ] `npm run test:rule -- <rule>` 사용법을 README 또는 개발 문서에 추가할지 결정한다.
 
 ## 1. `imports`: public API 경계 확정

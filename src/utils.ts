@@ -177,7 +177,9 @@ export const getCommentAfter = (
     .getCommentsAfter(node)
     .find((comment) => comment.loc!.start.line === node.loc!.end.line);
 
-export const trackImports = (fromModule = /^solid-js(?:\/?|\b)/) => {
+export const trackImports = (
+  fromModule = /^(?:solid-js(?:\/|$)|@solidjs\/(?:web|h|html|universal)(?:\/|$))/,
+) => {
   const importMap = new Map<string, string>();
   const handleImportDeclaration = (node: T.ImportDeclaration) => {
     if (fromModule.test(node.source.value)) {
