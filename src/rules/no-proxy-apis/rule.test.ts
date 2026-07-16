@@ -28,6 +28,15 @@ describe('no-proxy-apis', () => {
     test('using property named Proxy is valid', () => {
       valid(`let obj = { Proxy: 1 }`);
     });
+    test('using a Solid 2 draft store setter is valid', () => {
+      valid(`
+        import { createStore } from 'solid-js';
+        const [state, setState] = createStore({ count: 0 });
+        setState((draft) => {
+          draft.count++;
+        });
+      `);
+    });
   });
   describe('invalid', () => {
     test('detects new Proxy instantiation', () => {

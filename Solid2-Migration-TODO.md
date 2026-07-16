@@ -101,7 +101,7 @@ npm run test:rule -- src/rules/no-destructure/rule.test.ts
 
 - [x] `mergeProps` 추적을 `merge`로 바꾼다. 함수 또는 Proxy source를 전달한 `merge`는 Proxy를 생성할 수 있다.
 - [x] `solid-js/store` import 진단 책임은 `imports` rule로 옮긴다.
-- [ ] 2.0 store의 draft setter와 proxy 제약의 실제 관계를 확인해 메시지를 갱신한다.
+- [x] 2.0 store의 draft setter 동작을 prototype에서 확인하고, 이 rule은 draft setter를 보고하지 않으며 Proxy 금지 환경의 runtime 적합성을 보장하지 않는다고 문서화한다.
 
 ## 6. 제거 API migration rule
 

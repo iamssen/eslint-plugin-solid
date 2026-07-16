@@ -4,7 +4,9 @@ Proxy가 필요한 Solid API와 일반 `Proxy` API를 사용하지 않도록 검
 
 ## Solid에서 Proxy가 쓰이는 곳
 
-Solid signal은 accessor/setter 쌍으로 동작하지만, `createStore`와 `merge`는 객체 property 접근을 가로채기 위해 Proxy를 사용할 수 있습니다. Proxy는 편리하게 깊은 property 접근을 추적하지만, 지원하지 않는 환경·직렬화·외부 라이브러리 경계에서 제약이 될 수 있습니다. 이 rule은 그런 설계 제약을 명시적으로 선택한 프로젝트를 위한 것입니다.
+Solid signal은 accessor/setter 쌍으로 동작하지만, `createStore`와 동적인 `merge` source는 내부적으로 Proxy를 사용할 수 있습니다. Proxy는 편리하게 깊은 property 접근을 추적하지만, 지원하지 않는 환경·직렬화·외부 라이브러리 경계에서 제약이 될 수 있습니다. 이 rule은 그런 설계 제약을 명시적으로 선택한 프로젝트를 위한 것입니다.
+
+Solid 2의 store setter는 draft를 받아 그 안에서 변경합니다. draft는 setter 호출 동안만 쓰는 갱신용 값이며, `createMutable`처럼 component 밖에서 직접 변경하는 store proxy가 아닙니다. 이 rule은 권장되는 `setStore((draft) => { ... })` 형태를 보고하지 않습니다. 다만 이 rule이 `createStore` 자체의 runtime Proxy 사용 여부까지 보장하지는 않으므로, Proxy를 전혀 사용할 수 없는 환경이라면 store 대신 signal과 명시적 값 갱신을 선택해야 합니다.
 
 검사 대상에는 `new Proxy`, `Proxy.revocable`, `merge`에 동적인 함수/props 전달, 함수 호출 또는 멤버 접근을 JSX spread하는 패턴이 포함됩니다.
 
