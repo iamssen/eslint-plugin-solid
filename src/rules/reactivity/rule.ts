@@ -716,7 +716,7 @@ export default createRule<Options, MessageIds>({
     /*
      * Sync array functions (forEach, map, reduce, reduceRight, flatMap),
      * store update fn params (ex. setState("todos", (t) => [...t.slice(0, i()),
-     * ...t.slice(i() + 1)])), batch, onCleanup, and onError fn params, and
+     * ...t.slice(i() + 1)])), produce, onCleanup, and onError fn params, and
      * maybe a few others don't actually create a new scope. That is, any
      * signal/prop accesses in these functions act as if they happen in the
      * enclosing function. Note that this means whether or not the enclosing
@@ -737,7 +737,7 @@ export default createRule<Options, MessageIds>({
       ) {
         if (
           node.callee.type === 'Identifier' &&
-          matchImport(['batch', 'produce'], node.callee.name)
+          matchImport('produce', node.callee.name)
         ) {
           // These Solid APIs take callbacks that run in the current scope
           scopeStack.syncCallbacks.add(node.arguments[0]);

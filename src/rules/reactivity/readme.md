@@ -96,6 +96,16 @@ onSettled(() => {
 });
 ```
 
+Solid 2의 setter는 기본적으로 microtask 단위로 배치됩니다. 따라서 setter 직후 accessor를 읽으면 이전 값을 볼 수 있습니다. 여러 쓰기를 감싸던 1.x `batch`는 사용하지 않으며, 명령형 코드에서 즉시 최신 값이 꼭 필요한 경우에만 `flush()`를 명시적으로 호출합니다.
+
+```ts
+setFirstName('Ada');
+setLastName('Lovelace');
+// 다음 microtask 뒤 자동 반영
+
+flush(); // 드문 동기 read가 필요한 경우에만
+```
+
 프로젝트의 custom primitive가 callback을 reactive scope로 실행한다면 옵션에 등록합니다.
 
 ```ts
