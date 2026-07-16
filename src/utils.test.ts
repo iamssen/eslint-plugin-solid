@@ -1,9 +1,10 @@
 import { describe, expect, test, vi } from 'vitest';
 import tseslint from 'typescript-eslint';
 import type { TSESTree as T } from '@typescript-eslint/utils';
-import type * as Utils from './utils.js';
 
-const { trackImports } = (await vi.importActual('./utils.js')) as typeof Utils;
+vi.unmock('./utils.js');
+
+import { trackImports } from './utils.js';
 const parser = tseslint.parser as unknown as {
   parseForESLint(
     code: string,
