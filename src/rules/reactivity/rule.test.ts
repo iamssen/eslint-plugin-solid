@@ -275,6 +275,32 @@ describe('reactivity', () => {
           requestIdleCallback(() => console.log(signal()));
         `);
       });
+      test('using signals in queueMicrotask callbacks is valid', () => {
+        valid(`
+          const [count, setCount] = createSignal(0);
+          const update = () => {
+            setCount(1);
+            queueMicrotask(() => console.log(count()));
+          };
+          const el = <button onClick={update}>Update</button>;
+        `);
+      });
+    });
+    test('reactive merge source callbacks are valid', () => {
+      valid(`
+        import { createSignal, merge } from 'solid-js';
+
+        const [override, setOverride] = createSignal('provided');
+        const props = merge(
+          { label: 'default' },
+          () => ({ label: override() }),
+        );
+        const el = (
+          <button onClick={() => setOverride(undefined)}>
+            {props.label}
+          </button>
+        );
+      `);
     });
     describe(`Observers from Standard Web APIs`, () => {
       test('using signals in observer callbacks is valid', () => {

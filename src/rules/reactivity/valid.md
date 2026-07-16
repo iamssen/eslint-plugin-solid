@@ -13,6 +13,10 @@ In `batching.tsx`, reading an accessor immediately after a setter returned the
 previous value, `0`; after the next microtask it returned `1`. After
 `setCount(2)` followed by `flush()`, a read in the same handler returned `2`.
 
+The same fixture reads `count()` from a `queueMicrotask` callback after the
+setter. That callback observed the updated value and is an execution-time read,
+not a dependency-collecting reactive scope.
+
 Solid 1 `batch()` is therefore not modeled as a synchronous tracked scope. Let
 ordinary writes use automatic batching, and use `flush()` only when imperative
 code really needs an immediate read. `no-solid-1-apis` reports removed `batch`.
@@ -43,6 +47,11 @@ In `merge-omit.tsx`, a `merge(defaults, source)` source of
 `{ label: undefined }` did not retain the default: `label` became `undefined`.
 `omit(props, 'label')` retained the other property, and `omit(props)` retained
 all props.
+
+The source reads `override()` lazily when `props.label` is consumed in JSX, and
+the fixture changed the rendered label from `provided` to `undefined`. Its
+function source must therefore be accepted as part of the consuming tracked
+scope.
 
 The rule therefore tracks `merge` and `omit` results as reactive props. Since
 rewriting default-prop destructuring to `merge(defaults, props)` can change the

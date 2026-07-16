@@ -1112,6 +1112,14 @@ export default createRule<Options, MessageIds>({
             ) {
               // createEffect, createMemo, etc. take a tracked callback.
               pushTrackedScope(arg0, 'function');
+            } else if (matchImport('merge', callee.name)) {
+              // Function sources are resolved lazily when a merged prop is read.
+              // Their reactive reads belong to the consumer's tracked scope.
+              for (const argument of node.arguments) {
+                if (isFunctionNode(argument)) {
+                  pushTrackedScope(argument, 'function');
+                }
+              }
             } else if (
               matchImport(['onSettled', 'onCleanup', 'onError'], callee.name) ||
               [
@@ -1119,6 +1127,7 @@ export default createRule<Options, MessageIds>({
                 'setInterval',
                 'setTimeout',
                 'setImmediate',
+                'queueMicrotask',
                 'requestAnimationFrame',
                 'requestIdleCallback',
               ].includes(callee.name)

@@ -19,7 +19,7 @@ return <div>{props.value}</div>;
 
 규칙은 반응형 값의 쓰기, 이름 없는 파생 값, 비동기/콜백 추적 스코프, JSX·연산식·템플릿 리터럴에서의 읽기 등을 상황별로 검사합니다. 사용자 정의 reactive 함수는 `{ customReactiveFunctions: ['customQuery'] }`로 등록할 수 있습니다.
 
-모든 콜백에서 signal을 읽는 것이 오류라는 뜻은 아닙니다. 이벤트 핸들러나 `setTimeout`처럼 실행 시점에 최신 값을 읽는 것이 의도된 코드는 규칙의 진단과 실제 추적 필요성을 함께 검토해야 합니다.
+모든 콜백에서 signal을 읽는 것이 오류라는 뜻은 아닙니다. 이벤트 핸들러, `setTimeout`, `queueMicrotask`처럼 실행 시점에 최신 값을 읽는 것이 의도된 코드는 규칙의 진단과 실제 추적 필요성을 함께 검토해야 합니다.
 
 비동기 callback 안의 읽기는 callback이 나중에 실행될 때 새로운 추적 computation을 자동으로 만들지 않습니다. callback이 반응형 UI를 갱신해야 한다면 effect 안에서 값을 읽어 dependency를 등록하거나, callback에서 setter를 호출해 별도의 반응형 값을 갱신하는 식으로 의도를 분명히 해야 합니다.
 
@@ -58,6 +58,13 @@ const initial = untrack(() => count()); // valid: 의도적인 한 번 읽기
 ```tsx
 // valid: 클릭 시점의 최신 count를 읽음
 <button onClick={() => console.log(count())}>현재 값</button>
+```
+
+microtask에서도 Solid의 batched update 뒤 값을 확인할 수 있습니다. 이는 dependency를 등록하는 읽기가 아니라 실행 시점 읽기입니다.
+
+```tsx
+setCount(1);
+queueMicrotask(() => console.log(count())); // valid
 ```
 
 반대로 effect가 비동기 경계를 건너 읽은 값은 effect dependency가 되지 않습니다.
@@ -112,6 +119,14 @@ setLastName('Lovelace');
 // 다음 microtask 뒤 자동 반영
 
 flush(); // 드문 동기 read가 필요한 경우에만
+```
+
+`merge`의 function source는 merged prop을 읽을 때 lazy하게 평가됩니다. source 안의 반응형 읽기는 이를 소비하는 tracked scope에 속하므로 valid입니다.
+
+```tsx
+const [override] = createSignal('provided');
+const props = merge({ label: 'default' }, () => ({ label: override() }));
+return <output>{props.label}</output>;
 ```
 
 프로젝트의 custom primitive가 callback을 reactive scope로 실행한다면 옵션에 등록합니다.

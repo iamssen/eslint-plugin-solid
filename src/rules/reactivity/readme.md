@@ -29,11 +29,12 @@ reads in JSX, expressions, and template literals. Register project primitives
 that execute a callback reactively with
 `{ customReactiveFunctions: ['customQuery'] }`.
 
-Not every callback read is an error. An event handler or `setTimeout` callback
-may intentionally read the newest value at execution time; it does not register
-a UI dependency. An async callback does not automatically create a new tracked
-computation, so code that must update reactively should read the dependency in
-an effect or update a separate reactive value with a setter.
+Not every callback read is an error. An event handler, `setTimeout`, or
+`queueMicrotask` callback may intentionally read the newest value at execution
+time; it does not register a UI dependency. An async callback does not
+automatically create a new tracked computation, so code that must update
+reactively should read the dependency in an effect or update a separate reactive
+value with a setter.
 
 ## Examples
 
@@ -71,6 +72,14 @@ An event handler reads the latest value when the event occurs and is valid.
 
 ```tsx
 <button onClick={() => console.log(count())}>Current value</button>
+```
+
+Likewise, a microtask can inspect the value after Solid's batched update. It is
+an execution-time read, not a dependency registration.
+
+```tsx
+setCount(1);
+queueMicrotask(() => console.log(count())); // valid
 ```
 
 Reading only across an async boundary does not register the effect dependency.
@@ -134,6 +143,15 @@ setLastName('Lovelace');
 // automatically reflected after the next microtask
 
 flush(); // only for a rare synchronous imperative read
+```
+
+`merge` resolves a function source lazily when a merged prop is read. Reactive
+reads in that source belong to the consuming tracked scope and are valid.
+
+```tsx
+const [override] = createSignal('provided');
+const props = merge({ label: 'default' }, () => ({ label: override() }));
+return <output>{props.label}</output>;
 ```
 
 Custom primitives can be registered as tracked scopes:

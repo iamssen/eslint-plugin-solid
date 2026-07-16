@@ -13,6 +13,10 @@
 microtask에서는 `1`이었다. `setCount(2)` 뒤 `flush()`를 호출한 경우에는 같은
 handler 안의 읽기가 `2`였다.
 
+같은 fixture는 setter 뒤 `queueMicrotask` callback에서 `count()`를 읽는다. 이
+callback은 갱신된 값을 관찰했으며, dependency를 수집하는 reactive scope가 아니라
+실행 시점 읽기다.
+
 따라서 Solid 1의 `batch()` callback을 동기 tracked scope로 취급하지 않는다.
 일반 setter write는 자동 batching에 맡기고, 명령형 경계에서 즉시 읽기가 필요한
 경우만 `flush()`를 사용한다. 제거된 `batch` 호출은 `no-solid-1-apis`가 진단한다.
@@ -40,6 +44,10 @@ cleanup으로 `settled,cleanup`을 기록했다. 그러므로 `onSettled` callba
 `merge-omit.tsx`에서 `merge(defaults, source)`의 source가 `{ label: undefined }`를
 반환하면 default를 보존하지 않고 label이 `undefined`가 됐다. `omit(props, 'label')`은
 `retained`를 유지했고, 인수 없는 `omit(props)`은 모든 prop을 유지했다.
+
+source는 JSX가 `props.label`을 소비할 때 `override()`를 lazy하게 읽고, fixture는
+렌더링된 label이 `provided`에서 `undefined`로 바뀌는 것을 확인했다. 따라서 function
+source는 이를 소비하는 tracked scope의 일부로 허용해야 한다.
 
 따라서 `merge`/`omit` 결과는 reactive props로 추적한다. 한편 default prop
 destructuring을 `merge(defaults, props)`로 자동 수정하면 `undefined` 의미가 달라질 수
