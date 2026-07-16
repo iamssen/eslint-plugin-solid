@@ -19,15 +19,13 @@ export default createRule({
     },
     schema: [],
     messages: {
-      noStore:
-        'Solid Store APIs use Proxies, which are incompatible with your target environment.',
       spreadCall:
         'Using a function call in JSX spread makes Solid use Proxies, which are incompatible with your target environment.',
       spreadMember:
         'Using a property access in JSX spread makes Solid use Proxies, which are incompatible with your target environment.',
       proxyLiteral: 'Proxies are incompatible with your target environment.',
-      mergeProps:
-        'If you pass a function to `mergeProps`, it will create a Proxy, which are incompatible with your target environment.',
+      merge:
+        'If you pass a function or Proxy source to `merge`, it can create a Proxy, which is incompatible with your target environment.',
     },
   },
   // defaultOptions: [],
@@ -35,17 +33,7 @@ export default createRule({
     const { matchImport, handleImportDeclaration } = trackImports();
 
     return {
-      'ImportDeclaration'(node) {
-        handleImportDeclaration(node); // track import aliases
-
-        const source = node.source.value;
-        if (source === 'solid-js/store') {
-          context.report({
-            node,
-            messageId: 'noStore',
-          });
-        }
-      },
+      ImportDeclaration: handleImportDeclaration,
       'JSXSpreadAttribute MemberExpression'(node: T.MemberExpression) {
         context.report({ node, messageId: 'spreadMember' });
       },
@@ -54,7 +42,7 @@ export default createRule({
       },
       'CallExpression'(node) {
         if (node.callee.type === 'Identifier') {
-          if (matchImport('mergeProps', node.callee.name)) {
+          if (matchImport('merge', node.callee.name)) {
             const badArgs = node.arguments.filter((arg) => {
               if (arg.type === 'SpreadElement') return true;
               const traced = trace(arg, context);
@@ -66,7 +54,7 @@ export default createRule({
             for (const badArg of badArgs) {
               context.report({
                 node: badArg,
-                messageId: 'mergeProps',
+                messageId: 'merge',
               });
             }
           }

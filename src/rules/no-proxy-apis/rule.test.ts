@@ -42,14 +42,6 @@ describe('no-proxy-apis', () => {
         errors: [{ messageId: 'proxyLiteral' }],
       });
     });
-    // Solid 2.0에서 store API는 solid-js root export로 이동했다.
-    // imports migration rule이 이 경로를 진단할 때 다시 활성화한다.
-    test.skip('detects import from solid-js/store', () => {
-      invalid({
-        code: `import {} from 'solid-js/store';`,
-        errors: [{ messageId: 'noStore' }],
-      });
-    });
     test('detects spreading function call', () => {
       invalid({
         code: `let el = <div {...maybeSignal()} />`,
@@ -76,13 +68,13 @@ describe('no-proxy-apis', () => {
     });
     test('detects merge with single argument', () => {
       invalid({
-        code: `let merged = merge(maybeSignal)`,
+        code: `import { merge } from 'solid-js'; let merged = merge(maybeSignal)`,
         errors: [{ messageId: 'merge' }],
       });
     });
     test('detects merge with function argument', () => {
       invalid({
-        code: `let func = () => ({}); let merged = merge(func, props)`,
+        code: `import { merge } from 'solid-js'; let func = () => ({}); let merged = merge(func, props)`,
         errors: [{ messageId: 'merge' }],
       });
     });
