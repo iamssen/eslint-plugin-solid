@@ -27,17 +27,9 @@ describe('no-array-handlers', () => {
         let el = <button style={{background: 'pink'}} onclick={handler} />
       `);
     });
-    // Solid 2.0에서 attr:은 제거됐다.
-    test.skip('array handlers are valid for attr: namespace', () => {
-      valid(`let el = <button attr:click={[(x) => x, 9001]} />`);
-    });
     // TODO(Solid 2): 가이드는 prop: namespace의 지원 여부를 명시하지 않는다.
     test('array handlers are valid for prop: namespace', () => {
       valid(`let el = <button prop:onClick={[(x) => x, 9001]} />`);
-    });
-    // Solid 2.0에서 on:은 제거됐다.
-    test.skip('function handlers are valid for on: namespace', () => {
-      valid(`let el = <button on:Click={() => 1+1} />`);
     });
     test('props passed as event handlers are valid', () => {
       valid(`
@@ -85,10 +77,9 @@ describe('no-array-handlers', () => {
         errors: [{ messageId: 'noArrayHandlers' }],
       });
     });
-    // Solid 2.0에서 on:은 제거됐다. 일반 onClick closure로 대체할 때 다시 작성한다.
-    test.skip('detects array syntax for on: namespace event handlers', () => {
+    test('detects array syntax for custom event handlers', () => {
       invalid({
-        code: `let el = <div on:click={[handler, i()]} />`,
+        code: `let el = <button onCustom={[(amount) => amount, 2]} />`,
         errors: [{ messageId: 'noArrayHandlers' }],
       });
     });

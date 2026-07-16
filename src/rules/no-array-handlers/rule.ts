@@ -8,13 +8,13 @@ export default createRule({
   meta: {
     type: 'problem',
     docs: {
-      description: 'Disallow usage of type-unsafe event handlers.',
+      description: 'Disallow Solid array event handlers when enabled.',
       url: 'https://github.com/iamssen/eslint-plugin-solid/blob/main/src/rules/no-array-handlers/readme.md',
     },
     schema: [],
     messages: {
       noArrayHandlers:
-        'Passing an array as an event handler is potentially type-unsafe.',
+        'Array event handlers are disallowed by this rule.',
     },
   },
   // defaultOptions: [],
@@ -29,15 +29,12 @@ export default createRule({
           return; // bail if this is not a DOM/SVG element or web component
         }
 
-        const isNamespacedHandler =
-          node.name.type === 'JSXNamespacedName' &&
-          node.name.namespace.name === 'on';
         const isNormalEventHandler =
           node.name.type === 'JSXIdentifier' &&
           /^on[a-zA-Z]/.test(node.name.name);
 
         if (
-          (isNamespacedHandler || isNormalEventHandler) &&
+          isNormalEventHandler &&
           node.value?.type === 'JSXExpressionContainer' &&
           trace(node.value.expression, context).type === 'ArrayExpression'
         ) {

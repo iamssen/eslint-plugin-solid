@@ -51,7 +51,7 @@ npm run test:rule -- src/rules/no-destructure/rule.test.ts
 
 - [x] `attr:on...` suggestion과 fixer를 제거한다.
 - [x] 일반 handler는 camelCase prop으로, native capture/options는 `ref` + `addEventListener`로 안내한다.
-- [ ] array handler의 2.0 지원 범위를 확인하고, 지원하지 않으면 closure fixer 또는 안전한 report-only 정책을 정한다.
+- [x] array handler의 2.0 지원 범위를 prototype에서 확인했다. 지원되는 문법이므로 `no-array-handlers`는 recommended에서 끈 opt-in 스타일 정책으로 유지한다.
 - [x] 제거된 namespace 사례는 이유·대체 API를 적은 `test.skip()`으로 보존하고, 일반 handler·배열 handler·spread handler의 2.0 valid 사례를 추가한다.
 
 ### `jsx-no-undef`

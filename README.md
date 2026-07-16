@@ -68,7 +68,7 @@ The config does not define environment globals. Add `languageOptions.globals` in
 | ✔ |  | [solid/jsx-no-duplicate-props](https://github.com/iamssen/eslint-plugin-solid/blob/main/src/rules/jsx-no-duplicate-props/readme.md) | Disallow passing the same prop twice in JSX. |
 | ✔ |  | [solid/jsx-no-script-url](https://github.com/iamssen/eslint-plugin-solid/blob/main/src/rules/jsx-no-script-url/readme.md) | Disallow `javascript:` URLs. |
 | ✔ | 🔧 | [solid/jsx-no-undef](https://github.com/iamssen/eslint-plugin-solid/blob/main/src/rules/jsx-no-undef/readme.md) | Disallow undefined JSX component references. |
-|  |  | [solid/no-array-handlers](https://github.com/iamssen/eslint-plugin-solid/blob/main/src/rules/no-array-handlers/readme.md) | Disallow type-unsafe event handlers. |
+|  |  | [solid/no-array-handlers](https://github.com/iamssen/eslint-plugin-solid/blob/main/src/rules/no-array-handlers/readme.md) | Optionally disallow Solid array event handlers. |
 | ✔ | 🔧 | [solid/no-destructure](https://github.com/iamssen/eslint-plugin-solid/blob/main/src/rules/no-destructure/readme.md) | Disallow destructuring props, which breaks Solid reactivity. |
 | ✔ | 🔧 | [solid/no-innerhtml](https://github.com/iamssen/eslint-plugin-solid/blob/main/src/rules/no-innerhtml/readme.md) | Disallow the potentially unsafe `innerHTML` attribute. |
 |  |  | [solid/no-proxy-apis](https://github.com/iamssen/eslint-plugin-solid/blob/main/src/rules/no-proxy-apis/readme.md) | Disallow APIs that require ES6 Proxy support. |
