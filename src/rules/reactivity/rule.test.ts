@@ -47,19 +47,19 @@ describe('reactivity', () => {
     });
     test('accessing merged props is tracked', () => {
       valid(`
+        import { merge } from 'solid-js';
         let Component = _props => {
           const props = merge({ value: "default" }, _props);
           return <div>{props.value}</div>;
         };
       `);
     });
-    // Solid 2.0에서 splitProps는 omit으로 대체되며 반환 형태가 다르다.
-    // reactivity가 omit 결과를 props로 추적하도록 구현한 뒤 2.0 사례로 다시 작성한다.
-    test.skip('accessing split props is tracked', () => {
+    test('accessing omitted props is tracked', () => {
       valid(`
+        import { omit } from 'solid-js';
         let Component = _props => {
-          const [foo, bar, baz] = splitProps(_props, ["foo"], ["bar"]);
-          return <div>{foo.foo} {bar.bar} {baz.baz}</div>;
+          const rest = omit(_props, "foo", "bar");
+          return <div>{rest.baz}</div>;
         };
       `);
     });
@@ -703,6 +703,21 @@ describe('reactivity', () => {
       });
     });
     describe(`Untracked property access`, () => {
+      test('detects untracked property access from omitted props', () => {
+        invalid({
+          code: `
+            import { omit } from 'solid-js';
+            const Component = _props => {
+              const rest = omit(_props, 'value');
+              const extra = rest.extra;
+              return <div>{extra}</div>;
+            }
+          `,
+          errors: [
+            { messageId: 'untrackedReactive', data: { name: 'rest.extra' } },
+          ],
+        });
+      });
       test('detects untracked property access in component body', () => {
         invalid({
           code: `

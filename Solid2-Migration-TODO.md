@@ -72,7 +72,7 @@ npm run test:rule -- src/rules/no-destructure/rule.test.ts
 
 가장 큰 rule이며, 나머지 reactivity 관련 fixer의 전제가 된다. 작은 subtask로 나누어 개별 실행한다.
 
-- [ ] `merge`와 `omit` 결과를 reactive props로 추적한다.
+- [x] `merge`와 `omit` 결과를 reactive props로 추적한다.
 - [ ] `createEffect`의 compute/apply 시그니처를 모델링한다.
   - [ ] compute 단계의 signal/store setter write를 진단한다.
   - [ ] apply 단계의 write와 cleanup 반환은 허용한다.

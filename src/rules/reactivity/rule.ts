@@ -823,32 +823,19 @@ export default createRule<Options, MessageIds>({
           } else {
             warnShouldDestructure(id ?? init, 'first');
           }
-        } else if (matchImport('mergeProps', callee.name)) {
+        } else if (matchImport('merge', callee.name)) {
           const merged = id && getReturnedVar(id, context);
           if (merged) {
             scopeStack.pushProps(merged, currentScope().node);
           } else {
             warnShouldAssign(id ?? init);
           }
-        } else if (matchImport('splitProps', callee.name)) {
-          // splitProps can return an unbounded array of props variables, though it's most often two
-          if (id?.type === 'ArrayPattern') {
-            const vars = id.elements
-              .map((_, i) => getNthDestructuredVar(id, i, context))
-              .filter(Boolean) as Array<Variable>;
-            if (vars.length === 0) {
-              warnShouldDestructure(id);
-            } else {
-              for (const variable of vars) {
-                scopeStack.pushProps(variable, currentScope().node);
-              }
-            }
+        } else if (matchImport('omit', callee.name)) {
+          const omitted = id && getReturnedVar(id, context);
+          if (omitted) {
+            scopeStack.pushProps(omitted, currentScope().node);
           } else {
-            // if it's returned as an array, treat that as a props object
-            const vars = id && getReturnedVar(id, context);
-            if (vars) {
-              scopeStack.pushProps(vars, currentScope().node);
-            }
+            warnShouldAssign(id ?? init);
           }
         } else if (matchImport('createResource', callee.name)) {
           // createResource return value has reactive .loading and .error
