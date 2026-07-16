@@ -32,6 +32,8 @@ const recommended = {
     '@ssen/solid/style-prop': 'warn',
     '@ssen/solid/no-react-deps': 'warn',
     '@ssen/solid/no-react-specific-props': 'warn',
+    // Solid 2 migration diagnostics
+    '@ssen/solid/no-solid-1-apis': 'warn',
     '@ssen/solid/self-closing-comp': 'warn',
     '@ssen/solid/no-array-handlers': 'off',
     // handled by Solid compiler, opt-in style suggestion

@@ -107,14 +107,14 @@ npm run test:rule -- src/rules/no-destructure/rule.test.ts
 
 이름만 바꾸면 의미가 달라지는 API는 기존 style rule에 억지로 넣지 않고 별도 rule로 관리한다.
 
-- [ ] `no-solid-1-apis` 같은 migration rule의 이름·권장 설정 포함 여부를 결정한다.
-- [ ] import alias와 namespace import를 포함해 다음 API를 탐지한다.
-  - [ ] `createResource`, `Suspense`, `SuspenseList`, `ErrorBoundary`
-  - [ ] `useTransition`, `startTransition`, `batch`, `on`, `createComputed`
-  - [ ] `createMutable`, `modifyMutable`, `from`, `observable`, `createDeferred`
-  - [ ] `Index`, `indexArray`, `Context.Provider`
-- [ ] 대체가 단일하지 않은 API는 autofix하지 않고 `Loading`, `Reveal`, `action`, `isPending`, async iterator 등 문맥별 대체 방향만 메시지에 제시한다.
-- [ ] 단순 rename이고 안전한 경우만 fixer를 제공한다.
+- [x] `no-solid-1-apis` migration rule을 도입하고 recommended에 warning으로 포함한다.
+- [x] import alias와 namespace import를 포함해 다음 API를 탐지한다.
+  - [x] `createResource`, `Suspense`, `SuspenseList`, `ErrorBoundary`
+  - [x] `useTransition`, `startTransition`, `batch`, `on`, `createComputed`
+  - [x] `createMutable`, `modifyMutable`, `from`, `observable`, `createDeferred`
+  - [x] `Index`, `indexArray`, `Context.Provider`
+- [x] 대체가 단일하지 않은 API는 autofix하지 않고 `Loading`, `Reveal`, `action`, `isPending`, async iterator 등 문맥별 대체 방향만 메시지에 제시한다.
+- [x] 안전하게 의미를 보존하는 단순 rename은 없으므로 fixer를 제공하지 않는다.
 
 ## 7. 설정·fixture·문서 통합
 

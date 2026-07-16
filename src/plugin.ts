@@ -10,6 +10,7 @@ import noInnerHTML from './rules/no-innerhtml/rule.js';
 import noProxyApis from './rules/no-proxy-apis/rule.js';
 import noReactDeps from './rules/no-react-deps/rule.js';
 import noReactSpecificProps from './rules/no-react-specific-props/rule.js';
+import noSolid1Apis from './rules/no-solid-1-apis/rule.js';
 import noUnknownNamespaces from './rules/no-unknown-namespaces/rule.js';
 import preferFor from './rules/prefer-for/rule.js';
 import preferShow from './rules/prefer-show/rule.js';
@@ -40,6 +41,7 @@ const allRules = {
   'no-proxy-apis': noProxyApis,
   'no-react-deps': noReactDeps,
   'no-react-specific-props': noReactSpecificProps,
+  'no-solid-1-apis': noSolid1Apis,
   'no-unknown-namespaces': noUnknownNamespaces,
   'prefer-for': preferFor,
   'prefer-show': preferShow,
