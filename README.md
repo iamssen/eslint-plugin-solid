@@ -17,12 +17,6 @@ This package supports Solid.js 2.0 and later only.
 npm install --save-dev eslint @ssen/eslint-plugin-solid
 ```
 
-To lint TypeScript files, also install `typescript-eslint` in your project.
-
-```sh
-npm install --save-dev typescript-eslint
-```
-
 ## Configuration
 
 This plugin provides a single flat config: `recommended`.

@@ -17,12 +17,6 @@
 npm install --save-dev eslint @ssen/eslint-plugin-solid
 ```
 
-TypeScript 파일을 lint하려면 프로젝트에 `typescript-eslint`도 설치합니다.
-
-```sh
-npm install --save-dev typescript-eslint
-```
-
 ## 설정
 
 이 plugin은 `recommended`라는 단일 flat config를 제공합니다.
