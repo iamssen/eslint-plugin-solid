@@ -6,7 +6,6 @@ const recommended = {
     '@ssen/solid': plugin,
   },
   languageOptions: {
-    sourceType: 'module',
     parserOptions: {
       ecmaFeatures: {
         jsx: true,

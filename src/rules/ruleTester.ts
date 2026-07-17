@@ -1,5 +1,6 @@
 import * as babelEslintParser from '@babel/eslint-parser';
 import prettier from '@prettier/sync';
+import typescriptEslintParser from '@typescript-eslint/parser';
 import type {
   InvalidTestCase,
   ValidTestCase,
@@ -7,7 +8,6 @@ import type {
 import type { ESLintUtils } from '@typescript-eslint/utils';
 import { RuleTester as RuleTester_v10 } from 'eslint';
 import assert from 'node:assert';
-import tseslint from 'typescript-eslint';
 
 function formatWithPrettier(code: unknown): unknown {
   if (typeof code !== 'string') {
@@ -56,8 +56,6 @@ const PrettierRuleTester_v10 = createPrettierRuleTester(RuleTester_v10);
 // The default parser
 const v10Tester = new PrettierRuleTester_v10({
   languageOptions: {
-    ecmaVersion: 2018,
-    sourceType: 'module',
     parserOptions: {
       ecmaFeatures: {
         jsx: true,
@@ -69,7 +67,7 @@ const v10Tester = new PrettierRuleTester_v10({
 // TypeScript's ESLint parser
 const tsTester = new PrettierRuleTester_v10({
   languageOptions: {
-    parser: tseslint.parser,
+    parser: typescriptEslintParser,
     parserOptions: {
       ecmaFeatures: {
         jsx: true,

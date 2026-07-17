@@ -1,19 +1,12 @@
+import typescriptEslintParser from '@typescript-eslint/parser';
 import { describe, expect, test, vi } from 'vitest';
-import tseslint from 'typescript-eslint';
-import type { TSESTree as T } from '@typescript-eslint/utils';
 
 vi.unmock('./utils.js');
 
 import { trackImports } from './utils.js';
-const parser = tseslint.parser as unknown as {
-  parseForESLint(
-    code: string,
-    options: { loc: boolean; range: boolean; sourceType: 'module' },
-  ): { ast: T.Program };
-};
 
 function track(code: string) {
-  const ast = parser.parseForESLint(code, {
+  const ast = typescriptEslintParser.parseForESLint(code, {
     loc: true,
     range: true,
     sourceType: 'module',
