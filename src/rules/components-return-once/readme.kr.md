@@ -2,6 +2,22 @@
 
 [English](./readme.md)
 
+Solid 컴포넌트의 조기·조건부 `return`을 금지합니다.
+
+## 기본 설정
+
+이 rule은 `recommended`에서 warning으로 활성화됩니다.
+
+```js
+'@ssen/solid/components-return-once': 'warn'
+```
+
+## 옵션
+
+이 rule에는 옵션이 없습니다.
+
+## 상세
+
 Solid 컴포넌트 함수는 일반적으로 상태가 바뀔 때마다 다시 실행되지 않습니다. 컴포넌트 함수의 조건부/조기 `return`은 처음 평가된 경로 밖에 반응형 JSX를 둘 수 있으므로, 조건부 렌더링을 JSX 안에서 표현하도록 안내합니다.
 
 ## React와 다른 점

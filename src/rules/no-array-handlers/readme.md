@@ -2,6 +2,23 @@
 
 [한국어](./readme.kr.md)
 
+Optionally disallow Solid array event handlers.
+
+## Default configuration
+
+This rule is disabled by `recommended`. Enable it only when the project chooses
+not to use Solid array event handlers.
+
+```js
+'@ssen/solid/no-array-handlers': 'error'
+```
+
+## Options
+
+This rule has no options.
+
+## Details
+
 Optionally disallow Solid array event handlers. Solid 2 supports
 `<button onClick={[handler, value]} />` and the same form for custom events.
 Enable this rule only for a team that chooses not to use that syntax; it is off

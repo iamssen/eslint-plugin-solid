@@ -2,6 +2,31 @@
 
 [한국어](./readme.kr.md)
 
+Report incorrect use of signals, memos, props, and stores.
+
+## Default configuration
+
+This rule is enabled as a warning by `recommended`.
+
+```js
+'@ssen/solid/reactivity': 'warn'
+```
+
+## Options
+
+`customReactiveFunctions` defaults to an empty array. Add function names that
+should accept reactive values as tracked arguments; functions whose names begin
+with `create` or `use` are already recognized.
+
+```js
+'@ssen/solid/reactivity': [
+  'warn',
+  { customReactiveFunctions: ['observeValue'] },
+]
+```
+
+## Details
+
 Report patterns that read signals, memos, props, or stores outside tracked
 locations, or otherwise handle reactive values incorrectly. Solid records a
 dependency when a reactive value is read; copying it into an ordinary variable

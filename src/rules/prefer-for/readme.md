@@ -2,6 +2,22 @@
 
 [한국어](./readme.kr.md)
 
+Prefer Solid's `<For>` to array `.map()` in JSX.
+
+## Default configuration
+
+This rule is enabled as an error by `recommended`.
+
+```js
+'@ssen/solid/prefer-for': 'error'
+```
+
+## Options
+
+This rule has no options.
+
+## Details
+
 Prefer Solid's `<For>` to an array `.map()` that renders a list directly in JSX.
 Solid's control-flow component has a list-oriented reactive update model.
 

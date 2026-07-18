@@ -2,6 +2,22 @@
 
 [English](./readme.md)
 
+Solid 2 공개 API import 경계를 강제합니다.
+
+## 기본 설정
+
+이 rule은 `recommended`에서 warning으로 활성화됩니다.
+
+```js
+'@ssen/solid/imports': 'warn'
+```
+
+## 옵션
+
+이 rule에는 옵션이 없습니다.
+
+## 상세
+
 Solid 2.0의 공개 API를 올바른 패키지에서 가져오도록 검사하고, 경로가 확정된 경우 자동 수정합니다.
 
 ## 패키지 경계

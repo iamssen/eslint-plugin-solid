@@ -2,6 +2,22 @@
 
 [한국어](./readme.kr.md)
 
+Disallow React-style dependency arrays in Solid reactive primitives.
+
+## Default configuration
+
+This rule is enabled as a warning by `recommended`.
+
+```js
+'@ssen/solid/no-react-deps': 'warn'
+```
+
+## Options
+
+This rule has no options.
+
+## Details
+
 Disallow React-style dependency arrays in Solid reactive primitives. Solid
 tracks dependencies when an accessor or reactive property is read inside its
 compute scope, rather than comparing an explicit array on a later render.

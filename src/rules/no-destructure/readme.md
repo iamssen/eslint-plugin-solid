@@ -2,6 +2,22 @@
 
 [한국어](./readme.kr.md)
 
+Disallow destructuring reactive Solid props.
+
+## Default configuration
+
+This rule is enabled as an error by `recommended`.
+
+```js
+'@ssen/solid/no-destructure': 'error'
+```
+
+## Options
+
+This rule has no options.
+
+## Details
+
 Disallow destructuring reactive Solid props. Direct destructuring reads values
 once and loses the property access that Solid uses for tracking.
 

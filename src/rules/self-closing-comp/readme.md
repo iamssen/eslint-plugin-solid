@@ -2,6 +2,30 @@
 
 [한국어](./readme.kr.md)
 
+Require self-closing syntax for JSX elements without children.
+
+## Default configuration
+
+This rule is enabled as a warning by `recommended`.
+
+```js
+'@ssen/solid/self-closing-comp': 'warn'
+```
+
+## Options
+
+`component` defaults to `'all'` and accepts `'all'` or `'none'`.
+`html` defaults to `'all'` and accepts `'all'`, `'void'`, or `'none'`.
+
+```js
+'@ssen/solid/self-closing-comp': [
+  'warn',
+  { component: 'all', html: 'void' },
+]
+```
+
+## Details
+
 Require self-closing syntax for JSX elements without children, and optionally
 limit self-closing syntax for native HTML elements.
 

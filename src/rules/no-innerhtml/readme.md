@@ -2,6 +2,27 @@
 
 [한국어](./readme.kr.md)
 
+Report XSS-prone HTML injection through `innerHTML`.
+
+## Default configuration
+
+This rule is enabled as an error by `recommended`.
+
+```js
+'@ssen/solid/no-innerhtml': 'error'
+```
+
+## Options
+
+`allowStatic` defaults to `true`, allowing a value that is provably a static
+HTML string. Set it to `false` to report static HTML as well.
+
+```js
+'@ssen/solid/no-innerhtml': ['error', { allowStatic: false }]
+```
+
+## Details
+
 Report XSS-prone HTML injection through `innerHTML` and React-style
 `dangerouslySetInnerHTML`. Static HTML can also be disallowed when that is the
 project policy.

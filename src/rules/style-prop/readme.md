@@ -2,6 +2,31 @@
 
 [한국어](./readme.kr.md)
 
+Validate CSS property names and values in JSX style props.
+
+## Default configuration
+
+This rule is enabled as a warning by `recommended`.
+
+```js
+'@ssen/solid/style-prop': 'warn'
+```
+
+## Options
+
+`styleProps` defaults to `['style']` and accepts a non-empty array of prop
+names to treat as style objects. `allowString` defaults to `false`; set it to
+`true` to leave style string literals unchanged.
+
+```js
+'@ssen/solid/style-prop': [
+  'warn',
+  { allowString: true, styleProps: ['style', 'sx'] },
+]
+```
+
+## Details
+
 Validate CSS property names in JSX `style` objects, prefer kebab-case, and
 require explicit string units for numeric length and percentage properties.
 

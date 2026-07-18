@@ -4,6 +4,22 @@
 
 Report React JSX prop names that should use Solid or DOM names instead.
 
+## Default configuration
+
+This rule is enabled as a warning by `recommended`.
+
+```js
+'@ssen/solid/no-react-specific-props': 'warn'
+```
+
+## Options
+
+This rule has no options.
+
+## Details
+
+Report React JSX prop names that should use Solid or DOM names instead.
+
 ## React JSX and Solid JSX
 
 React's DOM renderer gives props such as `className`, `htmlFor`, and `key`

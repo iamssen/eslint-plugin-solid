@@ -2,6 +2,9 @@
 
 [English](./README.md)
 
+[solidjs-community/eslint-plugin-solid](https://github.com/solidjs-community/eslint-plugin-solid)의
+하드포크이며, Solid.js 2를 대상으로 독립적으로 유지 관리합니다.
+
 반응성, JSX, event handler, 흔한 React 패턴 오류를 검사하는 Solid.js 전용 ESLint rule 모음입니다.
 이 패키지는 Solid.js 2.0 이상만 지원합니다.
 

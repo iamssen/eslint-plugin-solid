@@ -2,6 +2,30 @@
 
 [한국어](./readme.kr.md)
 
+Report JSX namespace attributes unsupported or removed in Solid 2.
+
+## Default configuration
+
+This rule is enabled as an error by `recommended`.
+
+```js
+'@ssen/solid/no-unknown-namespaces': 'error'
+```
+
+## Options
+
+`allowedNamespaces` defaults to an empty array. Add one or more namespace names
+to allow them in addition to the built-in `prop:` namespace.
+
+```js
+'@ssen/solid/no-unknown-namespaces': [
+  'error',
+  { allowedNamespaces: ['vendor'] },
+]
+```
+
+## Details
+
 Report JSX namespace attributes that Solid 2 no longer supports or does not
 recognize. The rule prevents removed Solid 1.x syntax from remaining as an
 unintended attribute and catches namespace typos.

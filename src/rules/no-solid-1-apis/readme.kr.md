@@ -2,6 +2,22 @@
 
 [English](./readme.md)
 
+Solid 2에서 제거된 API를 금지합니다.
+
+## 기본 설정
+
+이 rule은 `recommended`에서 warning으로 활성화됩니다.
+
+```js
+'@ssen/solid/no-solid-1-apis': 'warn'
+```
+
+## 옵션
+
+이 rule에는 옵션이 없습니다.
+
+## 상세
+
 Solid 2에서 제거된 Solid 1.x API의 사용을 금지합니다. 이 규칙은 `solid-js`와 `solid-js/store`의 named import, alias, namespace import 및 `createContext()`로 만든 `Context.Provider`를 추적합니다.
 
 자동 수정은 제공하지 않습니다. API마다 대체 방식이 데이터 흐름과 UI 구조에 따라 달라, 기계적인 이름 치환이 안전하지 않기 때문입니다.

@@ -2,6 +2,31 @@
 
 [English](./readme.md)
 
+JSX style prop의 CSS 속성 이름과 값을 검증합니다.
+
+## 기본 설정
+
+이 rule은 `recommended`에서 warning으로 활성화됩니다.
+
+```js
+'@ssen/solid/style-prop': 'warn'
+```
+
+## 옵션
+
+`styleProps`의 기본값은 `['style']`이며 style object로 다룰 prop 이름의 비어 있지
+않은 배열을 받습니다. `allowString`의 기본값은 `false`이며, `true`로 설정하면 style
+string literal을 변경하지 않습니다.
+
+```js
+'@ssen/solid/style-prop': [
+  'warn',
+  { allowString: true, styleProps: ['style', 'sx'] },
+]
+```
+
+## 상세
+
 JSX의 `style` 객체에서 CSS 속성명을 검증하고 kebab-case를 사용하도록 하며, 길이·퍼센트 계열 속성의 숫자 값을 문자열 단위로 작성하도록 안내합니다.
 
 ## React의 style 객체와 다른 점

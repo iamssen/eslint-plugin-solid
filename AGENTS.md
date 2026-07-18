@@ -25,11 +25,15 @@
   - Rule 관련 정보들
   - Contribution에 필요한 정보들 (기본 감춰진 상태면 더 좋다)
 - `README.md`는 영어로 작성한다.
+- `README.md`의 상단에 이 Plug-in이 <https://github.com/solidjs-community/eslint-plugin-solid>의 하드포크 임을 밝힌다.
 - `README.kr.md`는 `README.md`를 한국어로 번역한다.
 - `src/rules/<rule-name>/readme.md`는 영어로 작성한다.
+- `src/rules/<rule-name>/readme.md`의 상단에는 해당 rule에 대한 간단한 설명과 기본 설정, 설정 가능한 옵션들을 코드로 보여준다.
 - `src/rules/<rule-name>/*.md`파일들을 `*.kr.md`로 번역한다.
 - `*.md`와 `*.kr.md` 파일들은 상호간에 전환될 수 있도록 상단에 언어 선택 링크를 둔다.
+- `*.md`와 `*.kr.md` 파일의 내용은 동일해야한다. 번역 이외에 서로 다른 내용이 되지 않도록 한다.
 - `docs/`의 문서들은 사용자에게 제공되는 문서가 아니므로 번역하지 않는다.
+- `docs/done/`의 문서들은 더이상 사용되지 않으므로 명시적 요청이 있지 않는한 읽지 않는다.
 - rule의 runtime 의미를 prototype에서 확인했다면 해당 rule의 `valid.md`에 다음을 기록한다.
   - 해당 fixture 파일의 내용 (문서에서 코드 확인이 가능해야 합니다.)
   - 관찰한 결과

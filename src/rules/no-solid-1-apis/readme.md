@@ -2,6 +2,22 @@
 
 [한국어](./readme.kr.md)
 
+Disallow APIs removed from Solid 2.
+
+## Default configuration
+
+This rule is enabled as a warning by `recommended`.
+
+```js
+'@ssen/solid/no-solid-1-apis': 'warn'
+```
+
+## Options
+
+This rule has no options.
+
+## Details
+
 Disallow Solid 1 APIs removed in Solid 2. The rule resolves named imports,
 aliases, namespace imports, and `Context.Provider` created by `createContext`.
 

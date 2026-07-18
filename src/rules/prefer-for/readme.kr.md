@@ -2,6 +2,22 @@
 
 [English](./readme.md)
 
+JSX에서 배열 `.map()`보다 Solid의 `<For>`를 선호합니다.
+
+## 기본 설정
+
+이 rule은 `recommended`에서 error로 활성화됩니다.
+
+```js
+'@ssen/solid/prefer-for': 'error'
+```
+
+## 옵션
+
+이 rule에는 옵션이 없습니다.
+
+## 상세
+
 JSX 안에서 배열의 `.map()`으로 목록을 렌더링하는 대신 Solid의 `<For>`를 사용하도록 안내합니다. Solid의 제어 흐름 컴포넌트는 목록 업데이트에 맞는 세밀한 반응성 모델을 제공합니다.
 
 ## 왜 `.map()`과 다를까?

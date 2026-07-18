@@ -2,6 +2,22 @@
 
 [English](./readme.md)
 
+Solid 반응형 primitive의 React식 dependency array를 금지합니다.
+
+## 기본 설정
+
+이 rule은 `recommended`에서 warning으로 활성화됩니다.
+
+```js
+'@ssen/solid/no-react-deps': 'warn'
+```
+
+## 옵션
+
+이 rule에는 옵션이 없습니다.
+
+## 상세
+
 `createEffect`와 `createMemo`에 React식 dependency array를 전달하지 않도록 검사합니다. Solid는 계산 함수 안에서 읽은 반응형 값을 자동으로 추적합니다.
 
 ## React의 dependency array와 다른 점

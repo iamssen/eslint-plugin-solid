@@ -2,6 +2,23 @@
 
 [English](./readme.md)
 
+Solid 배열 event handler를 선택적으로 금지합니다.
+
+## 기본 설정
+
+이 rule은 `recommended`에서 비활성화되어 있습니다. 프로젝트가 Solid 배열 event
+handler를 사용하지 않기로 한 경우에만 활성화합니다.
+
+```js
+'@ssen/solid/no-array-handlers': 'error'
+```
+
+## 옵션
+
+이 rule에는 옵션이 없습니다.
+
+## 상세
+
 Solid 이벤트 핸들러의 배열 구문을 선택적으로 금지합니다. Solid 2.0은 `<button onClick={[handler, value]} />`와 custom event의 같은 형태를 지원합니다. 이 rule은 해당 구문을 쓰지 않기로 한 팀에서만 켜는 스타일 정책이며, recommended 설정에서는 꺼져 있습니다.
 
 Solid의 배열 handler는 React의 `onClick={(event) => handler(value, event)}`를 단순히 다른 문법으로 쓴 것이 아닙니다. Solid의 JSX runtime이 배열의 첫 항목을 handler로, 나머지 값을 handler 호출 시 인자로 전달하도록 해 closure 생성을 피하는 Solid 전용 문법입니다. 이 rule을 활성화하면 그러한 프로젝트 정책을 일관되게 적용할 수 있습니다.

@@ -2,6 +2,27 @@
 
 [한국어](./readme.kr.md)
 
+Disallow passing the same JSX prop more than once.
+
+## Default configuration
+
+This rule is enabled as an error by `recommended`.
+
+```js
+'@ssen/solid/jsx-no-duplicate-props': 'error'
+```
+
+## Options
+
+`ignoreCase` defaults to `false`. Set it to `true` to treat prop names that
+differ only by case as duplicates.
+
+```js
+'@ssen/solid/jsx-no-duplicate-props': ['error', { ignoreCase: true }]
+```
+
+## Details
+
 Disallow passing the same JSX prop more than once. Duplicate props make the
 last-write behavior difficult to see and can conceal an unintended override.
 

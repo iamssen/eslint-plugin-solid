@@ -2,6 +2,30 @@
 
 [English](./readme.md)
 
+자식이 없는 JSX 요소에 self-closing 문법을 요구합니다.
+
+## 기본 설정
+
+이 rule은 `recommended`에서 warning으로 활성화됩니다.
+
+```js
+'@ssen/solid/self-closing-comp': 'warn'
+```
+
+## 옵션
+
+`component`의 기본값은 `'all'`이며 `'all'` 또는 `'none'`을 받습니다.
+`html`의 기본값은 `'all'`이며 `'all'`, `'void'`, `'none'`을 받습니다.
+
+```js
+'@ssen/solid/self-closing-comp': [
+  'warn',
+  { component: 'all', html: 'void' },
+]
+```
+
+## 상세
+
 자식이 없는 JSX 요소를 self-closing 형태로 통일하고, 옵션에 따라 native HTML 요소의 self-closing 사용을 제한합니다.
 
 JSX에서 `<Component />`와 `<Component></Component>`는 자식이 없다는 점에서는 같은 구조입니다. 이 rule은 실행 모델을 바꾸는 규칙이 아니라, 빈 component/element의 의도를 명확히 하고 formatter·코드 리뷰에서 일관된 표현을 유지하기 위한 layout rule입니다. HTML의 void element와 일반 element를 구분해야 하므로 `html` 옵션을 제공합니다.

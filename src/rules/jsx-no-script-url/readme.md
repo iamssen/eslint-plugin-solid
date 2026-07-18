@@ -2,6 +2,22 @@
 
 [한국어](./readme.kr.md)
 
+Disallow `javascript:` URLs in JSX attributes.
+
+## Default configuration
+
+This rule is enabled as an error by `recommended`.
+
+```js
+'@ssen/solid/jsx-no-script-url': 'error'
+```
+
+## Options
+
+This rule has no options.
+
+## Details
+
 Disallow `javascript:` URLs in JSX attributes. Executable URLs are an XSS risk;
 use a normal URL, an event handler, or another explicit interaction mechanism
 instead.

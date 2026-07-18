@@ -2,6 +2,23 @@
 
 [English](./readme.md)
 
+조건부 JSX에는 Solid의 `<Show>`를 선호합니다.
+
+## 기본 설정
+
+이 rule은 `recommended`에서 비활성화되어 있습니다. 프로젝트가 논리 AND와 삼항 JSX
+표현식보다 `<Show>`를 선호하는 경우 활성화합니다.
+
+```js
+'@ssen/solid/prefer-show': 'warn'
+```
+
+## 옵션
+
+이 rule에는 옵션이 없습니다.
+
+## 상세
+
 JSX의 조건부 렌더링에 논리 AND(`&&`) 또는 삼항 연산자를 사용하는 대신 Solid의 `<Show>`를 사용하도록 안내합니다.
 
 ## Solid에서 조건부 JSX를 읽는 법

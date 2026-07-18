@@ -2,6 +2,30 @@
 
 [English](./readme.md)
 
+Solid 2에서 지원하지 않거나 제거된 JSX namespace attribute를 보고합니다.
+
+## 기본 설정
+
+이 rule은 `recommended`에서 error로 활성화됩니다.
+
+```js
+'@ssen/solid/no-unknown-namespaces': 'error'
+```
+
+## 옵션
+
+`allowedNamespaces`의 기본값은 빈 배열입니다. 기본 제공 `prop:` namespace 외에
+허용할 namespace 이름을 하나 이상 추가할 수 있습니다.
+
+```js
+'@ssen/solid/no-unknown-namespaces': [
+  'error',
+  { allowedNamespaces: ['vendor'] },
+]
+```
+
+## 상세
+
 Solid 2.0에서 지원하지 않거나 제거된 JSX namespace attribute를 검사합니다. 이 규칙은 제거된 Solid 1.x namespace가 의도와 다르게 일반 attribute로 남는 것을 막고, JSX namespace의 오타도 찾습니다.
 
 ## 제거된 Solid namespace

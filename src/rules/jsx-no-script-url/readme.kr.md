@@ -2,6 +2,22 @@
 
 [English](./readme.md)
 
+JSX attribute의 `javascript:` URL을 금지합니다.
+
+## 기본 설정
+
+이 rule은 `recommended`에서 error로 활성화됩니다.
+
+```js
+'@ssen/solid/jsx-no-script-url': 'error'
+```
+
+## 옵션
+
+이 rule에는 옵션이 없습니다.
+
+## 상세
+
 JSX 속성 값에 `javascript:` URL을 사용하지 않도록 검사합니다. 보안상 실행 가능한 URL을 링크나 컴포넌트 prop으로 전달하는 것을 피해야 합니다.
 
 `javascript:`는 브라우저가 URL 이동 대신 문자열을 JavaScript로 실행하게 하는 특수 scheme입니다. 정적 문자열뿐 아니라 template literal, 상수 결합처럼 정적으로 계산되는 표현도 위험할 수 있습니다. Solid-specific 문제가 아니라 DOM에 URL을 전달하는 모든 UI 코드의 보안 문제이므로, Solid 컴포넌트의 `to` 같은 사용자 정의 prop도 검사 대상입니다.

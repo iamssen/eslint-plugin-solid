@@ -2,6 +2,23 @@
 
 [English](./readme.md)
 
+ES6 Proxy가 필요하거나 생성할 수 있는 API 사용을 보고합니다.
+
+## 기본 설정
+
+이 rule은 `recommended`에서 비활성화되어 있습니다. Proxy 제약이 있는 target
+environment에서만 활성화합니다.
+
+```js
+'@ssen/solid/no-proxy-apis': 'error'
+```
+
+## 옵션
+
+이 rule에는 옵션이 없습니다.
+
+## 상세
+
 Proxy가 필요한 Solid API와 일반 `Proxy` API를 사용하지 않도록 검사합니다. Proxy를 지원하지 않는 실행 환경이나 Proxy 기반 반응성을 피해야 하는 라이브러리 코드에서 사용할 수 있습니다.
 
 ## Solid에서 Proxy가 쓰이는 곳

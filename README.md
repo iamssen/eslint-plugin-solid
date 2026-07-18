@@ -2,6 +2,10 @@
 
 [한국어](./README.kr.md)
 
+This package is a hard fork of
+[solidjs-community/eslint-plugin-solid](https://github.com/solidjs-community/eslint-plugin-solid),
+maintained independently for Solid.js 2.
+
 Solid.js-specific ESLint rules for reactivity, JSX, event handlers, and common React-pattern mistakes.
 This package supports Solid.js 2.0 and later only.
 

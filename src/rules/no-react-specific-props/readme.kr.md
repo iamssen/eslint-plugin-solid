@@ -2,6 +2,22 @@
 
 [English](./readme.md)
 
+Solid 또는 DOM 이름을 써야 하는 React JSX prop 이름을 보고합니다.
+
+## 기본 설정
+
+이 rule은 `recommended`에서 warning으로 활성화됩니다.
+
+```js
+'@ssen/solid/no-react-specific-props': 'warn'
+```
+
+## 옵션
+
+이 rule에는 옵션이 없습니다.
+
+## 상세
+
 React에서 사용하는 JSX prop 이름을 Solid/DOM 이름으로 바꾸도록 검사합니다.
 
 ## React JSX와 Solid JSX의 차이

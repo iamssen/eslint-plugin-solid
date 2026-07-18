@@ -2,6 +2,23 @@
 
 [한국어](./readme.kr.md)
 
+Report API uses that require or can create an ES6 Proxy.
+
+## Default configuration
+
+This rule is disabled by `recommended`. Enable it only for Proxy-constrained
+target environments.
+
+```js
+'@ssen/solid/no-proxy-apis': 'error'
+```
+
+## Options
+
+This rule has no options.
+
+## Details
+
 Report API uses that require or can create an ES6 Proxy. Enable this rule only
 for applications that must run in Proxy-constrained environments.
 

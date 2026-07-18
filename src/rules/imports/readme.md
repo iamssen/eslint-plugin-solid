@@ -2,6 +2,22 @@
 
 [한국어](./readme.kr.md)
 
+Enforce Solid 2 public API import boundaries.
+
+## Default configuration
+
+This rule is enabled as a warning by `recommended`.
+
+```js
+'@ssen/solid/imports': 'warn'
+```
+
+## Options
+
+This rule has no options.
+
+## Details
+
 Enforce Solid 2 public API boundaries and safely fix imports whose destination
 is unambiguous.
 

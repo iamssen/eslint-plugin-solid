@@ -2,6 +2,32 @@
 
 [한국어](./readme.kr.md)
 
+Disallow undefined JSX component references.
+
+## Default configuration
+
+This rule is enabled as an error by `recommended`.
+
+```js
+'@ssen/solid/jsx-no-undef': 'error'
+```
+
+## Options
+
+`allowGlobals` defaults to `false` and controls whether global scope counts as
+a definition. `autoImport` defaults to `true` and fixes missing known Solid
+control-flow imports. `typescriptEnabled` defaults to `false` and enables the
+TypeScript-compatible behavior.
+
+```js
+'@ssen/solid/jsx-no-undef': [
+  'error',
+  { allowGlobals: true, autoImport: false, typescriptEnabled: true },
+]
+```
+
+## Details
+
 Disallow undefined JSX component references. The rule can add imports for a
 small configured set of known Solid components when that option is enabled.
 

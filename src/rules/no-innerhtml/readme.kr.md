@@ -2,6 +2,27 @@
 
 [English](./readme.md)
 
+`innerHTML`을 통한 XSS 위험 HTML 주입을 보고합니다.
+
+## 기본 설정
+
+이 rule은 `recommended`에서 error로 활성화됩니다.
+
+```js
+'@ssen/solid/no-innerhtml': 'error'
+```
+
+## 옵션
+
+`allowStatic`의 기본값은 `true`이며, 정적으로 증명 가능한 HTML 문자열 값을 허용합니다.
+`false`로 설정하면 정적 HTML도 보고합니다.
+
+```js
+'@ssen/solid/no-innerhtml': ['error', { allowStatic: false }]
+```
+
+## 상세
+
 신뢰할 수 없는 HTML을 `innerHTML`로 주입할 때 발생할 수 있는 XSS와, React식 `dangerouslySetInnerHTML` 사용을 검사합니다. 정적 HTML도 프로젝트 정책에 따라 금지할 수 있습니다.
 
 Solid에서 `innerHTML`은 React의 `dangerouslySetInnerHTML` 객체를 거치지 않고 DOM의 `innerHTML` property에 직접 연결하는 escape 경로입니다. 이 때문에 HTML 문자열 내부의 markup을 의도한 것인지, 사용자 입력을 텍스트로 표시하려는 것인지 구분해야 합니다. 사용자 입력은 JSX text로 렌더링하면 기본적으로 escape됩니다.

@@ -2,6 +2,22 @@
 
 [한국어](./readme.kr.md)
 
+Disallow early and conditional returns from Solid components.
+
+## Default configuration
+
+This rule is enabled as a warning by `recommended`.
+
+```js
+'@ssen/solid/components-return-once': 'warn'
+```
+
+## Options
+
+This rule has no options.
+
+## Details
+
 Disallow early and conditional returns from Solid components. Components run
 once, so control flow that should react to changing state belongs in JSX, such
 as `<Show>`, `<Switch>`, or a conditional expression inside the returned tree.

@@ -2,6 +2,22 @@
 
 [English](./readme.md)
 
+반응형 Solid props의 구조 분해를 금지합니다.
+
+## 기본 설정
+
+이 rule은 `recommended`에서 error로 활성화됩니다.
+
+```js
+'@ssen/solid/no-destructure': 'error'
+```
+
+## 옵션
+
+이 rule에는 옵션이 없습니다.
+
+## 상세
+
 컴포넌트 props를 함수 매개변수나 변수 선언에서 구조 분해하지 않도록 검사합니다. Solid props는 반응형 getter를 포함할 수 있어, 일반적인 구조 분해는 값을 읽은 시점의 값으로 만들고 이후 변경 추적을 잃을 수 있습니다.
 
 ## React와 다른 점

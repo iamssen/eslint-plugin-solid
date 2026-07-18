@@ -3,6 +3,27 @@
 [한국어](./readme.kr.md)
 
 Enforce standard camel-cased DOM event-handler names on native elements.
+
+## Default configuration
+
+This rule is enabled as a warning by `recommended`.
+
+```js
+'@ssen/solid/event-handlers': 'warn'
+```
+
+## Options
+
+`ignoreCase` defaults to `false`. Set it to `true` to allow ambiguous casing
+such as `onclick` and `onchange`.
+
+```js
+'@ssen/solid/event-handlers': ['warn', { ignoreCase: true }]
+```
+
+## Details
+
+Enforce standard camel-cased DOM event-handler names on native elements.
 Known misspellings and casing errors such as `onclick` and `onDoubleClick` are
 fixed to `onClick` and `onDblClick`.
 

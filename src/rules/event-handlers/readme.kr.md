@@ -2,6 +2,27 @@
 
 [English](./readme.md)
 
+native 요소의 표준 camelCase DOM event handler 이름을 강제합니다.
+
+## 기본 설정
+
+이 rule은 `recommended`에서 warning으로 활성화됩니다.
+
+```js
+'@ssen/solid/event-handlers': 'warn'
+```
+
+## 옵션
+
+`ignoreCase`의 기본값은 `false`입니다. `true`로 설정하면 `onclick`, `onchange`처럼
+해석이 모호한 casing을 허용합니다.
+
+```js
+'@ssen/solid/event-handlers': ['warn', { ignoreCase: true }]
+```
+
+## 상세
+
 Solid 2.0 DOM event handler의 표준 이름과 대소문자를 검사합니다. 이 규칙은 event처럼 보이는 모든 `on*` prop을 event handler로 단정하지 않습니다.
 
 ## 검사 대상

@@ -2,6 +2,31 @@
 
 [English](./readme.md)
 
+signal, memo, props, store의 잘못된 사용을 보고합니다.
+
+## 기본 설정
+
+이 rule은 `recommended`에서 warning으로 활성화됩니다.
+
+```js
+'@ssen/solid/reactivity': 'warn'
+```
+
+## 옵션
+
+`customReactiveFunctions`의 기본값은 빈 배열입니다. 반응형 값을 추적되는 argument로
+받아야 하는 함수 이름을 추가합니다. 이름이 `create` 또는 `use`로 시작하는 함수는
+이미 인식합니다.
+
+```js
+'@ssen/solid/reactivity': [
+  'warn',
+  { customReactiveFunctions: ['observeValue'] },
+]
+```
+
+## 상세
+
 Solid signal, memo, props, store 등의 반응형 값을 추적되지 않는 위치에서 읽거나 잘못된 방식으로 다루는 패턴을 검사합니다. Solid는 반응형 값을 추적 스코프에서 읽을 때 의존성을 등록하므로, 일반 컴포넌트 본문에서 값을 미리 읽어 변수에 고정하면 이후 변경을 놓칠 수 있습니다.
 
 ## Solid의 핵심 실행 모델

@@ -2,6 +2,27 @@
 
 [English](./readme.md)
 
+같은 JSX prop을 두 번 전달하지 않도록 검사합니다.
+
+## 기본 설정
+
+이 rule은 `recommended`에서 error로 활성화됩니다.
+
+```js
+'@ssen/solid/jsx-no-duplicate-props': 'error'
+```
+
+## 옵션
+
+`ignoreCase`의 기본값은 `false`입니다. `true`로 설정하면 대소문자만 다른 prop
+이름도 중복으로 취급합니다.
+
+```js
+'@ssen/solid/jsx-no-duplicate-props': ['error', { ignoreCase: true }]
+```
+
+## 상세
+
 하나의 JSX 요소에 같은 prop을 두 번 전달하지 않도록 검사합니다. 명시적 속성과 정적으로 분석 가능한 spread 속성 사이의 중복도 검사하며, `children`, `class`, `className`, `innerHTML`, `textContent`처럼 함께 사용할 때 충돌하기 쉬운 속성도 별도로 다룹니다.
 
 ## Solid에서 spread 순서가 중요한 이유

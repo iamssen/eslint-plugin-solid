@@ -2,6 +2,23 @@
 
 [한국어](./readme.kr.md)
 
+Prefer Solid's `<Show>` for conditional JSX.
+
+## Default configuration
+
+This rule is disabled by `recommended`. Enable it when the project prefers
+`<Show>` over logical-AND and ternary JSX expressions.
+
+```js
+'@ssen/solid/prefer-show': 'warn'
+```
+
+## Options
+
+This rule has no options.
+
+## Details
+
 Prefer Solid's `<Show>` to logical-AND (`&&`) or ternary conditional rendering
 in JSX.
 

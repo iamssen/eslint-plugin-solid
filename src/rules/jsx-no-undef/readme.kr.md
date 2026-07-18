@@ -2,6 +2,31 @@
 
 [English](./readme.md)
 
+정의되지 않은 JSX 컴포넌트 참조를 금지합니다.
+
+## 기본 설정
+
+이 rule은 `recommended`에서 error로 활성화됩니다.
+
+```js
+'@ssen/solid/jsx-no-undef': 'error'
+```
+
+## 옵션
+
+`allowGlobals`의 기본값은 `false`이며 global scope를 정의로 인정할지 결정합니다.
+`autoImport`의 기본값은 `true`이며 누락된 알려진 Solid control-flow import를 수정합니다.
+`typescriptEnabled`의 기본값은 `false`이며 TypeScript 호환 동작을 켭니다.
+
+```js
+'@ssen/solid/jsx-no-undef': [
+  'error',
+  { allowGlobals: true, autoImport: false, typescriptEnabled: true },
+]
+```
+
+## 상세
+
 JSX에서 참조하는 컴포넌트와 Solid 제어 흐름 컴포넌트가 현재 스코프에 정의되어 있는지 검사합니다.
 
 ## JSX에서 이름이 해석되는 방식
